@@ -37,7 +37,7 @@
 
       <div class="category-picker" id="category-picker"></div>
 
-      <div id="log-form" hidden>
+      <div id="log-form">
         <div class="field-row">
           <div class="field">
             <label>Date</label>
@@ -45,7 +45,7 @@
           </div>
           <div class="field">
             <label>Body weight (kg)</label>
-            <input type="number" step="0.05" id="s-bodyweight" />
+            <input type="number" inputmode="decimal" step="0.05" id="s-bodyweight" />
           </div>
           <div class="field">
             <label>Start time</label>
@@ -60,7 +60,7 @@
         <div id="exercise-list"></div>
         <button class="link-btn" id="add-exercise">+ add exercise</button>
 
-        <div class="save-row">
+        <div class="save-bar">
           <button class="btn" id="save-session">Save workout</button>
           <span class="status" id="session-status"></span>
         </div>
@@ -88,16 +88,16 @@
       </div>
       <div class="ex-sets"></div>
       <button type="button" class="link-btn small add-set">+ set</button>
-      <input type="text" class="ex-comment" placeholder="Comment (optional)" />
+      <input type="text" class="ex-comment" placeholder="Comment (optional)" inputmode="text" />
     </div>
   </template>
 
   <template id="set-input-template">
     <div class="set-input">
       <span class="set-num"></span>
-      <input type="number" class="set-reps" placeholder="reps" />
+      <input type="number" inputmode="numeric" class="set-reps" placeholder="reps" />
       <span class="x">×</span>
-      <input type="number" step="0.5" class="set-weight" placeholder="kg" />
+      <input type="number" inputmode="decimal" step="0.5" class="set-weight" placeholder="kg" />
     </div>
   </template>
 

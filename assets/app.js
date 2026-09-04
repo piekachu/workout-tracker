@@ -102,12 +102,19 @@ GROUPS.forEach((g) => {
 let selectedCategory = null;
 
 function selectCategory(category) {
+  const wasOpen = document.getElementById("log-form").classList.contains("open");
   selectedCategory = category;
   [...picker.children].forEach((b) => b.classList.toggle("active", b.dataset.category === category));
-  document.getElementById("log-form").hidden = false;
+  document.getElementById("log-form").classList.add("open");
 
   document.getElementById("exercise-list").innerHTML = ""; // no prefilled rows -- start empty
   addExerciseRow();
+
+  if (!wasOpen) {
+    setTimeout(() => {
+      document.getElementById("log-form").scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  }
 }
 
 // ============================================================ exercise rows
@@ -182,7 +189,7 @@ function resetLogForm() {
   document.getElementById("s-bodyweight").value = "";
   document.getElementById("s-start").value = "";
   document.getElementById("s-end").value = "";
-  document.getElementById("log-form").hidden = true;
+  document.getElementById("log-form").classList.remove("open");
   [...picker.children].forEach((b) => b.classList.remove("active"));
   selectedCategory = null;
   document.getElementById("session-status").textContent = "";
@@ -191,6 +198,7 @@ function resetLogForm() {
 
 document.getElementById("save-session").addEventListener("click", async () => {
   const statusEl = document.getElementById("session-status");
+  const saveBtn = document.getElementById("save-session");
   const log_date = document.getElementById("s-date").value;
   const bodyweight = document.getElementById("s-bodyweight").value;
   const start_time = document.getElementById("s-start").value || null;
@@ -234,39 +242,49 @@ document.getElementById("save-session").addEventListener("click", async () => {
     return;
   }
 
-  const { data: session, error: sessErr } = await sb
-    .from("workout_sessions")
-    .insert({ log_date, category: selectedCategory, start_time, end_time })
-    .select()
-    .single();
-  if (sessErr) {
-    statusEl.textContent = `Error: ${sessErr.message}`;
-    statusEl.classList.add("error");
-    return;
-  }
-
-  const { error: setsErr } = await sb.from("workout_sets")
-    .insert(setRows.map((r) => ({ ...r, session_id: session.id })));
-  if (setsErr) {
-    statusEl.textContent = `Session saved, but sets failed: ${setsErr.message}`;
-    statusEl.classList.add("error");
-    return;
-  }
-
-  if (bodyweight) {
-    await sb.from("body_weight").upsert(
-      { log_date, weight_kg: parseFloat(bodyweight) },
-      { onConflict: "log_date" }
-    );
-  }
-
+  saveBtn.disabled = true;
+  saveBtn.textContent = "Saving…";
   statusEl.classList.remove("error");
-  statusEl.textContent = "Saved ✓";
-  setTimeout(() => {
-    resetLogForm();
-    loadConsistency();
-    loadRecent();
-  }, 700);
+  statusEl.textContent = "";
+
+  try {
+    const { data: session, error: sessErr } = await sb
+      .from("workout_sessions")
+      .insert({ log_date, category: selectedCategory, start_time, end_time })
+      .select()
+      .single();
+    if (sessErr) {
+      statusEl.textContent = `Error: ${sessErr.message}`;
+      statusEl.classList.add("error");
+      return;
+    }
+
+    const { error: setsErr } = await sb.from("workout_sets")
+      .insert(setRows.map((r) => ({ ...r, session_id: session.id })));
+    if (setsErr) {
+      statusEl.textContent = `Session saved, but sets failed: ${setsErr.message}`;
+      statusEl.classList.add("error");
+      return;
+    }
+
+    if (bodyweight) {
+      await sb.from("body_weight").upsert(
+        { log_date, weight_kg: parseFloat(bodyweight) },
+        { onConflict: "log_date" }
+      );
+    }
+
+    statusEl.classList.remove("error");
+    statusEl.textContent = "Saved ✓";
+    setTimeout(() => {
+      resetLogForm();
+      loadConsistency();
+      loadRecent();
+    }, 700);
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Save workout";
+  }
 });
 
 // ============================================================ recent ------
