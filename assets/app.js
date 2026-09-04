@@ -15,6 +15,58 @@ function escapeHtml(s) {
   }[c]));
 }
 
+// ============================================================ stepper -----
+// Big +/- buttons instead of a keyboard for entering numbers on mobile.
+// Tapping the number itself is still a (deliberate) escape hatch for exact values.
+function attachStepper(stepperEl, { step = 1, min = 0, max = 999, decimals = 0, input } = {}) {
+  const minusBtn = stepperEl.querySelector(".minus");
+  const plusBtn = stepperEl.querySelector(".plus");
+  const inp = input || stepperEl.querySelector(".num-display");
+  const factor = 10 ** decimals;
+  const round = (n) => Math.round(n * factor) / factor;
+  const getVal = () => {
+    const v = parseFloat(inp.value);
+    return Number.isFinite(v) ? v : 0;
+  };
+  const setVal = (v) => {
+    inp.value = String(round(Math.min(max, Math.max(min, v))));
+  };
+
+  function wireRepeat(btn, dir) {
+    let timeout, interval, count;
+    const tick = () => {
+      const mult = count > 20 ? 4 : count > 8 ? 2 : 1;
+      setVal(getVal() + dir * step * mult);
+      count++;
+    };
+    const start = (e) => {
+      e.preventDefault();
+      count = 0;
+      tick();
+      timeout = setTimeout(() => { interval = setInterval(tick, 90); }, 350);
+    };
+    const stop = () => { clearTimeout(timeout); clearInterval(interval); };
+    btn.addEventListener("pointerdown", start);
+    btn.addEventListener("pointerup", stop);
+    btn.addEventListener("pointerleave", stop);
+    btn.addEventListener("pointercancel", stop);
+  }
+  wireRepeat(minusBtn, -1);
+  wireRepeat(plusBtn, 1);
+
+  inp.addEventListener("click", () => {
+    if (inp.readOnly) {
+      inp.readOnly = false;
+      inp.focus();
+      inp.select();
+    }
+  });
+  inp.addEventListener("blur", () => {
+    inp.readOnly = true;
+    if (inp.value !== "") setVal(getVal());
+  });
+}
+
 // ============================================================ consistency
 async function loadConsistency() {
   const { data, error } = await sb.from("workout_sessions").select("log_date");
@@ -101,21 +153,27 @@ GROUPS.forEach((g) => {
 
 let selectedCategory = null;
 
+// Once picked, the category locks in (no accidental switching mid-entry) --
+// a deliberate "Change" tap is the only way back, and it confirms first.
 function selectCategory(category) {
-  const wasOpen = document.getElementById("log-form").classList.contains("open");
   selectedCategory = category;
-  [...picker.children].forEach((b) => b.classList.toggle("active", b.dataset.category === category));
+  picker.hidden = true;
+  document.getElementById("category-locked").hidden = false;
+  document.getElementById("category-locked-name").textContent = category;
   document.getElementById("log-form").classList.add("open");
 
   document.getElementById("exercise-list").innerHTML = ""; // no prefilled rows -- start empty
   addExerciseRow();
 
-  if (!wasOpen) {
-    setTimeout(() => {
-      document.getElementById("log-form").scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 100);
-  }
+  setTimeout(() => {
+    document.getElementById("log-form").scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 100);
 }
+
+document.getElementById("change-category").addEventListener("click", () => {
+  if (!confirm("Change today's category? This clears the exercises you've entered so far.")) return;
+  resetLogForm();
+});
 
 // ============================================================ exercise rows
 const exerciseListEl = document.getElementById("exercise-list");
@@ -125,8 +183,11 @@ const OTHER_VALUE = "__other__";
 
 function addSetInput(setsContainer) {
   const node = setInputTemplate.content.cloneNode(true);
+  const row = node.querySelector(".set-row");
   const num = setsContainer.children.length + 1;
-  node.querySelector(".set-num").textContent = num;
+  row.querySelector(".set-num").textContent = num;
+  attachStepper(row.querySelector('.stepper[data-kind="reps"]'), { step: 1, min: 0, max: 99, decimals: 0 });
+  attachStepper(row.querySelector('.stepper[data-kind="weight"]'), { step: 2.5, min: 0, max: 400, decimals: 1 });
   setsContainer.appendChild(node);
 }
 
@@ -190,11 +251,16 @@ function resetLogForm() {
   document.getElementById("s-start").value = "";
   document.getElementById("s-end").value = "";
   document.getElementById("log-form").classList.remove("open");
-  [...picker.children].forEach((b) => b.classList.remove("active"));
+  document.getElementById("category-locked").hidden = true;
+  picker.hidden = false;
   selectedCategory = null;
   document.getElementById("session-status").textContent = "";
   document.getElementById("session-status").classList.remove("error");
 }
+
+attachStepper(document.getElementById("bodyweight-stepper"), {
+  input: document.getElementById("s-bodyweight"), step: 0.5, min: 0, max: 300, decimals: 1,
+});
 
 document.getElementById("save-session").addEventListener("click", async () => {
   const statusEl = document.getElementById("session-status");
@@ -219,7 +285,7 @@ document.getElementById("save-session").addEventListener("click", async () => {
       : select.value.trim();
     if (!exercise) return;
     const comment = row.querySelector(".ex-comment").value.trim() || null;
-    const sets = [...row.querySelectorAll(".set-input")];
+    const sets = [...row.querySelectorAll(".set-row")];
     let setNum = 0;
     sets.forEach((s) => {
       const repsVal = s.querySelector(".set-reps").value;

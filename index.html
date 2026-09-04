@@ -37,6 +37,11 @@
 
       <div class="category-picker" id="category-picker"></div>
 
+      <div class="category-locked" id="category-locked" hidden>
+        <span class="category-locked-label">Today's category: <strong id="category-locked-name"></strong></span>
+        <button type="button" class="link-btn small" id="change-category">Change</button>
+      </div>
+
       <div id="log-form">
         <div class="field-row">
           <div class="field">
@@ -45,7 +50,11 @@
           </div>
           <div class="field">
             <label>Body weight (kg)</label>
-            <input type="number" inputmode="decimal" step="0.05" id="s-bodyweight" />
+            <div class="stepper" id="bodyweight-stepper">
+              <button type="button" class="step-btn minus" aria-label="Decrease body weight">−</button>
+              <input type="number" class="num-display" id="s-bodyweight" readonly placeholder="0" />
+              <button type="button" class="step-btn plus" aria-label="Increase body weight">+</button>
+            </div>
           </div>
           <div class="field">
             <label>Start time</label>
@@ -93,11 +102,20 @@
   </template>
 
   <template id="set-input-template">
-    <div class="set-input">
+    <div class="set-row">
       <span class="set-num"></span>
-      <input type="number" inputmode="numeric" class="set-reps" placeholder="reps" />
-      <span class="x">×</span>
-      <input type="number" inputmode="decimal" step="0.5" class="set-weight" placeholder="kg" />
+      <div class="stepper" data-kind="reps">
+        <button type="button" class="step-btn minus" aria-label="Decrease reps">−</button>
+        <input type="number" class="set-reps num-display" readonly placeholder="0" />
+        <button type="button" class="step-btn plus" aria-label="Increase reps">+</button>
+        <span class="stepper-unit">reps</span>
+      </div>
+      <div class="stepper" data-kind="weight">
+        <button type="button" class="step-btn minus" aria-label="Decrease weight">−</button>
+        <input type="number" class="set-weight num-display" readonly placeholder="0" />
+        <button type="button" class="step-btn plus" aria-label="Increase weight">+</button>
+        <span class="stepper-unit">kg</span>
+      </div>
     </div>
   </template>
 
