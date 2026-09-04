@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Workout Tracker</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <header>
+    <h1>🏋️ Workout Tracker</h1>
+    <p class="subtitle">Personal workout log &amp; progress, backed by Supabase.</p>
+  </header>
+
+  <nav class="tabs">
+    <button data-tab="log" class="active">Log</button>
+    <button data-tab="history">History</button>
+    <button data-tab="progress">Progress</button>
+  </nav>
+
+  <main>
+    <!-- LOG -->
+    <section id="panel-log" class="panel active">
+      <div class="card">
+        <h2>Log a set</h2>
+        <form id="set-form" class="grid">
+          <div>
+            <label>Date</label>
+            <input type="date" name="log_date" required />
+          </div>
+          <div>
+            <label>Muscle group</label>
+            <input list="muscle-groups" name="muscle_group" placeholder="Back / Chest / Legs..." />
+            <datalist id="muscle-groups"></datalist>
+          </div>
+          <div>
+            <label>Exercise</label>
+            <input list="exercises" name="exercise" required placeholder="Pull-ups" />
+            <datalist id="exercises"></datalist>
+          </div>
+          <div>
+            <label>Set #</label>
+            <input type="number" name="set_number" min="1" value="1" />
+          </div>
+          <div>
+            <label>Reps</label>
+            <input type="number" name="reps" min="0" />
+          </div>
+          <div>
+            <label>Weight (kg)</label>
+            <input type="number" step="0.5" name="weight_kg" />
+          </div>
+          <div>
+            <label>RPE</label>
+            <input type="text" name="rpe" placeholder="8" />
+          </div>
+          <div style="grid-column: 1 / -1;">
+            <label>Notes</label>
+            <textarea name="notes" placeholder="Optional notes"></textarea>
+          </div>
+        </form>
+        <button class="btn" id="save-set">Save set</button>
+        <div class="status" id="set-status"></div>
+      </div>
+
+      <div class="card">
+        <h2>Log body weight</h2>
+        <div class="grid">
+          <div>
+            <label>Date</label>
+            <input type="date" id="bw-date" />
+          </div>
+          <div>
+            <label>Weight (kg)</label>
+            <input type="number" step="0.05" id="bw-weight" />
+          </div>
+        </div>
+        <button class="btn" id="save-bw">Save weight</button>
+        <div class="status" id="bw-status"></div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="panel-history" class="panel">
+      <div class="card">
+        <h2>Filters</h2>
+        <div class="filters">
+          <div>
+            <label>From</label>
+            <input type="date" id="f-from" />
+          </div>
+          <div>
+            <label>To</label>
+            <input type="date" id="f-to" />
+          </div>
+          <div>
+            <label>Muscle group</label>
+            <input list="muscle-groups" id="f-group" />
+          </div>
+          <div>
+            <label>Exercise search</label>
+            <input type="text" id="f-exercise" placeholder="e.g. squat" />
+          </div>
+        </div>
+        <button class="btn secondary small" id="apply-filters">Apply</button>
+        <button class="btn secondary small" id="clear-filters">Clear</button>
+      </div>
+
+      <div class="card">
+        <h2>Workout sets</h2>
+        <div class="table-wrap">
+          <table id="sets-table">
+            <thead>
+              <tr>
+                <th>Date</th><th>Group</th><th>Exercise</th><th>#</th>
+                <th>Reps</th><th>Weight</th><th>RPE</th><th>Notes</th><th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="empty" id="sets-empty" style="display:none;">No sets found.</div>
+        <button class="btn secondary small" id="load-more-sets" style="margin-top:10px;">Load more</button>
+      </div>
+
+      <div class="card">
+        <h2>Body weight</h2>
+        <div class="table-wrap">
+          <table id="bw-table">
+            <thead><tr><th>Date</th><th>Weight (kg)</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section id="panel-progress" class="panel">
+      <div class="card">
+        <h2>Body weight over time</h2>
+        <div class="chart-wrap"><canvas id="bw-chart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2>Exercise progress</h2>
+        <div class="grid" style="margin-bottom: 10px;">
+          <div>
+            <label>Exercise</label>
+            <select id="progress-exercise"></select>
+          </div>
+          <div>
+            <label>Metric</label>
+            <select id="progress-metric">
+              <option value="max_weight">Max weight per session</option>
+              <option value="volume">Total volume (reps × weight)</option>
+              <option value="max_reps">Max reps per session</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="exercise-chart"></canvas></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    Data lives in Supabase; the anon key used here is public by design (RLS enforces access). Source: <a href="https://github.com/" id="repo-link" target="_blank" rel="noopener">GitHub</a>.
+  </footer>
+
+  <script src="assets/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+  <script src="assets/app.js"></script>
+</body>
+</html>

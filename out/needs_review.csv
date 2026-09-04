@@ -1,0 +1,182 @@
+log_date,muscle_group,exercise,set_number,reps,reps_raw,weight_kg,weight_raw,rpe,notes
+2026-01-09,Back,Neutral Grip Pull Ups,2,,4 (forearms almost failed before back),,,,
+2026-01-13,Back,Nutral Grip Pull ups,2,,7 (beginning to fail at 5),,,Maybe 5 is the optimal,
+2026-01-17,Back,Neutral Grip Pull ups,2,,5+1 negative,,,10 Negatives do work,
+2026-01-17,Back,Neutral Grip Pull ups,3,,4+3 negatives,,,10 Negatives do work,
+2026-01-17,Back,Neutral Grip Pull ups,4,,4+3 negatives,,,10 Negatives do work,
+2026-02-01,Back,Lat pull downs,4,,To failure (8),,,,
+2026-02-05,Back,Preacher Curls,2,,9 (failed to go all the way up at 9),,,,Plan: 3/10/30
+2026-02-20,Back,N-grip Pull ups to Failure x2,1,,6.5,,,decrease to 2 sets,
+2026-02-20,Back,N-grip Pull ups to Failure x2,2,,5.5,,,decrease to 2 sets,
+2026-02-24,Back,Lat cable rows 3/10/40 (pause for 3 seconds),1,,,,,,
+2026-02-24,Back,Preacher Curls,1,,,,,,Plan: 3/10/35
+2026-03-05,Back,Reverse Curls,1,,,,,,Plan: 3/12/10
+2026-03-11,Back,Lat cable rows,1,,2/10/40 (pause for 3 seconds),,,,
+2026-03-11,Back,Back/8,1,,,,,,
+2026-03-18,Back,Pull ups,1,,x2,,,,
+2026-03-18,Back,Pull ups,2,,8+5+4,,,,
+2026-03-18,Back,Pull ups,3,,5+3,,,,
+2026-03-18,Back,Barbell rows,1,,2/15/30,,,,
+2026-03-18,Back,Lat pull downs,1,,2/20/33,,,Increase weight to 36,
+2026-03-18,Back,Cable rows,1,,2/15/40,,,,
+2026-03-18,Back,Reverse Curls,1,,2/12/20,,,,
+2026-03-18,Back,Preacher Curls,1,,2/8/45,,,,
+2026-03-18,Back,Preacher Curls,2,,6/45+3/35,,,,
+2026-03-18,Back,Back/8 + Bi/4,1,,,,,,
+2026-03-25,Back,Pull ups,1,,x2,,,,
+2026-03-25,Back,Pull ups,2,,8+2+4,,,,
+2026-03-25,Back,Pull ups,3,,0+6.5+4,,,,
+2026-03-25,Back,NG pull ups,1,,x1,,,,
+2026-03-25,Back,T-bar rows,1,,2/10/25,,,,
+2026-03-25,Back,T-bar rows,3,,9/25+5/15,,,,
+2026-03-25,Back,Lat cable pull downs,1,,2/20/36,,,,
+2026-03-25,Back,Cable rows,1,,2/10/45,,,,
+2026-03-25,Back,Reverse Curls,1,,2/15/15,,,,
+2026-03-25,Back,Barbell Curls,1,,2/10/20,,,,
+2026-04-01,Back,Pull ups,1,,x2,,,,
+2026-04-01,Back,Pull ups,2,,9+4,,,,
+2026-04-01,Back,Pull ups,3,,5+4,,,,
+2026-04-01,Back,NG pull ups,1,,x1,,,,
+2026-04-01,Back,Seated row,1,,2/12/60,,,,
+2026-04-01,Back,Lat cable pull downs,1,,2/12/41,,,,
+2026-04-01,Back,Lat cable pull downs,2,,9/45+7/35,,,,
+2026-04-01,Back,Cable rows,1,,2/12/45,,,,
+2026-04-01,Back,Reverse Curls,1,,2/15/15,,,,
+2026-04-01,Back,Biceps Curl,1,,2/15/35,,,,
+2026-04-01,Back,Preacher curls,1,,1/12/40,,,,
+2026-04-07,Back,Pull ups,1,,x2,,,,
+2026-04-07,Back,Pull ups,3,,6+4,,,,
+2026-04-07,Back,Seated row,1,,2/12/55,,,Retain 50 / focus on proper form,
+2026-04-07,Back,Lat cable pull downs,1,,2/12/41,,,Vary grip width,
+2026-04-07,Back,Cable rows,1,,2/12/45,,,Lower weight,
+2026-04-07,Back,Cable rows,2,,8/45+4/36,,,Lower weight,
+2026-04-07,Back,Lateral Hammer curls,1,,2/8/14,,,Retain 14,
+2026-04-07,Back,Reverse Curls,1,,2/10/15,,,,
+2026-04-07,Back,Preacher curls,1,,2/10/40,,,,
+2026-04-07,Back,Preacher curls,2,,6/45+6/30,,,,
+2026-04-07,Back,Preacher curls,3,,6/40+5/30,,,,
+2026-04-12,Back,Pullups,1,,x2,,,,
+2026-04-12,Back,Seated row,1,,2/12/55,,,,
+2026-04-12,Back,Lat cable pull downs,1,,2/10/45,,,,
+2026-04-12,Back,Seated rows,1,,2/10/45,,,,
+2026-04-12,Back,Seated rows,3,,4/45+4/36,,,,
+2026-04-12,Back,Lateral Hammer curls,1,,2/7/12,,,,
+2026-04-12,Back,Lateral Hammer curls,2,,10+2,,,,
+2026-04-12,Back,Lateral Hammer curls,3,,10+3,,,,
+2026-04-12,Back,Reverse curls,1,,2/15/15,,,,
+2026-04-12,Back,Arm Curls,1,,2/10/25,,,,
+2026-01-14,Chest,Chest Press (drop set),3,,5kg to failure,,,Adding some drop sets to the end of my workout sounds good,
+2026-01-18,Chest,Pec Dec flies,4,,7 (without full ROM),,,Should reduce weight and retain reps,
+2026-02-06,Chest,Pec Dec flies,2,,8 (Beginning to fail at 6),,,,Plan: 3/8/40
+2026-02-10,Chest,Overhead Tricep Rope Pull down,3,,8/32 + 4/27.5,,,,Plan: 2/10/27.5
+2026-02-14,Chest,Pec Dec flies,1,,,,,,Plan: 3/9/30
+2026-02-14,Chest,Dumbell Chest Press 3/10/14ea,1,,,,,,
+2026-02-21,Chest,Smith Machine Incline Bench,1,,Warmup,,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,Plan: 3/9/45
+2026-02-21,Chest,Machine Chest Press,1,,testing other machines,,,,Plan: 3/10/40
+2026-02-25,Chest,Dumbell Chest Press 3/12/10ea,1,,Pass,,,,
+2026-02-25,Chest,Pec Dec flies,1,,,,,,Plan: 3/10/35
+2026-02-25,Chest,Tricep Rope Pull down,2,,7/36 + 5/32,,,,Plan: 2/12/27.5
+2026-03-06,Chest,Overhead Tricep Rope Pull down,2,,5/41+4/36,,,,Plan: 2/12/36
+2026-03-06,Chest,Smith Machine Incline,1,,2/6/50,,,,
+2026-03-06,Chest,Machine Chest Press,1,,2/10/50,,,,
+2026-03-06,Chest,Pec Dec flies,1,,2/10/50,,,,
+2026-03-06,Chest,Dumbell Chest Press,1,,2/12/12,,,,
+2026-03-06,Chest,Lateral Raises,1,,2/f/6,,,,
+2026-03-06,Chest,Military press,1,,2/10/25,,,,
+2026-03-06,Chest,Overhead Tricep Rope Pulldown,1,,2/12/41,,,,
+2026-03-06,Chest,Tricep rope pulldown,1,,2/12/27,,,,
+2026-03-26,Chest,Incline bench,1,,2/8/50,,,,
+2026-03-26,Chest,Incline bench,2,,8.5,,,,
+2026-03-26,Chest,Incline bench,3,,6.5,,,,
+2026-03-26,Chest,Chest press machine,1,,2/12/40,,,,
+2026-03-26,Chest,pec deck flies,1,,2/15/20,,,,
+2026-03-26,Chest,Dumbell chest press,1,,2/15/16,,,,
+2026-03-26,Chest,Lateral Raises,1,,2/f/4,,,,
+2026-03-26,Chest,Shoulder press,1,,2/12/25,,,,
+2026-03-26,Chest,Tricep pull down,1,,2/12/27.5,,,,
+2026-04-08,Chest,Smith machine incline,1,,2/?/55,,,,
+2026-04-08,Chest,Incline Chest press machine,1,,2/12/30,,,,
+2026-04-08,Chest,Pec deck flies,1,,2/f/25,,,Stick to 35,
+2026-04-08,Chest,Pec deck flies,2,,10 w/p/35,,,Stick to 35,
+2026-04-08,Chest,Pec deck flies,3,,9w/p/35,,,Stick to 35,
+2026-04-08,Chest,Shoulder press,1,,2/12/30,,,,
+2026-04-08,Chest,Tricep rope pull down,1,,2/12/27.5,,,,
+2026-04-13,Chest,Incline bench,1,,2/8/55,,,,
+2026-04-13,Chest,Incline bench,2,,2/55 + 7/40,,,,
+2026-04-13,Chest,Incline Chest press machine,1,,2/8/30,,,,
+2026-04-13,Chest,Shoulder press,1,,2/8/30,,,,
+2026-04-13,Chest,Tricep pull downs,1,,2/12/27.5,,,,
+2026-04-13,Chest,Tricep pull downs,4,,10/32+5/22,,,,
+2026-04-13,Chest,Pec deck flies,1,,2/12/35,,,,
+2026-01-11,Legs,Seated Leg Press Machine,1,,8 (Drained by the warm ups),,42.5 (Should In crease the weight to 50? next time),9,
+2026-01-11,Legs,Seated Leg Press Machine,3,,12 (I should go all the way down to stimulate my glutes),,42.5 (Should In crease the weight to 50? next time),9,
+2026-01-15,Legs,Seated Leg Curls,1,,,,3/10/57.5,Delete & Substitute w/ Leg press drop set?,
+2026-02-07,Legs,Hammer Curls,1,,X,,,,Plan: 4/9ea/12
+2026-02-07,Legs,Tricep rope pull down,1,,X,,,,Plan: 3/12/27.5
+2026-02-07,Legs,Overhead tricep pull down,1,,X,,,,Plan: 4/8/27.5
+2026-02-11,Legs,Hip Abductions,4,,12 failing at 7-8 (continued with partial reps),,,3 sets with increased intensity,Plan: 4/12/72.5
+2026-03-03,Legs,Perfect Squats,3,,7.5,,,4 sets not easy,Plan: 4/8/20
+2026-03-13,Legs,Smith Machine Incline,1,,2/6/50,,,8/50,
+2026-03-13,Legs,Smith Machine Incline,3,,7.5,,,8/50,
+2026-03-13,Legs,Machine Chest Press,1,,2/10/50,,,Increase to 50,
+2026-03-13,Legs,Pec Dec flies,1,,2/10/50,,,,
+2026-03-13,Legs,Dumbell Chest Press,1,,2/12/12,,,,
+2026-03-13,Legs,Lateral Raises,1,,2/f/6,,,,
+2026-03-13,Legs,Lateral Raises,3,,10/6+6/4,,,,
+2026-03-13,Legs,Military press,1,,2/10/25,,,,
+2026-03-20,Legs,Incline smith machine chest press,1,,2/7/50,,,,
+2026-03-20,Legs,Chest press machine,1,,2/10/40,,,,
+2026-03-20,Legs,Pec dec flies,1,,2/10/50,,,,
+2026-03-20,Legs,Dumbell chest press,1,,2/10/14,,,,
+2026-03-20,Legs,Lateral Raises,1,,2/f/6,,,,
+2026-03-20,Legs,Military press,1,,2/10/25,,,,
+2026-03-20,Legs,Chest/6,1,,,,,,
+2026-03-08,Back + Chest,Pull ups x2,1,,7+3,,,,
+2026-03-08,Back + Chest,Pull ups x2,2,,6+5,,,,
+2026-03-08,Back + Chest,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,1,,Warmup,,,,
+2026-03-08,Back + Chest,Machine Chest Press,3,,4.5/30 (incline),,,,Plan: 3/10/50
+2026-03-08,Back + Chest,Back/6 + Chest/9,1,,,,,,
+2026-03-15,Back + Chest,Pull ups,1,,x2,,,Try to reach 7 reps,
+2026-03-15,Back + Chest,Pull ups,2,,6+,,,Try to reach 7 reps,
+2026-03-15,Back + Chest,Pull ups,3,,6+,,,Try to reach 7 reps,
+2026-03-15,Back + Chest,Smith Machine Incline Warmup,1,,2/6/50,,,Start with 40 or 45,
+2026-03-15,Back + Chest,T-bar rows,1,,2/9/25,,,Full ROM with 20,
+2026-03-15,Back + Chest,T-bar rows,2,,Warm up,,,Full ROM with 20,
+2026-03-15,Back + Chest,Machine Chest Press,1,,2/10/50,,,,
+2026-03-15,Back + Chest,Lat cable pull downs (Full ROM),1,,2/12/33,,,Full ROM with 32,
+2026-03-15,Back + Chest,Dumbell Chest Press,1,,2/12/12,,,,
+2026-03-22,Back + Chest,Back/4 + Chest/4,1,,,,,,
+2026-03-29,Back + Chest,Pull ups,1,,x2,,,,
+2026-03-29,Back + Chest,Incline chest press,1,,2/8/50,,,,
+2026-03-29,Back + Chest,Seated Cable rows,1,,2/10/45.5,,,,
+2026-03-08,Arms + Shoulders,Overhead Tricep Rope Pulldown,2,,8/41 + 4/32,,Go with 41,,Plan: 2/12/32
+2026-03-08,Arms + Shoulders,Tricep rope pulldown,1,,5/32 + 4/27.5,,Go with 27.5,,Plan: 2/12/27
+2026-03-08,Arms + Shoulders,S/6 + Bi/6 + Tri/4,1,,,,,,
+2026-03-23,Arms + Shoulders,Overhead Tricep Rope Pulldown,1,,12/41+4/36,,,,Plan: 2/12/41
+2026-03-23,Arms + Shoulders,Overhead Tricep Rope Pulldown,2,,7/41+4/32,,,,Plan: 2/12/41
+2026-03-30,Arms + Shoulders,Military Press,1,,12/25/behind-neck,,,,Plan: 2/12/25
+2026-03-30,Arms + Shoulders,Military Press,2,,12/25/behind-neck,,,,Plan: 2/12/25
+2026-03-30,Arms + Shoulders,Lateral Hammer Curls,1,,,,,,Plan: 2/8/14
+2026-04-06,Arms + Shoulders,Pull ups,1,,,,,,Plan: x2
+2026-04-06,Arms + Shoulders,Seated row,1,,,,,,Plan: 2/12/55
+2026-04-06,Arms + Shoulders,Lat cable pull downs,1,,,,,,Plan: 2/12/41
+2026-04-06,Arms + Shoulders,Cable rows,1,,,,,,Plan: 2/12/45
+2026-04-06,Arms + Shoulders,Lateral Hammer curls,1,,,,,,Plan: 2/8/14
+2026-04-06,Arms + Shoulders,Reverse Curls,1,,,,,,Plan: 2/10/20
+2026-04-06,Arms + Shoulders,Preacher curls,1,,,,,,Plan: 2/10/40
+2026-04-07,,Seated row,3,,Retain 50 / focus on proper form,,,,
+2026-04-07,,Cable rows,1,,8/45+4/36,,,,Plan: 2/12/45 | Lower weight
+2026-04-07,,Preacher curls,1,,6/45+6/30,,,,Plan: 2/10/40
+2026-04-07,,Preacher curls,2,,6/40+5/30,,,,
+2026-06-24,,Cable rows,2,,7.5,,,,
+2026-06-24,,Reverse curls,1,,,,,,
+2026-06-29,,T-bar rows,2,,12.5,,,,
+2026-06-29,,Lat rope PDs,2,,10.5,,,,
+2026-06-29,,Preacher Curls,2,,5+4/30,,,,
+2026-04-08,,Pec deck flies,1,,10 w/p/35,,,,Plan: 2/f/25 | Stick to 35
+2026-04-08,,Pec deck flies,2,,9w/p/35,,,,
+2026-04-08,,Tricep rope pull down,1,,,,,,Plan: 2/12/27.5
+2026-06-25,,Smith machine BP,3,,6/45+6/40,,,,
+2026-06-30,,T-bar rows,2,,12.5,,,,
+2026-06-30,,Lat rope PDs,2,,10.5,,,,
+2026-06-30,,Preacher Curls,2,,5+4/30,,,,
