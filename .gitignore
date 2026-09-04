@@ -2,3 +2,4 @@
 .supabase_keys.json
 _site/
 .DS_Store
+__pycache__/

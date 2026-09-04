@@ -1,1022 +1,1036 @@
-log_date,muscle_group,exercise,set_number,reps,reps_raw,weight_kg,weight_raw,rpe,notes
-2026-01-09,Back,Pull-ups,1,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
-2026-01-09,Back,Pull-ups,2,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
-2026-01-09,Back,Pull-ups,3,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
-2026-01-09,Back,Pull-ups,4,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
-2026-01-09,Back,Neutral Grip Pull Ups,1,5,5,,,,
-2026-01-09,Back,Neutral Grip Pull Ups,2,,4 (forearms almost failed before back),,,,
-2026-01-09,Back,Lat Pull downs,1,10,10,36.0,36,8 (also interrupted by FA),
-2026-01-09,Back,Lat Pull downs,2,11,11,36.0,36,8 (also interrupted by FA),
-2026-01-09,Back,T-bar rows,1,12,12,15.0,15,7 increase weight or do 12 reps,
-2026-01-09,Back,T-bar rows,2,10,10,15.0,15,7 increase weight or do 12 reps,
-2026-01-09,Back,T-bar rows,3,10,10,15.0,15,7 increase weight or do 12 reps,
-2026-01-09,Back,T-bar rows,4,15,15,15.0,15,7 increase weight or do 12 reps,
-2026-01-09,Back,Seated Cable Rows,1,10,10 / 35kg,35.0,12 ea,,
-2026-01-09,Back,Seated Cable Rows,2,,12 each (20kg),12.0,12 ea,,
-2026-01-09,Back,Seated Cable Rows,3,40,40kg,12.0,12 ea,,
-2026-01-09,Back,Seated Cable Rows,4,12,12 ea / 20kg,20.0,12 ea,,
-2026-01-09,Back,Hammer Curls,1,6,6 ea / 12kg,12.0,,,
-2026-01-09,Back,Hammer Curls,2,6,6ea / 12kg,12.0,,,
-2026-01-09,Back,Hammer Curls,3,10,10ea / 10kg,10.0,,,
-2026-01-09,Back,Hammer Curls,4,10,10ea / 10kg,10.0,,,
-2026-01-09,Back,Preacher Curls,1,10,10,25.0,25,(Make sure elbows touch the supporting pad),
-2026-01-09,Back,Preacher Curls,2,9,9,25.0,25,(Make sure elbows touch the supporting pad),
-2026-01-09,Back,Preacher Curls,3,7,7,25.0,25,(Make sure elbows touch the supporting pad),
-2026-01-13,Back,Pull-ups,1,6,6,0.0,0,6 could be the sweet spot? + focus more on negatives,
-2026-01-13,Back,Pull-ups,2,7,7,0.0,0,6 could be the sweet spot? + focus more on negatives,
-2026-01-13,Back,Pull-ups,3,,5 (did more partial reps to reach 9),0.0,0,6 could be the sweet spot? + focus more on negatives,
-2026-01-13,Back,Pull-ups,4,,5 (did more partial reps to reach failure),0.0,0,6 could be the sweet spot? + focus more on negatives,
-2026-01-13,Back,Nutral Grip Pull ups,1,7,7,,,Maybe 5 is the optimal,
-2026-01-13,Back,Nutral Grip Pull ups,2,,7 (beginning to fail at 5),,,Maybe 5 is the optimal,
-2026-01-13,Back,Nutral Grip Pull ups,3,5,5,,,Maybe 5 is the optimal,
-2026-01-13,Back,Nutral Grip Pull ups,4,5,5,,,Maybe 5 is the optimal,
-2026-01-13,Back,T-bar rows,1,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
-2026-01-13,Back,T-bar rows,2,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
-2026-01-13,Back,T-bar rows,3,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
-2026-01-13,Back,T-bar rows,4,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
-2026-01-13,Back,Seated cable rows,1,12,12ea/20kgs,20.0,20,Warming up with independent set and moving on to both feels good.,
-2026-01-13,Back,Seated cable rows,2,12,12ea,20.0,20,Warming up with independent set and moving on to both feels good.,
-2026-01-13,Back,Seated cable rows,3,10,10/35kgs,35.0,20,Warming up with independent set and moving on to both feels good.,
-2026-01-13,Back,Seated cable rows,4,,10+to failure,20.0,20,Warming up with independent set and moving on to both feels good.,
-2026-01-13,Back,Hammer Curls,1,10,10ea,10.0,10,Should Increase reps,
-2026-01-13,Back,Hammer Curls,2,10,10ea,10.0,10,Should Increase reps,
-2026-01-13,Back,Hammer Curls,3,10,10ea,10.0,10,Should Increase reps,
-2026-01-13,Back,Hammer Curls,4,,10ea (out of spite addition; previous 2 sets were interrupted),10.0,10,Should Increase reps,
-2026-01-13,Back,Preacher Curls,1,10,10,25.0,25,,
-2026-01-13,Back,Preacher Curls,2,,6+partial reps of 2,25.0,25,,
-2026-01-13,Back,Preacher Curls,3,6,6,25.0,25,,
-2026-01-17,Back,Pull ups,1,6,6,0.0,0,9 (negatives seem to be effective),
-2026-01-17,Back,Pull ups,2,6,6,0.0,0,9 (negatives seem to be effective),
-2026-01-17,Back,Pull ups,3,,5+3 negatives,0.0,0,9 (negatives seem to be effective),
-2026-01-17,Back,Pull ups,4,,4+3negatives,0.0,0,9 (negatives seem to be effective),
-2026-01-17,Back,Neutral Grip Pull ups,1,5,5,,,10 Negatives do work,
-2026-01-17,Back,Neutral Grip Pull ups,2,,5+1 negative,,,10 Negatives do work,
-2026-01-17,Back,Neutral Grip Pull ups,3,,4+3 negatives,,,10 Negatives do work,
-2026-01-17,Back,Neutral Grip Pull ups,4,,4+3 negatives,,,10 Negatives do work,
-2026-01-17,Back,T-bar rows 4/6/30kgs,1,8,8,30.0,30,(Pratice proper form with 25kgs next time),
-2026-01-17,Back,T-bar rows 4/6/30kgs,2,7,7,30.0,30,(Pratice proper form with 25kgs next time),
-2026-01-17,Back,T-bar rows 4/6/30kgs,3,7,7,30.0,30,(Pratice proper form with 25kgs next time),
-2026-01-17,Back,T-bar rows 4/6/30kgs,4,7,7,30.0,30,(Pratice proper form with 25kgs next time),
-2026-01-17,Back,Seated Cable rows,1,10,10,40.0,40,(Decrease weight to 35?),
-2026-01-17,Back,Seated Cable rows,2,10,10,40.0,40,(Decrease weight to 35?),
-2026-01-17,Back,Seated Cable rows,3,,10 (beginning to fail around 6 or 7),40.0,40,(Decrease weight to 35?),
-2026-01-17,Back,Seated Cable rows,4,10,10,40.0,40,(Decrease weight to 35?),
-2026-01-21,Back,Pull Ups 4/6/0 (with Negatives),1,6,6,0.0,0,Weak forearms Almost unable to go up after 4 sets,
-2026-01-21,Back,Pull Ups 4/6/0 (with Negatives),2,7,7,0.0,0,Weak forearms Almost unable to go up after 4 sets,
-2026-01-21,Back,Pull Ups 4/6/0 (with Negatives),3,,5+3 negatives,0.0,0,Weak forearms Almost unable to go up after 4 sets,
-2026-01-21,Back,Pull Ups 4/6/0 (with Negatives),4,,3+4 negatives,0.0,0,Weak forearms Almost unable to go up after 4 sets,
-2026-01-21,Back,T-bar rows,1,8,8,25.0,25,Should decrease weight to 20 and focus on proper form,Plan: 4/10/25
-2026-01-21,Back,T-bar rows,2,8,8,25.0,25,Should decrease weight to 20 and focus on proper form,Plan: 4/10/25
-2026-01-21,Back,T-bar rows,3,10,10/20kgs,20.0,25,Should decrease weight to 20 and focus on proper form,Plan: 4/10/25
-2026-01-21,Back,T-bar rows,4,11,11/20kgs,20.0,25,Should decrease weight to 20 and focus on proper form,Plan: 4/10/25
-2026-01-21,Back,Lat pull downs 4/12/,1,,test/30kgs ea,30.0,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
-2026-01-21,Back,Lat pull downs 4/12/,2,10,10/35kgs ea,35.0,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
-2026-01-21,Back,Lat pull downs 4/12/,3,10,10,,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
-2026-01-21,Back,Lat pull downs 4/12/,4,8,8,,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
-2026-01-21,Back,Seated Cable rows,1,8,8,40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),Plan: 4/10/40
-2026-01-21,Back,Seated Cable rows,2,8,8,40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),Plan: 4/10/40
-2026-01-21,Back,Seated Cable rows,3,,8 (beginning to fail at 6),40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),Plan: 4/10/40
-2026-01-21,Back,Seated Cable rows,4,8,8,40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),Plan: 4/10/40
-2026-01-21,Back,Pull down machine,1,8,8/42.5,42.5,,,
-2026-02-01,Back,Pull Ups (with Negatives),1,6,6,0.0,0,Increase reps to 7,
-2026-02-01,Back,Pull Ups (with Negatives),2,6,6,0.0,0,Increase reps to 7,
-2026-02-01,Back,Pull Ups (with Negatives),3,,4+2,0.0,0,Increase reps to 7,
-2026-02-01,Back,Pull Ups (with Negatives),4,,3+3,0.0,0,Increase reps to 7,
-2026-02-01,Back,T-bar rows,1,10,10,20.0,20,Feels good! Ficus on proper form,
-2026-02-01,Back,T-bar rows,2,10,10,20.0,20,Feels good! Ficus on proper form,
-2026-02-01,Back,T-bar rows,3,10,10,20.0,20,Feels good! Ficus on proper form,
-2026-02-01,Back,T-bar rows,4,,To failure (10),20.0,20,Feels good! Ficus on proper form,
-2026-02-01,Back,Lat pull downs,1,9,9/35kgs ea,35.0,,,
-2026-02-01,Back,Lat pull downs,2,10,10/30,30.0,,,
-2026-02-01,Back,Lat pull downs,3,10,10/30,30.0,,,
-2026-02-01,Back,Lat pull downs,4,,To failure (8),,,,
-2026-02-01,Back,Seated Cable rows,1,4,4/40,40.0,30,vary weight IAW fatigue,Plan: 4/10/40
-2026-02-01,Back,Seated Cable rows,2,10,10/30,30.0,30,vary weight IAW fatigue,Plan: 4/10/40
-2026-02-01,Back,Seated Cable rows,3,10,10/30,30.0,30,vary weight IAW fatigue,Plan: 4/10/40
-2026-02-01,Back,Seated Cable rows,4,,To failure (10),30.0,30,vary weight IAW fatigue,Plan: 4/10/40
-2026-02-05,Back,Pull Ups,1,7,7,0.0,0,Extremely difficult after second set => longer rests,Plan: 4/7/0
-2026-02-05,Back,Pull Ups,2,7,7,0.0,0,Extremely difficult after second set => longer rests,Plan: 4/7/0
-2026-02-05,Back,Pull Ups,3,,3 + 3 negatives,0.0,0,Extremely difficult after second set => longer rests,Plan: 4/7/0
-2026-02-05,Back,Pull Ups,4,,2+4 negatives,0.0,0,Extremely difficult after second set => longer rests,Plan: 4/7/0
-2026-02-05,Back,T-bar rows,1,10,10,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),Plan: 4/10/20
-2026-02-05,Back,T-bar rows,2,10,10,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),Plan: 4/10/20
-2026-02-05,Back,T-bar rows,3,10,10,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),Plan: 4/10/20
-2026-02-05,Back,T-bar rows,4,11,11,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),Plan: 4/10/20
-2026-02-05,Back,Lat pull downs 4/12/25ea,1,14,14,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),
-2026-02-05,Back,Lat pull downs 4/12/25ea,2,14,14,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),
-2026-02-05,Back,Lat pull downs 4/12/25ea,3,12,12,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),
-2026-02-05,Back,Lat pull downs 4/12/25ea,4,12,12,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),
-2026-02-05,Back,Seated Cable rows,1,9,9/35,35.0,,Use grips (Increase reps and go with 3 sets?),Plan: 4/12/30
-2026-02-05,Back,Seated Cable rows,2,10,10/30,30.0,,Use grips (Increase reps and go with 3 sets?),Plan: 4/12/30
-2026-02-05,Back,Seated Cable rows,3,10,10/30,30.0,,Use grips (Increase reps and go with 3 sets?),Plan: 4/12/30
-2026-02-05,Back,Seated Cable rows,4,12,12/30,30.0,,Use grips (Increase reps and go with 3 sets?),Plan: 4/12/30
-2026-02-05,Back,Preacher Curls,1,10,10,,,,Plan: 3/10/30
-2026-02-05,Back,Preacher Curls,2,,9 (failed to go all the way up at 9),,,,Plan: 3/10/30
-2026-02-05,Back,Preacher Curls,3,6,6,,,,Plan: 3/10/30
-2026-02-09,Back,Pull ups,1,7,7,0.0,0,,Plan: 3/7/0
-2026-02-09,Back,Pull ups,2,7,7,0.0,0,,Plan: 3/7/0
-2026-02-09,Back,Pull ups,3,,3+4 negatives,0.0,0,,Plan: 3/7/0
-2026-02-09,Back,N-grip Pull ups,1,5,5,0.0,0,The addition of NGPs feels good. Maybe 3/6 + 3/5?,Plan: 3/5/0
-2026-02-09,Back,N-grip Pull ups,2,5,5,0.0,0,The addition of NGPs feels good. Maybe 3/6 + 3/5?,Plan: 3/5/0
-2026-02-09,Back,N-grip Pull ups,3,5,5,0.0,0,The addition of NGPs feels good. Maybe 3/6 + 3/5?,Plan: 3/5/0
-2026-02-09,Back,T-bar rows,1,10,10,20.0,20,,Plan: 4/10/20
-2026-02-09,Back,T-bar rows,2,10,10,20.0,20,,Plan: 4/10/20
-2026-02-09,Back,T-bar rows,3,10,10,20.0,20,,Plan: 4/10/20
-2026-02-09,Back,T-bar rows,4,10,10,20.0,20,,Plan: 4/10/20
-2026-02-09,Back,Lat pull downs 3/12/25 ea,1,15,15/25ea,25.0,,,
-2026-02-09,Back,Lat pull downs 3/12/25 ea,2,13,13/30ea,30.0,,,
-2026-02-09,Back,Lat pull downs 3/12/25 ea,3,8,8/30ea,30.0,,,
-2026-02-09,Back,Lat pull downs 3/12/25 ea,4,,9-to failure/25ea,25.0,,,
-2026-02-09,Back,Seated row machine,1,12,12,20.0,20,,Plan: 3/12/20
-2026-02-09,Back,Seated row machine,2,12,12,20.0,20,,Plan: 3/12/20
-2026-02-09,Back,Seated row machine,3,12,12,20.0,20,,Plan: 3/12/20
-2026-02-09,Back,Hammer Curls,1,6,6ea/12,12.0,,,
-2026-02-09,Back,Hammer Curls,2,12,12ea/10,10.0,,,
-2026-02-09,Back,Hammer Curls,3,7,7ea/10,10.0,,,
-2026-02-09,Back,Barbell Curls,1,8,8/20,20.0,,,
-2026-02-09,Back,Barbell Curls,2,6,6/20,20.0,,,
-2026-02-13,Back,Pull ups,1,7,7,0.0,0,Uncertain of the effect of morning workout,Plan: 3/7/0
-2026-02-13,Back,Pull ups,2,7,7,0.0,0,Uncertain of the effect of morning workout,Plan: 3/7/0
-2026-02-13,Back,Pull ups,3,4,4,0.0,0,Uncertain of the effect of morning workout,Plan: 3/7/0
-2026-02-13,Back,N-grip Pull ups,1,6,6,0.0,0,,Plan: 3/6/0
-2026-02-13,Back,N-grip Pull ups,2,6,6,0.0,0,,Plan: 3/6/0
-2026-02-13,Back,N-grip Pull ups,3,5,5,0.0,0,,Plan: 3/6/0
-2026-02-13,Back,Chest Supported Seated Row machine,1,14,14,20.0,20,,Plan: 3/12/20
-2026-02-13,Back,Chest Supported Seated Row machine,2,14,14,20.0,20,,Plan: 3/12/20
-2026-02-13,Back,Chest Supported Seated Row machine,3,12,12,20.0,20,,Plan: 3/12/20
-2026-02-13,Back,Lat pull downs 3/12/25 ea,1,12,12,25.0,25ea,,
-2026-02-13,Back,Lat pull downs 3/12/25 ea,2,14,14,25.0,25ea,,
-2026-02-13,Back,Lat pull downs 3/12/25 ea,3,14,14,25.0,25ea,,
-2026-02-13,Back,Seated cable rows,1,11,11,,,,Plan: 3/10/40
-2026-02-13,Back,Hammer Curls,1,12,12/10,10.0,,,Plan: 4/10/10
-2026-02-13,Back,Hammer Curls,2,10,10/13,13.0,,,Plan: 4/10/10
-2026-02-13,Back,Hammer Curls,3,15,15/11,11.0,,,Plan: 4/10/10
-2026-02-13,Back,Hammer Curls,4,10,10/11,11.0,,,Plan: 4/10/10
-2026-02-13,Back,Barbell Curls,1,9,9/20,20.0,,,Plan: 4/8/20
-2026-02-13,Back,Barbell Curls,2,9,9/20,20.0,,,Plan: 4/8/20
-2026-02-13,Back,Barbell Curls,3,9,9/20,20.0,,,Plan: 4/8/20
-2026-02-13,Back,Barbell Curls,4,9,9/20,20.0,,,Plan: 4/8/20
-2026-02-20,Back,Pull ups To failure x3,1,,7.5,0.0,0,decrease to 2 sets,
-2026-02-20,Back,Pull ups To failure x3,2,,6+2,0.0,0,decrease to 2 sets,
-2026-02-20,Back,Pull ups To failure x3,3,,2 unable to go up,0.0,0,decrease to 2 sets,
-2026-02-20,Back,Pull ups To failure x3,4,10,10,0.0,0,decrease to 2 sets,
-2026-02-20,Back,N-grip Pull ups to Failure x2,1,,6.5,,,decrease to 2 sets,
-2026-02-20,Back,N-grip Pull ups to Failure x2,2,,5.5,,,decrease to 2 sets,
-2026-02-20,Back,T-bar rows,1,12,12,20.0,20,nauscious and lower back pain Completly drained out,Plan: 3/10/20
-2026-02-20,Back,T-bar rows,2,12,12,20.0,20,nauscious and lower back pain Completly drained out,Plan: 3/10/20
-2026-02-20,Back,T-bar rows,3,12,12,20.0,20,nauscious and lower back pain Completly drained out,Plan: 3/10/20
-2026-02-20,Back,Lat rope pull downs,1,14,14/35,35.0,,Stick to 12/40,Plan: 3/12/40
-2026-02-20,Back,Lat rope pull downs,2,12,12/40,40.0,,Stick to 12/40,Plan: 3/12/40
-2026-02-20,Back,Lat rope pull downs,3,8,8/45,45.0,,Stick to 12/40,Plan: 3/12/40
-2026-02-20,Back,Seated cable row,1,8,8/36,36.0,,,Plan: 3/12/40
-2026-02-20,Back,Seated cable row,2,8,8/36,36.0,,,Plan: 3/12/40
-2026-02-20,Back,Rope pull down (back),1,10,10/32,32.0,,,
-2026-02-20,Back,Rope pull down (back),2,,8.5/32,32.0,,,
-2026-02-20,Back,Hammer Curls,1,12,12/10,10.0,,Maybe go with 2 sets,Plan: 3/10/10
-2026-02-20,Back,Hammer Curls,2,11,11/10,10.0,,Maybe go with 2 sets,Plan: 3/10/10
-2026-02-20,Back,Hammer Curls,3,6,6/10,10.0,,Maybe go with 2 sets,Plan: 3/10/10
-2026-02-20,Back,Preacher Curls,1,12,12/30,30.0,,,Plan: 3/10/30
-2026-02-20,Back,Preacher Curls,2,12,12/30,30.0,,,Plan: 3/10/30
-2026-02-24,Back,Pull ups to Failure x2,1,,7.5,0.0,0,,
-2026-02-24,Back,Pull ups to Failure x2,2,,5 + partial reps,0.0,0,,
-2026-02-24,Back,N-grip Pull ups to Failure x2,1,,5+partial reps,0.0,0,Inclusion of partial reps feels effective,
-2026-02-24,Back,N-grip Pull ups to Failure x2,2,,3+partial reps,0.0,0,Inclusion of partial reps feels effective,
-2026-02-24,Back,T-bar rows,1,12,12,20.0,20,Increased reps to 12. Maintain,Plan: 3/12/20
-2026-02-24,Back,T-bar rows,2,12,12,20.0,20,Increased reps to 12. Maintain,Plan: 3/12/20
-2026-02-24,Back,T-bar rows,3,12,12,20.0,20,Increased reps to 12. Maintain,Plan: 3/12/20
-2026-02-24,Back,Lat cable pull downs,1,12,12/41,41.0,,Forearms completely failing,Plan: 3/12/40
-2026-02-24,Back,Lat cable pull downs,2,12,12/41,41.0,,Forearms completely failing,Plan: 3/12/40
-2026-02-24,Back,Lat cable pull downs,3,12,12/32,32.0,,Forearms completely failing,Plan: 3/12/40
-2026-02-24,Back,Lat cable rows 3/10/40 (pause for 3 seconds),1,,,,,,
-2026-02-24,Back,Hammer Curls,1,14,14/10,10.0,,,Plan: 3/12/10
-2026-02-24,Back,Preacher Curls,1,,,,,,Plan: 3/10/35
-2026-03-05,Back,Pull ups to Failure x3,1,,7+2 negatives,0.0,0,,
-2026-03-05,Back,Pull ups to Failure x3,2,,3 + 4 negatives,0.0,0,,
-2026-03-05,Back,Pull ups to Failure x3,3,,1+5 Negatives,0.0,0,,
-2026-03-05,Back,N-grip Pull ups to Failure x2,1,,4+3,0.0,0,,
-2026-03-05,Back,N-grip Pull ups to Failure x2,2,,4+1,0.0,0,,
-2026-03-05,Back,T-bar rows,1,15,15/20,20.0,,,Plan: 4/9/30
-2026-03-05,Back,T-bar rows,2,9,9/25,25.0,,,Plan: 4/9/30
-2026-03-05,Back,T-bar rows,3,10,10/25,25.0,,,Plan: 4/9/30
-2026-03-05,Back,Lat cable pull downs,1,10,10/41,41.0,,Increase to 45,Plan: 4/12/40
-2026-03-05,Back,Lat cable pull downs,2,10,10/45,45.0,,Increase to 45,Plan: 4/12/40
-2026-03-05,Back,Lat cable pull downs,3,,6.5/45,45.0,,Increase to 45,Plan: 4/12/40
-2026-03-05,Back,Lat cable rows 3/10/40 (pause for 3 seconds),1,12,12/32,32.0,,Forearms are failing,
-2026-03-05,Back,Lat cable rows 3/10/40 (pause for 3 seconds),2,12,12/32,32.0,,Forearms are failing,
-2026-03-05,Back,Lat cable rows 3/10/40 (pause for 3 seconds),3,12,12/32,32.0,,Forearms are failing,
-2026-03-05,Back,Reverse Curls,1,,,,,,Plan: 3/12/10
-2026-03-05,Back,Preacher Curls,1,12,12/35,35.0,,,Plan: 3/10/35
-2026-03-05,Back,Preacher Curls,2,7,7/40,40.0,,,Plan: 3/10/35
-2026-03-05,Back,Preacher Curls,3,7,7/35,35.0,,,Plan: 3/10/35
-2026-03-11,Back,Pull ups to Failure,1,2,2,0.0,0,,
-2026-03-11,Back,Pull ups to Failure,2,,6+4,0.0,0,,
-2026-03-11,Back,Pull ups to Failure,3,,6+4,0.0,0,,
-2026-03-11,Back,T-bar rows,1,,2/9/30,25.0,25,Retain 25,
-2026-03-11,Back,T-bar rows,2,10,10,25.0,25,Retain 25,
-2026-03-11,Back,T-bar rows,3,8,8,25.0,25,Retain 25,
-2026-03-11,Back,Lat cable pull downs,1,,2/12/40,45.5,45.5,Maybe lower weight and achieve full ROM?,
-2026-03-11,Back,Lat cable pull downs,2,,12.5/45.5,45.5,45.5,Maybe lower weight and achieve full ROM?,
-2026-03-11,Back,Lat cable pull downs,3,12,12/45.5,45.5,45.5,Maybe lower weight and achieve full ROM?,
-2026-03-11,Back,Lat cable rows,1,,2/10/40 (pause for 3 seconds),,,,
-2026-03-11,Back,Lat cable rows,2,7,7/40,40.0,,,
-2026-03-11,Back,Lat cable rows,3,10,10/35,35.0,,,
-2026-03-11,Back,Back/8,1,,,,,,
-2026-03-18,Back,Pull ups,1,,x2,,,,
-2026-03-18,Back,Pull ups,2,,8+5+4,,,,
-2026-03-18,Back,Pull ups,3,,5+3,,,,
-2026-03-18,Back,Barbell rows,1,,2/15/30,,,,
-2026-03-18,Back,Lat pull downs,1,,2/20/33,,,Increase weight to 36,
-2026-03-18,Back,Lat pull downs,2,20,20/33,33.0,,Increase weight to 36,
-2026-03-18,Back,Lat pull downs,3,20,20/36,36.0,,Increase weight to 36,
-2026-03-18,Back,Cable rows,1,,2/15/40,,,,
-2026-03-18,Back,Cable rows,2,15,15/40,40.0,,,
-2026-03-18,Back,Cable rows,3,9,9/45,45.0,,,
-2026-03-18,Back,Reverse Curls,1,,2/12/20,,,,
-2026-03-18,Back,Reverse Curls,2,12,12/20,20.0,,,
-2026-03-18,Back,Reverse Curls,3,9,9/20,20.0,,,
-2026-03-18,Back,Preacher Curls,1,,2/8/45,,,,
-2026-03-18,Back,Preacher Curls,2,,6/45+3/35,,,,
-2026-03-18,Back,Back/8 + Bi/4,1,,,,,,
-2026-03-25,Back,Pull ups,1,,x2,,,,
-2026-03-25,Back,Pull ups,2,,8+2+4,,,,
-2026-03-25,Back,Pull ups,3,,0+6.5+4,,,,
-2026-03-25,Back,NG pull ups,1,,x1,,,,
-2026-03-25,Back,NG pull ups,2,7,7,,,,
-2026-03-25,Back,T-bar rows,1,,2/10/25,,,,
-2026-03-25,Back,T-bar rows,2,12,12/25,25.0,,,
-2026-03-25,Back,T-bar rows,3,,9/25+5/15,,,,
-2026-03-25,Back,Lat cable pull downs,1,,2/20/36,,,,
-2026-03-25,Back,Lat cable pull downs,2,19,19/36,36.0,,,
-2026-03-25,Back,Cable rows,1,,2/10/45,,,,
-2026-03-25,Back,Cable rows,2,10,10/45.5,45.5,,,
-2026-03-25,Back,Cable rows,3,10,10/41,41.0,,,
-2026-03-25,Back,Reverse Curls,1,,2/15/15,,,,
-2026-03-25,Back,Reverse Curls,2,16,16/15,15.0,,,
-2026-03-25,Back,Reverse Curls,3,16,16/15,15.0,,,
-2026-03-25,Back,Barbell Curls,1,,2/10/20,,,,
-2026-04-01,Back,Pull ups,1,,x2,,,,
-2026-04-01,Back,Pull ups,2,,9+4,,,,
-2026-04-01,Back,Pull ups,3,,5+4,,,,
-2026-04-01,Back,NG pull ups,1,,x1,,,,
-2026-04-01,Back,NG pull ups,2,6,6,,,,
-2026-04-01,Back,Seated row,1,,2/12/60,,,,
-2026-04-01,Back,Seated row,2,15,15/50,50.0,,,
-2026-04-01,Back,Lat cable pull downs,1,,2/12/41,,,,
-2026-04-01,Back,Lat cable pull downs,2,,9/45+7/35,,,,
-2026-04-01,Back,Lat cable pull downs,3,10,10/40,40.0,,,
-2026-04-01,Back,Cable rows,1,,2/12/45,,,,
-2026-04-01,Back,Cable rows,2,12,12/45,45.0,,,
-2026-04-01,Back,Cable rows,3,10,10/45,45.0,,,
-2026-04-01,Back,Reverse Curls,1,,2/15/15,,,,
-2026-04-01,Back,Reverse Curls,2,20,20/15,15.0,,,
-2026-04-01,Back,Reverse Curls,3,18,18/15,15.0,,,
-2026-04-01,Back,Biceps Curl,1,,2/15/35,,,,
-2026-04-01,Back,Biceps Curl,2,12,12/35,35.0,,,
-2026-04-01,Back,Preacher curls,1,,1/12/40,,,,
-2026-04-07,Back,Pull ups,1,,x2,,,,
-2026-04-07,Back,Pull ups,2,9,9,,,,
-2026-04-07,Back,Pull ups,3,,6+4,,,,
-2026-04-07,Back,Seated row,1,,2/12/55,,,Retain 50 / focus on proper form,
-2026-04-07,Back,Seated row,2,16,16/50,50.0,,Retain 50 / focus on proper form,
-2026-04-07,Back,Seated row,3,10,10/55,55.0,,Retain 50 / focus on proper form,
-2026-04-07,Back,Lat cable pull downs,1,,2/12/41,,,Vary grip width,
-2026-04-07,Back,Lat cable pull downs,2,,13.5/41,41.0,,Vary grip width,
-2026-04-07,Back,Lat cable pull downs,3,12,12/41,41.0,,Vary grip width,
-2026-04-07,Back,Cable rows,1,,2/12/45,,,Lower weight,
-2026-04-07,Back,Cable rows,2,,8/45+4/36,,,Lower weight,
-2026-04-07,Back,Cable rows,3,12,12/36,36.0,,Lower weight,
-2026-04-07,Back,Lateral Hammer curls,1,,2/8/14,,,Retain 14,
-2026-04-07,Back,Lateral Hammer curls,2,6,6/14,14.0,,Retain 14,
-2026-04-07,Back,Lateral Hammer curls,3,6,6/14,14.0,,Retain 14,
-2026-04-07,Back,Reverse Curls,1,,2/10/15,,,,
-2026-04-07,Back,Reverse Curls,2,16,16/15,15.0,,,
-2026-04-07,Back,Reverse Curls,3,15,15/15,15.0,,,
-2026-04-07,Back,Preacher curls,1,,2/10/40,,,,
-2026-04-07,Back,Preacher curls,2,,6/45+6/30,,,,
-2026-04-07,Back,Preacher curls,3,,6/40+5/30,,,,
-2026-04-12,Back,Pullups,1,,x2,,,,
-2026-04-12,Back,Pullups,2,9,9,,,,
-2026-04-12,Back,Pullups,3,7,7,,,,
-2026-04-12,Back,Seated row,1,,2/12/55,,,,
-2026-04-12,Back,Seated row,2,15,15/55,55.0,,,
-2026-04-12,Back,Seated row,3,12,12/55,55.0,,,
-2026-04-12,Back,Lat cable pull downs,1,,2/10/45,,,,
-2026-04-12,Back,Lat cable pull downs,2,9,9/45,45.0,,,
-2026-04-12,Back,Lat cable pull downs,3,12,12/41,41.0,,,
-2026-04-12,Back,Seated rows,1,,2/10/45,,,,
-2026-04-12,Back,Seated rows,2,9,9/45,45.0,,,
-2026-04-12,Back,Seated rows,3,,4/45+4/36,,,,
-2026-04-12,Back,Lateral Hammer curls,1,,2/7/12,,,,
-2026-04-12,Back,Lateral Hammer curls,2,,10+2,,,,
-2026-04-12,Back,Lateral Hammer curls,3,,10+3,,,,
-2026-04-12,Back,Reverse curls,1,,2/15/15,,,,
-2026-04-12,Back,Reverse curls,2,15,15/15,15.0,,,
-2026-04-12,Back,Reverse curls,3,15,15/15,15.0,,,
-2026-04-12,Back,Arm Curls,1,,2/10/25,,,,
-2026-04-12,Back,Arm Curls,2,,8.5/20,20.0,,,
-2026-01-10,Chest,FliesPec Deck Fly,1,12,12/40kg,40.0,,,
-2026-01-10,Chest,FliesPec Deck Fly,2,10,10/45kg,45.0,,,
-2026-01-10,Chest,FliesPec Deck Fly,3,10,10/45kg,45.0,,,
-2026-01-10,Chest,Incline Chest PressIncline Chest Press Machine,1,,test/20kg,20.0,,,
-2026-01-10,Chest,Incline Chest PressIncline Chest Press Machine,2,10,10/20kg,20.0,,,
-2026-01-10,Chest,Incline Chest PressIncline Chest Press Machine,3,6,6/20kg,20.0,,,
-2026-01-10,Chest,Incline Chest PressIncline Chest Press Machine,4,6,6/20,20.0,,,
-2026-01-10,Chest,Chest Press Machine,1,6,6/20kg,20.0,,,
-2026-01-10,Chest,Chest Press Machine,2,5,5/20kg,20.0,,,
-2026-01-10,Chest,Chest Press Machine,3,7,7/15kg,15.0,,,
-2026-01-10,Chest,Chest Press Machine,4,5,5/15,15.0,,,
-2026-01-10,Chest,Military PressSmith Machine Bench Press,1,8,8/20kg,20.0,,,
-2026-01-10,Chest,Military PressSmith Machine Bench Press,2,10,10/30kg,30.0,,,
-2026-01-10,Chest,Military PressSmith Machine Bench Press,3,4,4/40kg,40.0,,,
-2026-01-10,Chest,Overhead Press 3/12Military Press,1,7,7/20kg,20.0,,,
-2026-01-10,Chest,Overhead Press 3/12Military Press,2,5,5/20kg,20.0,,,
-2026-01-14,Chest,FliesPec Deck Fly,1,12,12,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
-2026-01-14,Chest,FliesPec Deck Fly,2,12,12,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
-2026-01-14,Chest,FliesPec Deck Fly,3,12,12,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
-2026-01-14,Chest,FliesPec Deck Fly,4,10,10,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
-2026-01-14,Chest,Incline Chest Press (Smith Machine),1,10,10,30.0,30kg,,
-2026-01-14,Chest,Incline Chest Press (Smith Machine),2,8,8,30.0,30kg,,
-2026-01-14,Chest,Incline Chest Press (Smith Machine),3,5,5/35,35.0,30kg,,
-2026-01-14,Chest,Incline chest press machine,1,4,4/20kg,20.0,20kg,,
-2026-01-14,Chest,Incline chest press machine,2,8,8/15kg,15.0,20kg,,
-2026-01-14,Chest,Incline chest press machine,3,7,7/15kg,15.0,20kg,,
-2026-01-14,Chest,Incline chest press machine,4,5,5,20.0,20kg,,
-2026-01-14,Chest,Smith Machine Bench Press,1,10,10,40.0,40kg,"Try to do some warm ups, Should focus more on the machine or lower the weight and practice on my form?",
-2026-01-14,Chest,Smith Machine Bench Press,2,10,10,40.0,40kg,"Try to do some warm ups, Should focus more on the machine or lower the weight and practice on my form?",
-2026-01-14,Chest,Smith Machine Bench Press,3,5,5,40.0,40kg,"Try to do some warm ups, Should focus more on the machine or lower the weight and practice on my form?",
-2026-01-14,Chest,Overhead Press 3/12Military Press,1,6,6,15.0,15kg,,
-2026-01-14,Chest,Overhead Press 3/12Military Press,2,5,5/20kg,20.0,15kg,,
-2026-01-14,Chest,Chest Press (drop set),1,12,12/15kg,15.0,,Adding some drop sets to the end of my workout sounds good,
-2026-01-14,Chest,Chest Press (drop set),2,12,12/10kg,10.0,,Adding some drop sets to the end of my workout sounds good,
-2026-01-14,Chest,Chest Press (drop set),3,,5kg to failure,,,Adding some drop sets to the end of my workout sounds good,
-2026-01-18,Chest,Smith Machine Bench Press,1,10,10/40kgs,40.0,,50 with consistent reps would be better next time.,
-2026-01-18,Chest,Smith Machine Bench Press,2,6,6/50kgs,50.0,,50 with consistent reps would be better next time.,
-2026-01-18,Chest,Smith Machine Bench Press,3,8,8/50kgs,50.0,,50 with consistent reps would be better next time.,
-2026-01-18,Chest,Smith Machine Bench Press,4,5,5/50kgs,50.0,,50 with consistent reps would be better next time.,
-2026-01-18,Chest,Smith Machine Incline,1,8,8/40kgs,40.0,,Consistent reps of 7 or 6,
-2026-01-18,Chest,Smith Machine Incline,2,7,7/40kgs (failed to go up at 8),,,Consistent reps of 7 or 6,
-2026-01-18,Chest,Smith Machine Incline,3,6,6,,,Consistent reps of 7 or 6,
-2026-01-18,Chest,Smith Machine Incline,4,5,5,,,Consistent reps of 7 or 6,
-2026-01-18,Chest,Pec Dec flies,1,7,7/45kgs,45.0,,Should reduce weight and retain reps,
-2026-01-18,Chest,Pec Dec flies,2,8,8/40kgs,40.0,,Should reduce weight and retain reps,
-2026-01-18,Chest,Pec Dec flies,3,9,9,,,Should reduce weight and retain reps,
-2026-01-18,Chest,Pec Dec flies,4,,7 (without full ROM),,,Should reduce weight and retain reps,
-2026-01-18,Chest,Military press,1,8,8/20kgs,20.0,20kgs,4sets with 30 + 1 drop set to zero,
-2026-01-18,Chest,Military press,2,7,7/30kgs,30.0,20kgs,4sets with 30 + 1 drop set to zero,
-2026-01-18,Chest,Military press,3,7,7/30kgs,30.0,20kgs,4sets with 30 + 1 drop set to zero,
-2026-01-18,Chest,Military press,4,5,5/30kgs,30.0,20kgs,4sets with 30 + 1 drop set to zero,
-2026-01-18,Chest,Machine Chest press drop set,1,11,11/30kgs,30.0,,,
-2026-01-18,Chest,Machine Chest press drop set,2,7,7/20kgs,20.0,,,
-2026-01-18,Chest,Machine Chest press drop set,3,11,11/20kgs,20.0,,,
-2026-01-18,Chest,Machine Chest press drop set,4,10,10/10kgs,10.0,,,
-2026-01-18,Chest,Hammer Curls,1,9,9ea,12.0,12kgs,,
-2026-01-18,Chest,Hammer Curls,2,7,7ea,12.0,12kgs,,
-2026-01-18,Chest,Hammer Curls,3,7,7ea,12.0,12kgs,,
-2026-01-18,Chest,Preacher Curls,1,12,12,30.0,30kgs,Keep arms parallel to eachother (decrease reps),
-2026-01-18,Chest,Preacher Curls,2,9,9,30.0,30kgs,Keep arms parallel to eachother (decrease reps),
-2026-01-18,Chest,Preacher Curls,3,7,7,30.0,30kgs,Keep arms parallel to eachother (decrease reps),
-2026-01-22,Chest,Machine chest press,1,10,10,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
-2026-01-22,Chest,Machine chest press,2,10,10,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
-2026-01-22,Chest,Machine chest press,3,,8/40 + 3/30,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
-2026-01-22,Chest,Machine chest press,4,,6/40+4/30,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
-2026-01-22,Chest,Incline Chest Press Machine,1,8,8,20.0,20,Can't feel my chest,Plan: 4/20/6
-2026-01-22,Chest,Incline Chest Press Machine,2,6,6,20.0,20,Can't feel my chest,Plan: 4/20/6
-2026-01-22,Chest,Incline Chest Press Machine,3,5,5,20.0,20,Can't feel my chest,Plan: 4/20/6
-2026-01-22,Chest,Incline Chest Press Machine,4,6,6,20.0,20,Can't feel my chest,Plan: 4/20/6
-2026-01-22,Chest,Smith Machine Incline chest press,1,8,8/30,30.0,,,
-2026-01-22,Chest,Smith Machine Incline chest press,2,7,7/30,30.0,,,
-2026-01-22,Chest,Smith Machine Incline chest press,3,6,6,,,,
-2026-01-22,Chest,Smith Machine Incline chest press,4,8,8/20,20.0,,,
-2026-02-02,Chest,Smith Machine Bench Press,1,7,7/40,40.0,40,Decreased weight to 40 (return to 50 based on condition),Plan: 3/7/50
-2026-02-02,Chest,Smith Machine Bench Press,2,7,7,40.0,40,Decreased weight to 40 (return to 50 based on condition),Plan: 3/7/50
-2026-02-02,Chest,Smith Machine Bench Press,3,6,6,40.0,40,Decreased weight to 40 (return to 50 based on condition),Plan: 3/7/50
-2026-02-02,Chest,Smith Machine Incline,1,3,3/40,40.0,,Decreased weight to 35 (return to 40),Plan: 3/8/40
-2026-02-02,Chest,Smith Machine Incline,2,7,7/35,35.0,,Decreased weight to 35 (return to 40),Plan: 3/8/40
-2026-02-02,Chest,Smith Machine Incline,3,7,7/35,35.0,,Decreased weight to 35 (return to 40),Plan: 3/8/40
-2026-02-02,Chest,Smith Machine Incline,4,4,4/35,35.0,,Decreased weight to 35 (return to 40),Plan: 3/8/40
-2026-02-02,Chest,Pec Dec flies,1,10,10/27.5,27.5,,Make sure to stop at chest,Plan: 3/8/40
-2026-02-02,Chest,Pec Dec flies,2,8,8/40,40.0,,Make sure to stop at chest,Plan: 3/8/40
-2026-02-02,Chest,Pec Dec flies,3,6,6/40,40.0,,Make sure to stop at chest,Plan: 3/8/40
-2026-02-02,Chest,Pec Dec flies,4,5,5/35 (feeling heavy fatigue),,,Make sure to stop at chest,Plan: 3/8/40
-2026-02-02,Chest,Dumbell Chest Press,1,,test/10ea,10.0,,14ea feels good,
-2026-02-02,Chest,Dumbell Chest Press,2,10,10/14ea,14.0,,14ea feels good,
-2026-02-02,Chest,Dumbell Chest Press,3,10,10/14ea,14.0,,14ea feels good,
-2026-02-02,Chest,Military press,1,6,6/30,30.0,,Experiencing Heavy fatigue,Plan: 3/8/30
-2026-02-02,Chest,Military press,2,5,5/25,25.0,,Experiencing Heavy fatigue,Plan: 3/8/30
-2026-02-02,Chest,Lateral Raises,1,20,20/20,20.0,20,,Plan: 3/F/20
-2026-02-02,Chest,Lateral Raises,2,15,15ea/20,20.0,20,,Plan: 3/F/20
-2026-02-02,Chest,Lateral Raises,3,,10 + 10ea,20.0,20,,Plan: 3/F/20
-2026-02-06,Chest,Smith Machine Bench Press,1,8,8/45,45.0,,9/45 or 7/50,Plan: 3/8/40
-2026-02-06,Chest,Smith Machine Bench Press,2,8,8/50,50.0,,9/45 or 7/50,Plan: 3/8/40
-2026-02-06,Chest,Smith Machine Bench Press,3,6,6/50,50.0,,9/45 or 7/50,Plan: 3/8/40
-2026-02-06,Chest,Smith Machine Incline Bench,1,8,8/40,40.0,,7/40 or 9/35?,Plan: 3/8/35
-2026-02-06,Chest,Smith Machine Incline Bench,2,6,6/40,40.0,,7/40 or 9/35?,Plan: 3/8/35
-2026-02-06,Chest,Smith Machine Incline Bench,3,7,7/35,35.0,,7/40 or 9/35?,Plan: 3/8/35
-2026-02-06,Chest,Smith Machine Incline Bench,4,9,9/20,20.0,,7/40 or 9/35?,Plan: 3/8/35
-2026-02-06,Chest,Pec Dec flies,1,7,7,,,,Plan: 3/8/40
-2026-02-06,Chest,Pec Dec flies,2,,8 (Beginning to fail at 6),,,,Plan: 3/8/40
-2026-02-06,Chest,Pec Dec flies,3,5,5,,,,Plan: 3/8/40
-2026-02-06,Chest,Pec Dec flies,4,8,8/30,30.0,,,Plan: 3/8/40
-2026-02-06,Chest,Dumbell Chest Press 4/10/14ea,1,10,10/14,14.0,,,
-2026-02-06,Chest,Dumbell Chest Press 4/10/14ea,2,12,12/12,12.0,,,
-2026-02-06,Chest,Dumbell Chest Press 4/10/14ea,3,11,11/12,12.0,,,
-2026-02-06,Chest,Dumbell Chest Press 4/10/14ea,4,10,10/12,12.0,,,
-2026-02-06,Chest,Military press,1,5,5/30,30.0,,,Plan: 4/8/30
-2026-02-06,Chest,Military press,2,5,5/25,25.0,,,Plan: 4/8/30
-2026-02-06,Chest,Military press,3,6,6/20,20.0,,,Plan: 4/8/30
-2026-02-06,Chest,Military press,4,7,7/20,20.0,,,Plan: 4/8/30
-2026-02-10,Chest,Smith Machine Bench Press,1,,Warm up 10/20,20.0,,Test 3/7/45,Plan: 3/9/45
-2026-02-10,Chest,Smith Machine Bench Press,2,8,8/45,45.0,,Test 3/7/45,Plan: 3/9/45
-2026-02-10,Chest,Smith Machine Bench Press,3,6,6/45,45.0,,Test 3/7/45,Plan: 3/9/45
-2026-02-10,Chest,Smith Machine Bench Press,4,6,6/45,45.0,,Test 3/7/45,Plan: 3/9/45
-2026-02-10,Chest,Smith Machine Incline Bench,1,,Warm up 10/0,0.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,Plan: 3/9/35
-2026-02-10,Chest,Smith Machine Incline Bench,2,8,8/35,35.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,Plan: 3/9/35
-2026-02-10,Chest,Smith Machine Incline Bench,3,7,7/35,35.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,Plan: 3/9/35
-2026-02-10,Chest,Smith Machine Incline Bench,4,6,6/35,35.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,Plan: 3/9/35
-2026-02-10,Chest,Pec Dec flies,1,9,9/30,30.0,,Maybe 10/30 or 10/35 next time,Plan: 3/9/30
-2026-02-10,Chest,Pec Dec flies,2,9,9/30,30.0,,Maybe 10/30 or 10/35 next time,Plan: 3/9/30
-2026-02-10,Chest,Pec Dec flies,3,11,11/30,30.0,,Maybe 10/30 or 10/35 next time,Plan: 3/9/30
-2026-02-10,Chest,Military press,1,8,8/25,25.0,,,Plan: 3/8/25
-2026-02-10,Chest,Military press,2,7,7/25,25.0,,,Plan: 3/8/25
-2026-02-10,Chest,Military press,3,7,7/25,25.0,,,Plan: 3/8/25
-2026-02-10,Chest,Dumbell Chest Press 3/10/14ea,1,,9.5/14ea,14.0,,Lower weight and focus on form,
-2026-02-10,Chest,Dumbell Chest Press 3/10/14ea,2,7,7/14ea,14.0,,Lower weight and focus on form,
-2026-02-10,Chest,Dumbell Chest Press 3/10/14ea,3,10,10/12ea,12.0,,Lower weight and focus on form,
-2026-02-10,Chest,Tricep Rope Pull down,1,10,10/27.5,27.5,,,Plan: 2/12/27.5
-2026-02-10,Chest,Tricep Rope Pull down,2,8,8/27.5,27.5,,,Plan: 2/12/27.5
-2026-02-10,Chest,Tricep Rope Pull down,3,8,8/22.5,22.5,,,Plan: 2/12/27.5
-2026-02-10,Chest,Overhead Tricep Rope Pull down,1,20,20/22.5,22.5,,,Plan: 2/10/27.5
-2026-02-10,Chest,Overhead Tricep Rope Pull down,2,15,15/27.5,27.5,,,Plan: 2/10/27.5
-2026-02-10,Chest,Overhead Tricep Rope Pull down,3,,8/32 + 4/27.5,,,,Plan: 2/10/27.5
-2026-02-14,Chest,Smith Machine Bench Press,1,8,8/40,40.0,,,Plan: 3/9/45
-2026-02-14,Chest,Smith Machine Bench Press,2,5,5/50,50.0,,,Plan: 3/9/45
-2026-02-14,Chest,Smith Machine Bench Press,3,8,8/40,40.0,,,Plan: 3/9/45
-2026-02-14,Chest,Smith Machine Incline Bench,1,8,8/30,30.0,,,Plan: 3/9/35
-2026-02-14,Chest,Smith Machine Incline Bench,2,7,7/35,35.0,,,Plan: 3/9/35
-2026-02-14,Chest,Smith Machine Incline Bench,3,7,7/30,30.0,,,Plan: 3/9/35
-2026-02-14,Chest,Pec Dec flies,1,,,,,,Plan: 3/9/30
-2026-02-14,Chest,Military press,1,8,8/25,25.0,,,Plan: 3/8/25
-2026-02-14,Chest,Military press,2,8,8/25,25.0,,,Plan: 3/8/25
-2026-02-14,Chest,Military press,3,6,6/25,25.0,,,Plan: 3/8/25
-2026-02-14,Chest,Dumbell Chest Press 3/10/14ea,1,,,,,,
-2026-02-21,Chest,Smith Machine Incline Bench,1,,Warmup,,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,Plan: 3/9/45
-2026-02-21,Chest,Smith Machine Incline Bench,2,9,9/45,45.0,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,Plan: 3/9/45
-2026-02-21,Chest,Smith Machine Incline Bench,3,,8.5/45,45.0,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,Plan: 3/9/45
-2026-02-21,Chest,Smith Machine Incline Bench,4,6,6/45,45.0,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,Plan: 3/9/45
-2026-02-21,Chest,Dumbell Chest Press 3/12/12ea,1,10,10/12,12.0,,Need to focus more on posture / stick with 10 for a while,
-2026-02-21,Chest,Dumbell Chest Press 3/12/12ea,2,13,13/10,10.0,,Need to focus more on posture / stick with 10 for a while,
-2026-02-21,Chest,Dumbell Chest Press 3/12/12ea,3,13,13/10,10.0,,Need to focus more on posture / stick with 10 for a while,
-2026-02-21,Chest,Pec Dec flies,1,12,12/40,40.0,,pause 3 seconds,Plan: 3/10/35
-2026-02-21,Chest,Pec Dec flies,2,9,9/40,40.0,,pause 3 seconds,Plan: 3/10/35
-2026-02-21,Chest,Pec Dec flies,3,7,7/40,40.0,,pause 3 seconds,Plan: 3/10/35
-2026-02-21,Chest,Machine Chest Press,1,,testing other machines,,,,Plan: 3/10/40
-2026-02-21,Chest,Machine Chest Press,2,7,7/30,30.0,,,Plan: 3/10/40
-2026-02-21,Chest,Machine Chest Press,3,10,10/30,30.0,,,Plan: 3/10/40
-2026-02-21,Chest,Military press,1,10,10/25,25.0,,,Plan: 3/8/25
-2026-02-21,Chest,Military press,2,10,10/25,25.0,,,Plan: 3/8/25
-2026-02-21,Chest,Military press,3,7,7/25,25.0,,,Plan: 3/8/25
-2026-02-21,Chest,Military press,4,8,8/20,20.0,,,Plan: 3/8/25
-2026-02-21,Chest,Overhead Tricep Rope Pull down,1,18,18/27.5,27.5,,,Plan: 2/12/27.5
-2026-02-21,Chest,Overhead Tricep Rope Pull down,2,9,9/32,32.0,,,Plan: 2/12/27.5
-2026-02-21,Chest,Tricep Rope Pull down,1,7,7/27.5,27.5,,,Plan: 2/12/27.5
-2026-02-25,Chest,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,1,7,7/45,45.0,,,
-2026-02-25,Chest,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,2,5,5/45,45.0,,,
-2026-02-25,Chest,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,3,6,6/40,40.0,,,
-2026-02-25,Chest,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,4,6,6/40,40.0,,,
-2026-02-25,Chest,Dumbell Chest Press 3/12/10ea,1,,Pass,,,,
-2026-02-25,Chest,Pec Dec flies,1,,,,,,Plan: 3/10/35
-2026-02-25,Chest,Military press,1,12,12/25,25.0,,Increase weight to 30,Plan: 3/8/25
-2026-02-25,Chest,Military press,2,9,9/30,30.0,,Increase weight to 30,Plan: 3/8/25
-2026-02-25,Chest,Military press,3,6,6/30,30.0,,Increase weight to 30,Plan: 3/8/25
-2026-02-25,Chest,Machine Chest Press,1,12,12/30,30.0,,,Plan: 3/10/40
-2026-02-25,Chest,Machine Chest Press,2,13,13/30,30.0,,,Plan: 3/10/40
-2026-02-25,Chest,Machine Chest Press,3,,9.5/30,30.0,,,Plan: 3/10/40
-2026-02-25,Chest,Overhead Tricep Rope Pull down,1,15,15/27.5,27.5,,Definitely add weight / use bar instead of rope,Plan: 2/12/27.5
-2026-02-25,Chest,Overhead Tricep Rope Pull down,2,15,15/32,32.0,,Definitely add weight / use bar instead of rope,Plan: 2/12/27.5
-2026-02-25,Chest,Overhead Tricep Rope Pull down,3,13,13/36,36.0,,Definitely add weight / use bar instead of rope,Plan: 2/12/27.5
-2026-02-25,Chest,Tricep Rope Pull down,1,8,8/36,36.0,,,Plan: 2/12/27.5
-2026-02-25,Chest,Tricep Rope Pull down,2,,7/36 + 5/32,,,,Plan: 2/12/27.5
-2026-02-25,Chest,Tricep Rope Pull down,3,6,6/32,32.0,,,Plan: 2/12/27.5
-2026-03-02,Chest,Smith Machine Incline Bench 7/45 + 7/50 + 7/40,1,7,7/45,45.0,,Maybe start with 50 next time / stick to 45? until I reach 10 clean reps,
-2026-03-02,Chest,Smith Machine Incline Bench 7/45 + 7/50 + 7/40,2,,5.5/50,50.0,,Maybe start with 50 next time / stick to 45? until I reach 10 clean reps,
-2026-03-02,Chest,Smith Machine Incline Bench 7/45 + 7/50 + 7/40,3,6,6/45,45.0,,Maybe start with 50 next time / stick to 45? until I reach 10 clean reps,
-2026-03-02,Chest,Machine Chest Press,1,10,10/40,40.0,,9/40? or retain,Plan: 3/10/40
-2026-03-02,Chest,Machine Chest Press,2,,9.5/40,40.0,,9/40? or retain,Plan: 3/10/40
-2026-03-02,Chest,Machine Chest Press,3,,7.5/50,50.0,,9/40? or retain,Plan: 3/10/40
-2026-03-02,Chest,Pec Dec flies,1,10,10/40,40.0,,,Plan: 2/10/40
-2026-03-02,Chest,Pec Dec flies,2,,7.5/40,40.0,,,Plan: 2/10/40
-2026-03-02,Chest,Dumbell Chest Press 2/12/10ea,1,16,16/10,10.0,,,
-2026-03-02,Chest,Dumbell Chest Press 2/12/10ea,2,12,12/10,10.0,,,
-2026-03-02,Chest,Military press,1,11,11/30,30.0,,,Plan: 3/8/30
-2026-03-02,Chest,Military press,2,,7.5/35,35.0,,,Plan: 3/8/30
-2026-03-02,Chest,Military press,3,,6.5/30,30.0,,,Plan: 3/8/30
-2026-03-02,Chest,Overhead Tricep Rope Pull down,1,12,12/36,36.0,,Try 11/36,Plan: 2/12/36
-2026-03-02,Chest,Overhead Tricep Rope Pull down,2,9,9/36,36.0,,Try 11/36,Plan: 2/12/36
-2026-03-02,Chest,Tricep Rope Pull down,1,,7.5/32,32.0,,,Plan: 2/12/36
-2026-03-02,Chest,Tricep Rope Pull down,2,6,6/32,32.0,,,Plan: 2/12/36
-2026-03-02,Chest,Tricep Rope Pull down,3,7,7/22.5,22.5,,,Plan: 2/12/36
-2026-03-06,Chest,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,1,6,6/50,50.0,,,
-2026-03-06,Chest,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,2,4,4/50,50.0,,,
-2026-03-06,Chest,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,3,,7.5/40,40.0,,,
-2026-03-06,Chest,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,4,6,6/40,40.0,,,
-2026-03-06,Chest,Machine Chest Press,1,12,12/40,40.0,,,Plan: 3/10/40
-2026-03-06,Chest,Machine Chest Press,2,7,7/40,40.0,,,Plan: 3/10/40
-2026-03-06,Chest,Machine Chest Press,3,7,7/40,40.0,,,Plan: 3/10/40
-2026-03-06,Chest,Pec Dec flies,1,8,8/40,40.0,,,Plan: 2/10/40
-2026-03-06,Chest,Pec Dec flies,2,12,12ea/25,25.0,,,Plan: 2/10/40
-2026-03-06,Chest,Pec Dec flies,3,6,6/50,50.0,,,Plan: 2/10/40
-2026-03-06,Chest,Dumbell Chest Press 2/12/10ea,1,12,12/10,10.0,,Increase to 3/12/12,
-2026-03-06,Chest,Dumbell Chest Press 2/12/10ea,2,12,12/12,12.0,,Increase to 3/12/12,
-2026-03-06,Chest,Dumbell Chest Press 2/12/10ea,3,14,14/12,12.0,,Increase to 3/12/12,
-2026-03-06,Chest,Military press,1,6,6/35,35.0,,,Plan: 4/8/35
-2026-03-06,Chest,Military press,2,,6.5/30,30.0,,,Plan: 4/8/35
-2026-03-06,Chest,Military press,3,6,6/30,30.0,,,Plan: 4/8/35
-2026-03-06,Chest,Military press,4,6,6/30,30.0,,,Plan: 4/8/35
-2026-03-06,Chest,Overhead Tricep Rope Pull down,1,13,13/36,36.0,,,Plan: 2/12/36
-2026-03-06,Chest,Overhead Tricep Rope Pull down,2,,5/41+4/36,,,,Plan: 2/12/36
-2026-03-06,Chest,Overhead Tricep Rope Pull down,3,6,6/36,36.0,,,Plan: 2/12/36
-2026-03-06,Chest,Tricep Rope Pull down,1,,8.5/32,32.0,,,Plan: 3/12/36
-2026-03-06,Chest,Tricep Rope Pull down,2,6,6/32,32.0,,,Plan: 3/12/36
-2026-03-06,Chest,Tricep Rope Pull down,3,6,6/32,32.0,,,Plan: 3/12/36
-2026-03-06,Chest,Smith Machine Incline,1,,2/6/50,,,,
-2026-03-06,Chest,Machine Chest Press,1,,2/10/50,,,,
-2026-03-06,Chest,Pec Dec flies,1,,2/10/50,,,,
-2026-03-06,Chest,Dumbell Chest Press,1,,2/12/12,,,,
-2026-03-06,Chest,Lateral Raises,1,,2/f/6,,,,
-2026-03-06,Chest,Military press,1,,2/10/25,,,,
-2026-03-06,Chest,Overhead Tricep Rope Pulldown,1,,2/12/41,,,,
-2026-03-06,Chest,Tricep rope pulldown,1,,2/12/27,,,,
-2026-03-26,Chest,Incline bench,1,,2/8/50,,,,
-2026-03-26,Chest,Incline bench,2,,8.5,,,,
-2026-03-26,Chest,Incline bench,3,,6.5,,,,
-2026-03-26,Chest,Chest press machine,1,,2/12/40,,,,
-2026-03-26,Chest,Chest press machine,2,10,10/40,40.0,,,
-2026-03-26,Chest,Chest press machine,3,8,8/40,40.0,,,
-2026-03-26,Chest,pec deck flies,1,,2/15/20,,,,
-2026-03-26,Chest,Dumbell chest press,1,,2/15/16,,,,
-2026-03-26,Chest,Dumbell chest press,2,14,14/14,14.0,,,
-2026-03-26,Chest,Dumbell chest press,3,14,14/14,14.0,,,
-2026-03-26,Chest,Lateral Raises,1,,2/f/4,,,,
-2026-03-26,Chest,Lateral Raises,2,14,14/4,4.0,,,
-2026-03-26,Chest,Lateral Raises,3,15,15/4,4.0,,,
-2026-03-26,Chest,Shoulder press,1,,2/12/25,,,,
-2026-03-26,Chest,Shoulder press,2,10,10/25,25.0,,,
-2026-03-26,Chest,Shoulder press,3,9,9/25,25.0,,,
-2026-03-26,Chest,Tricep pull down,1,,2/12/27.5,,,,
-2026-03-26,Chest,Tricep pull down,2,14,14/27.5,27.5,,,
-2026-04-08,Chest,Smith machine incline,1,,2/?/55,,,,
-2026-04-08,Chest,Smith machine incline,2,5,5/40 warmup,,,,
-2026-04-08,Chest,Smith machine incline,3,6,6/55,55.0,,,
-2026-04-08,Chest,Smith machine incline,4,3,3/55,55.0,,,
-2026-04-08,Chest,Incline Chest press machine,1,,2/12/30,,,,
-2026-04-08,Chest,Incline Chest press machine,2,,9.5/30,30.0,,,
-2026-04-08,Chest,Incline Chest press machine,3,6,6/30,30.0,,,
-2026-04-08,Chest,Pec deck flies,1,,2/f/25,,,Stick to 35,
-2026-04-08,Chest,Pec deck flies,2,,10 w/p/35,,,Stick to 35,
-2026-04-08,Chest,Pec deck flies,3,,9w/p/35,,,Stick to 35,
-2026-04-08,Chest,Shoulder press,1,,2/12/30,,,,
-2026-04-08,Chest,Shoulder press,2,12,12/30,30.0,,,
-2026-04-08,Chest,Shoulder press,3,9,9/30,30.0,,,
-2026-04-08,Chest,Tricep rope pull down,1,,2/12/27.5,,,,
-2026-04-13,Chest,Incline bench,1,,2/8/55,,,,
-2026-04-13,Chest,Incline bench,2,,2/55 + 7/40,,,,
-2026-04-13,Chest,Incline Chest press machine,1,,2/8/30,,,,
-2026-04-13,Chest,Incline Chest press machine,2,,7.5/30,30.0,,,
-2026-04-13,Chest,Incline Chest press machine,3,5,5/30,30.0,,,
-2026-04-13,Chest,Shoulder press,1,,2/8/30,,,,
-2026-04-13,Chest,Shoulder press,2,9,9/30,30.0,,,
-2026-04-13,Chest,Shoulder press,3,7,7/30,30.0,,,
-2026-04-13,Chest,Tricep pull downs,1,,2/12/27.5,,,,
-2026-04-13,Chest,Tricep pull downs,2,7,7/32,32.0,,,
-2026-04-13,Chest,Tricep pull downs,3,10,10/32,32.0,,,
-2026-04-13,Chest,Tricep pull downs,4,,10/32+5/22,,,,
-2026-04-13,Chest,Pec deck flies,1,,2/12/35,,,,
-2026-04-13,Chest,Pec deck flies,2,14,14/30,30.0,,,
-2026-04-13,Chest,Pec deck flies,3,12,12/35,35.0,,,
-2026-01-07,Legs,Perfect Squats,1,8,8,10.0,10,8,
-2026-01-07,Legs,Perfect Squats,2,8,8,10.0,10,8,
-2026-01-07,Legs,Perfect Squats,3,8,8,10.0,10,8,
-2026-01-07,Legs,Perfect Squats,4,8,8,10.0,10,8,
-2026-01-07,Legs,Leg Press,1,7,7,0.0,0,10,
-2026-01-07,Legs,Leg Press,2,8,8,0.0,0,10,
-2026-01-07,Legs,Leg Press,3,8,8,0.0,0,10,
-2026-01-07,Legs,Leg Press,4,8,8,0.0,0,10,
-2026-01-07,Legs,Leg Extensions,1,10,10,35.0,35,10,
-2026-01-07,Legs,Leg Extensions,2,10,10,35.0,35,10,
-2026-01-07,Legs,Leg Extensions,3,10,10,35.0,35,10,
-2026-01-07,Legs,Seated Leg Curls,1,8,8,42.5,42.5,5,
-2026-01-07,Legs,Seated Leg Curls,2,10,10,42.5,42.5,5,
-2026-01-07,Legs,Seated Leg Curls,3,9,9,42.5,42.5,5,
-2026-01-07,Legs,Seated Leg Curls,4,14,14,42.5,42.5,5,
-2026-01-07,Legs,Hip Abduction 3/12,1,10,10,80.0,80,,
-2026-01-07,Legs,Hip Abduction 3/12,2,5,5,80.0,80,,
-2026-01-07,Legs,Hip Abduction 3/12,3,12,12/57.5,57.5,80,,
-2026-01-07,Legs,Hip Adduction 3/12,1,12,12,65.0,65,8,
-2026-01-07,Legs,Hip Adduction 3/12,2,12,12,65.0,65,8,
-2026-01-07,Legs,Hip Adduction 3/12,3,14,14,65.0,65,8,
-2026-01-07,Legs,Hip Adduction 3/12,4,,X,65.0,65,8,
-2026-01-11,Legs,Perfect Squats 4/9,1,9,9,10.0,10,10,
-2026-01-11,Legs,Perfect Squats 4/9,2,9,9,10.0,10,10,
-2026-01-11,Legs,Perfect Squats 4/9,3,9,9,10.0,10,10,
-2026-01-11,Legs,Perfect Squats 4/9,4,9,9,10.0,10,10,
-2026-01-11,Legs,Seated Leg Press Machine,1,,8 (Drained by the warm ups),,42.5 (Should In crease the weight to 50? next time),9,
-2026-01-11,Legs,Seated Leg Press Machine,2,10,10,,42.5 (Should In crease the weight to 50? next time),9,
-2026-01-11,Legs,Seated Leg Press Machine,3,,12 (I should go all the way down to stimulate my glutes),,42.5 (Should In crease the weight to 50? next time),9,
-2026-01-11,Legs,Seated Leg Press Machine,4,12,12,,42.5 (Should In crease the weight to 50? next time),9,
-2026-01-11,Legs,Leg Extensions,1,10,10,35.0,35,10,
-2026-01-11,Legs,Leg Extensions,2,12,12,35.0,35,10,
-2026-01-11,Legs,Leg Extensions,3,11,11,35.0,35,10,
-2026-01-11,Legs,Seated Leg Curls,1,12,12/42.5,42.5,57.5,,
-2026-01-11,Legs,Seated Leg Curls,2,11,11,57.5,57.5,,
-2026-01-11,Legs,Seated Leg Curls,3,4,4,57.5,57.5,,
-2026-01-11,Legs,Hip Abductuon,1,12,12,65.0,65,,
-2026-01-11,Legs,Hip Abductuon,2,12,12,65.0,65,,
-2026-01-11,Legs,Adduction,1,16,16,65.0,65,8 Should Increase weight,
-2026-01-11,Legs,Adduction,2,16,16,65.0,65,8 Should Increase weight,
-2026-01-11,Legs,Adduction,3,20,20,65.0,65,8 Should Increase weight,
-2026-01-15,Legs,Perfect Squats,1,9,9,,4/9/10,8 (Increase weight to 12.5?),
-2026-01-15,Legs,Perfect Squats,2,9,9,,4/9/10,8 (Increase weight to 12.5?),
-2026-01-15,Legs,Perfect Squats,3,9,9,,4/9/10,8 (Increase weight to 12.5?),
-2026-01-15,Legs,Perfect Squats,4,9,9,,4/9/10,8 (Increase weight to 12.5?),
-2026-01-15,Legs,Seated Leg Press Machine,1,9,9/0,0.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
-2026-01-15,Legs,Seated Leg Press Machine,2,8,8/20kg,20.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
-2026-01-15,Legs,Seated Leg Press Machine,3,10,10/20kg,20.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
-2026-01-15,Legs,Seated Leg Press Machine,4,10,10/40kg,40.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
-2026-01-15,Legs,Leg Extensions,1,12,12,,3/12/35,9 (Add 1 set or Increase weight and decrement reps?),
-2026-01-15,Legs,Leg Extensions,2,12,12,,3/12/35,9 (Add 1 set or Increase weight and decrement reps?),
-2026-01-15,Legs,Leg Extensions,3,12,12,,3/12/35,9 (Add 1 set or Increase weight and decrement reps?),
-2026-01-15,Legs,Seated Leg Curls,1,,,,3/10/57.5,Delete & Substitute w/ Leg press drop set?,
-2026-01-15,Legs,Hip Abductuon,1,12,12/72.5kg,72.5,3/12/65,Lean torso forward to maximize hip stimulus (Decrease rep to 10 and increase set to 4?),
-2026-01-15,Legs,Hip Abductuon,2,12,12/72.5 Beginning to fail @ 8,,3/12/65,Lean torso forward to maximize hip stimulus (Decrease rep to 10 and increase set to 4?),
-2026-01-15,Legs,Hip Abductuon,3,12,12/72.5,72.5,3/12/65,Lean torso forward to maximize hip stimulus (Decrease rep to 10 and increase set to 4?),
-2026-01-15,Legs,Adduction,1,12,12/80,80.0,3/12/72.5,Increase sets? Depending on the fatigue I build up on the preceding sets,
-2026-01-15,Legs,Adduction,2,13,13/80,80.0,3/12/72.5,Increase sets? Depending on the fatigue I build up on the preceding sets,
-2026-01-15,Legs,Adduction,3,14,14/80,80.0,3/12/72.5,Increase sets? Depending on the fatigue I build up on the preceding sets,
-2026-01-19,Legs,Perfect Squats,1,8,8,15.0,15kgs,Doing 4/6/20 next time,
-2026-01-19,Legs,Perfect Squats,2,8,8,15.0,15kgs,Doing 4/6/20 next time,
-2026-01-19,Legs,Perfect Squats,3,8,8,15.0,15kgs,Doing 4/6/20 next time,
-2026-01-19,Legs,Perfect Squats,4,8,8/20,20.0,15kgs,Doing 4/6/20 next time,
-2026-01-19,Legs,Seated Leg Press Machine,1,8,8,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
-2026-01-19,Legs,Seated Leg Press Machine,2,8,8,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
-2026-01-19,Legs,Seated Leg Press Machine,3,8,8,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
-2026-01-19,Legs,Seated Leg Press Machine,4,,X,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
-2026-01-19,Legs,Leg Extensions,1,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
-2026-01-19,Legs,Leg Extensions,2,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
-2026-01-19,Legs,Leg Extensions,3,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
-2026-01-19,Legs,Leg Extensions,4,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
-2026-01-19,Legs,Hip Adduction,1,10,10,72.5,72.5,Retain weight increase reps,
-2026-01-19,Legs,Hip Adduction,2,10,10,72.5,72.5,Retain weight increase reps,
-2026-01-19,Legs,Hip Adduction,3,10,10,72.5,72.5,Retain weight increase reps,
-2026-01-19,Legs,Hip Adduction,4,10,10,72.5,72.5,Retain weight increase reps,
-2026-01-19,Legs,Tricep rope pull down,1,,test,27.5,27.5,,
-2026-01-19,Legs,Tricep rope pull down,2,12,12,27.5,27.5,,
-2026-01-19,Legs,Tricep rope pull down,3,12,12,27.5,27.5,,
-2026-01-19,Legs,Tricep rope pull down,4,,12 (started to fail at 10),27.5,27.5,,
-2026-01-19,Legs,Overhead tricep pull down,1,8,8,27.5,27.5,,
-2026-01-19,Legs,Overhead tricep pull down,2,8,8,27.5,27.5,,
-2026-01-19,Legs,Overhead tricep pull down,3,8,8,27.5,27.5,,
-2026-01-19,Legs,Overhead tricep pull down,4,,X,27.5,27.5,,
-2026-01-23,Legs,Smith Machine Squats,1,8,8,30.0,30kgs,Go back to perfect squats or continue practice with low weight,
-2026-01-23,Legs,Smith Machine Squats,2,8,8,30.0,30kgs,Go back to perfect squats or continue practice with low weight,
-2026-01-23,Legs,Smith Machine Squats,3,7,7/40,40.0,30kgs,Go back to perfect squats or continue practice with low weight,
-2026-01-23,Legs,Smith Machine Squats,4,10,10/20,20.0,30kgs,Go back to perfect squats or continue practice with low weight,
-2026-01-23,Legs,Seated leg press Machine,1,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
-2026-01-23,Legs,Seated leg press Machine,2,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
-2026-01-23,Legs,Seated leg press Machine,3,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
-2026-01-23,Legs,Seated leg press Machine,4,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
-2026-01-23,Legs,leg extensions,1,10,10,42.5,42.5,,
-2026-01-23,Legs,leg extensions,2,11,11,42.5,42.5,,
-2026-01-23,Legs,leg extensions,3,10,10,42.5,42.5,,
-2026-01-23,Legs,leg extensions,4,11,11,42.5,42.5,,
-2026-01-23,Legs,Military press,1,10,10/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
-2026-01-23,Legs,Military press,2,9,9/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
-2026-01-23,Legs,Military press,3,11,11/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
-2026-01-23,Legs,Military press,4,9,9/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
-2026-01-23,Legs,Lateral Raises,1,,10 together / 20,20.0,,,
-2026-01-23,Legs,Lateral Raises,2,12,12 ea /27.5,27.5,,,
-2026-01-23,Legs,Lateral Raises,3,,together to failure / 20,20.0,,,
-2026-02-07,Legs,Smith Machine Squats,1,10,10,30.0,30,Keep back straight,Plan: 3/10/30
-2026-02-07,Legs,Smith Machine Squats,2,10,10,30.0,30,Keep back straight,Plan: 3/10/30
-2026-02-07,Legs,Smith Machine Squats,3,10,10,30.0,30,Keep back straight,Plan: 3/10/30
-2026-02-07,Legs,Smith Machine Squats,4,,X,30.0,30,Keep back straight,Plan: 3/10/30
-2026-02-07,Legs,Seated leg press Machine,1,8,8,40.0,40,This is maximum intensity (Ensure full ROM),Plan: 3/8/40
-2026-02-07,Legs,Seated leg press Machine,2,,7 (failed at 7),40.0,40,This is maximum intensity (Ensure full ROM),Plan: 3/8/40
-2026-02-07,Legs,Seated leg press Machine,3,8,8,40.0,40,This is maximum intensity (Ensure full ROM),Plan: 3/8/40
-2026-02-07,Legs,Seated leg press Machine,4,,X,40.0,40,This is maximum intensity (Ensure full ROM),Plan: 3/8/40
-2026-02-07,Legs,leg extensions,1,12,12,40.0,40,,Plan: 3/12/42.5
-2026-02-07,Legs,leg extensions,2,9,9,40.0,40,,Plan: 3/12/42.5
-2026-02-07,Legs,leg extensions,3,12,12/30,30.0,40,,Plan: 3/12/42.5
-2026-02-07,Legs,Lateral Raises,1,20,20ea / 27.5,27.5,,,Plan: 4/12ea/27.5
-2026-02-07,Legs,Lateral Raises,2,15,15ea/27.5,27.5,,,Plan: 4/12ea/27.5
-2026-02-07,Legs,Hammer Curls,1,,X,,,,Plan: 4/9ea/12
-2026-02-07,Legs,Tricep rope pull down,1,,X,,,,Plan: 3/12/27.5
-2026-02-07,Legs,Overhead tricep pull down,1,,X,,,,Plan: 4/8/27.5
-2026-02-11,Legs,Perfect Squats,1,8,8,20.0,20,Keep back straight (3/8/25 or 30),Plan: 3/8/20
-2026-02-11,Legs,Perfect Squats,2,8,8,20.0,20,Keep back straight (3/8/25 or 30),Plan: 3/8/20
-2026-02-11,Legs,Perfect Squats,3,8,8/25,25.0,20,Keep back straight (3/8/25 or 30),Plan: 3/8/20
-2026-02-11,Legs,Perfect Squats,4,7,7/25,25.0,20,Keep back straight (3/8/25 or 30),Plan: 3/8/20
-2026-02-11,Legs,Seated Leg press Machine,1,8,8,,,Increase weight to 60,Plan: 3/8/40
-2026-02-11,Legs,Seated Leg press Machine,2,8,8,,,Increase weight to 60,Plan: 3/8/40
-2026-02-11,Legs,Seated Leg press Machine,3,7,7/60,60.0,,Increase weight to 60,Plan: 3/8/40
-2026-02-11,Legs,Hip Abductions,1,12,12,,,3 sets with increased intensity,Plan: 4/12/72.5
-2026-02-11,Legs,Hip Abductions,2,12,12,,,3 sets with increased intensity,Plan: 4/12/72.5
-2026-02-11,Legs,Hip Abductions,3,12,12,,,3 sets with increased intensity,Plan: 4/12/72.5
-2026-02-11,Legs,Hip Abductions,4,,12 failing at 7-8 (continued with partial reps),,,3 sets with increased intensity,Plan: 4/12/72.5
-2026-02-11,Legs,Hip Adductions,1,14,14,,,Same as above,Plan: 4/12/80
-2026-02-11,Legs,Hip Adductions,2,12,12,,,Same as above,Plan: 4/12/80
-2026-02-22,Legs,Perfect Squats,1,8,8,20.0,20,Keep back straight,Plan: 3/8/20
-2026-02-22,Legs,Perfect Squats,2,8,8,20.0,20,Keep back straight,Plan: 3/8/20
-2026-02-22,Legs,Perfect Squats,3,8,8,20.0,20,Keep back straight,Plan: 3/8/20
-2026-02-22,Legs,Seated leg press,1,8,8,40.0,40,Place feet lower,Plan: 3/8/40
-2026-02-22,Legs,Seated leg press,2,8,8,40.0,40,Place feet lower,Plan: 3/8/40
-2026-02-22,Legs,Seated leg press,3,8,8,40.0,40,Place feet lower,Plan: 3/8/40
-2026-02-22,Legs,Hip abductions,1,12,12,,,,Plan: 3/12/72.5
-2026-02-22,Legs,Hip abductions,2,11,11,,,,Plan: 3/12/72.5
-2026-02-22,Legs,Hip abductions,3,8,8,,,,Plan: 3/12/72.5
-2026-03-03,Legs,Perfect Squats,1,8,8,,,4 sets not easy,Plan: 4/8/20
-2026-03-03,Legs,Perfect Squats,2,8,8,,,4 sets not easy,Plan: 4/8/20
-2026-03-03,Legs,Perfect Squats,3,,7.5,,,4 sets not easy,Plan: 4/8/20
-2026-03-03,Legs,Perfect Squats,4,7,7,,,4 sets not easy,Plan: 4/8/20
-2026-03-03,Legs,Seated Leg press,1,6,6/60,60.0,,,Plan: 3/8/60
-2026-03-03,Legs,Seated Leg press,2,7,7/60,60.0,,,Plan: 3/8/60
-2026-03-03,Legs,Seated Leg press,3,6,6/60,60.0,,,Plan: 3/8/60
-2026-03-07,Legs,Perfect Squats,1,10,10/20,20.0,,Start w/ 30 and subsequently lower,Plan: 4/8/30
-2026-03-07,Legs,Perfect Squats,2,8,8/30,30.0,,Start w/ 30 and subsequently lower,Plan: 4/8/30
-2026-03-07,Legs,Perfect Squats,3,6,6/30,30.0,,Start w/ 30 and subsequently lower,Plan: 4/8/30
-2026-03-07,Legs,Perfect Squats,4,8,8/20,20.0,,Start w/ 30 and subsequently lower,Plan: 4/8/30
-2026-03-07,Legs,Seated leg press,1,7,7/60,60.0,,,Plan: 4/7/60
-2026-03-07,Legs,Seated leg press,2,7,7/60,60.0,,,Plan: 4/7/60
-2026-03-07,Legs,Seated leg press,3,7,7/60,60.0,,,Plan: 4/7/60
-2026-03-07,Legs,Seated leg press,4,8,8/20,20.0,,,Plan: 4/7/60
-2026-03-07,Legs,Hip Abductions,1,12,12/72.5,72.5,,Start with 80,Plan: 3/12/72.5
-2026-03-07,Legs,Hip Abductions,2,,8.5/80,80.0,,Start with 80,Plan: 3/12/72.5
-2026-03-07,Legs,Hip Abductions,3,,9.5/80,80.0,,Start with 80,Plan: 3/12/72.5
-2026-03-07,Legs,Hip Abductions,4,10,10/72.5,72.5,,Start with 80,Plan: 3/12/72.5
-2026-03-07,Legs,Leg extensions,1,12,12/42.5,42.5,,,Plan: 3/12/42.5
-2026-03-07,Legs,Leg extensions,2,,9.5/42.5,42.5,,,Plan: 3/12/42.5
-2026-03-07,Legs,Leg extensions,3,10,10/50,50.0,,,Plan: 3/12/42.5
-2026-03-13,Legs,Smith Machine Incline,1,,2/6/50,,,8/50,
-2026-03-13,Legs,Smith Machine Incline,2,8,8,,,8/50,
-2026-03-13,Legs,Smith Machine Incline,3,,7.5,,,8/50,
-2026-03-13,Legs,Machine Chest Press,1,,2/10/50,,,Increase to 50,
-2026-03-13,Legs,Machine Chest Press,2,10,10/50,50.0,,Increase to 50,
-2026-03-13,Legs,Machine Chest Press,3,8,8/50,50.0,,Increase to 50,
-2026-03-13,Legs,Pec Dec flies,1,,2/10/50,,,,
-2026-03-13,Legs,Pec Dec flies,2,6,6/50,50.0,,,
-2026-03-13,Legs,Pec Dec flies,3,7,7/40,40.0,,,
-2026-03-13,Legs,Dumbell Chest Press,1,,2/12/12,,,,
-2026-03-13,Legs,Dumbell Chest Press,2,14,14/14,14.0,,,
-2026-03-13,Legs,Lateral Raises,1,,2/f/6,,,,
-2026-03-13,Legs,Lateral Raises,2,15,15/6,6.0,,,
-2026-03-13,Legs,Lateral Raises,3,,10/6+6/4,,,,
-2026-03-13,Legs,Military press,1,,2/10/25,,,,
-2026-03-13,Legs,Military press,2,10,10/25,25.0,,,
-2026-03-13,Legs,Military press,3,,8.5/25,25.0,,,
-2026-03-20,Legs,Incline smith machine chest press,1,,2/7/50,,,,
-2026-03-20,Legs,Incline smith machine chest press,2,,Warmup/40,40.0,,,
-2026-03-20,Legs,Incline smith machine chest press,3,8,8/50,50.0,,,
-2026-03-20,Legs,Incline smith machine chest press,4,,6.5/50,50.0,,,
-2026-03-20,Legs,Chest press machine,1,,2/10/40,,,,
-2026-03-20,Legs,Chest press machine,2,12,12/40,40.0,,,
-2026-03-20,Legs,Chest press machine,3,,9.5/40,40.0,,,
-2026-03-20,Legs,Pec dec flies,1,,2/10/50,,,,
-2026-03-20,Legs,Dumbell chest press,1,,2/10/14,,,,
-2026-03-20,Legs,Dumbell chest press,2,12,12/14,14.0,,,
-2026-03-20,Legs,Dumbell chest press,3,12,12/14,14.0,,,
-2026-03-20,Legs,Lateral Raises,1,,2/f/6,,,,
-2026-03-20,Legs,Military press,1,,2/10/25,,,,
-2026-03-20,Legs,Chest/6,1,,,,,,
-2026-03-08,Back + Chest,Pull ups x2,1,,7+3,,,,
-2026-03-08,Back + Chest,Pull ups x2,2,,6+5,,,,
-2026-03-08,Back + Chest,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,1,,Warmup,,,,
-2026-03-08,Back + Chest,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,2,5,5/50,50.0,,,
-2026-03-08,Back + Chest,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,3,,8.5/40,40.0,,,
-2026-03-08,Back + Chest,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,4,,8.5/40,40.0,,,
-2026-03-08,Back + Chest,T-bar rows Warmups +,1,10,10/30,30.0,,Go with 10/25,Plan: 2/9/30
-2026-03-08,Back + Chest,T-bar rows Warmups +,2,14,14/20,20.0,,Go with 10/25,Plan: 2/9/30
-2026-03-08,Back + Chest,Machine Chest Press,1,7,7/30 (incline),,,,Plan: 3/10/50
-2026-03-08,Back + Chest,Machine Chest Press,2,5,5/30 (incline),,,,Plan: 3/10/50
-2026-03-08,Back + Chest,Machine Chest Press,3,,4.5/30 (incline),,,,Plan: 3/10/50
-2026-03-08,Back + Chest,Lat cable pull downs,1,14,14/45,45.0,,,Plan: 2/12/45
-2026-03-08,Back + Chest,Lat cable pull downs,2,8,8/50,50.0,,,Plan: 2/12/45
-2026-03-08,Back + Chest,Dumbell Chest Press,1,12,12/12,12.0,,,Plan: 3/12/12
-2026-03-08,Back + Chest,Dumbell Chest Press,2,15,15/12,12.0,,,Plan: 3/12/12
-2026-03-08,Back + Chest,Dumbell Chest Press,3,12,12/12,12.0,,,Plan: 3/12/12
-2026-03-08,Back + Chest,Back/6 + Chest/9,1,,,,,,
-2026-03-15,Back + Chest,Pull ups,1,,x2,,,Try to reach 7 reps,
-2026-03-15,Back + Chest,Pull ups,2,,6+,,,Try to reach 7 reps,
-2026-03-15,Back + Chest,Pull ups,3,,6+,,,Try to reach 7 reps,
-2026-03-15,Back + Chest,Smith Machine Incline Warmup,1,,2/6/50,,,Start with 40 or 45,
-2026-03-15,Back + Chest,Smith Machine Incline Warmup,2,4,4/50,50.0,,Start with 40 or 45,
-2026-03-15,Back + Chest,Smith Machine Incline Warmup,3,,8.5/40,40.0,,Start with 40 or 45,
-2026-03-15,Back + Chest,T-bar rows,1,,2/9/25,,,Full ROM with 20,
-2026-03-15,Back + Chest,T-bar rows,2,,Warm up,,,Full ROM with 20,
-2026-03-15,Back + Chest,T-bar rows,3,15,15/10,10.0,,Full ROM with 20,
-2026-03-15,Back + Chest,T-bar rows,4,14,14/20,20.0,,Full ROM with 20,
-2026-03-15,Back + Chest,Machine Chest Press,1,,2/10/50,,,,
-2026-03-15,Back + Chest,Machine Chest Press,2,14,14/40,40.0,,,
-2026-03-15,Back + Chest,Machine Chest Press,3,10,10/50,50.0,,,
-2026-03-15,Back + Chest,Machine Chest Press,4,6,6/40,40.0,,,
-2026-03-15,Back + Chest,Lat cable pull downs (Full ROM),1,,2/12/33,,,Full ROM with 32,
-2026-03-15,Back + Chest,Lat cable pull downs (Full ROM),2,20,20/27.5,27.5,,Full ROM with 32,
-2026-03-15,Back + Chest,Lat cable pull downs (Full ROM),3,20,20/32,32.0,,Full ROM with 32,
-2026-03-15,Back + Chest,Dumbell Chest Press,1,,2/12/12,,,,
-2026-03-15,Back + Chest,Dumbell Chest Press,2,14,14/14,14.0,,,
-2026-03-15,Back + Chest,Dumbell Chest Press,3,14,14/12,12.0,,,
-2026-03-22,Back + Chest,Pull ups,1,8,8,,,,
-2026-03-22,Back + Chest,Pull ups,2,6,6,,,,
-2026-03-22,Back + Chest,Incline bench,1,11,11/40,40.0,,,
-2026-03-22,Back + Chest,Incline bench,2,,9.5/40,40.0,,,
-2026-03-22,Back + Chest,Smith Machine row,1,9,9/40,40.0,,,
-2026-03-22,Back + Chest,Smith Machine row,2,14,14/30,30.0,,,
-2026-03-22,Back + Chest,Machine chest press,1,12,12/40,40.0,,,
-2026-03-22,Back + Chest,Machine chest press,2,12,12/40,40.0,,,
-2026-03-22,Back + Chest,Back/4 + Chest/4,1,,,,,,
-2026-03-29,Back + Chest,Pull ups,1,,x2,,,,
-2026-03-29,Back + Chest,Pull ups,2,9,9,,,,
-2026-03-29,Back + Chest,Pull ups,3,7,7,,,,
-2026-03-29,Back + Chest,Incline chest press,1,,2/8/50,,,,
-2026-03-29,Back + Chest,Incline chest press,2,6,6/50,50.0,,,
-2026-03-29,Back + Chest,Incline chest press,3,8,8/45,45.0,,,
-2026-03-29,Back + Chest,Seated row,1,2,2/,,,Red machine (go with 60?),
-2026-03-29,Back + Chest,Seated row,2,16,16/31.5,31.5,,Red machine (go with 60?),
-2026-03-29,Back + Chest,Seated row,3,16,16/50 (red machine),,,Red machine (go with 60?),
-2026-03-29,Back + Chest,Chest press machine,1,8,8/30,30.0,,,
-2026-03-29,Back + Chest,Chest press machine,2,6,6/30,30.0,,,
-2026-03-29,Back + Chest,Seated Cable rows,1,,2/10/45.5,,,,
-2026-03-29,Back + Chest,Seated Cable rows,2,12,12/45.5,45.5,,,
-2026-03-29,Back + Chest,Seated Cable rows,3,10,10/45.5,45.5,,,
-2026-03-29,Back + Chest,Pec deck flies,1,2,2/,,,,
-2026-03-08,Arms + Shoulders,Lateral Raises,1,31,31/4,4.0,Maybe go with 6..??,,Plan: 3/f/4
-2026-03-08,Arms + Shoulders,Lateral Raises,2,22,22/4,4.0,Maybe go with 6..??,,Plan: 3/f/4
-2026-03-08,Arms + Shoulders,Lateral Raises,3,15,15/6,6.0,Maybe go with 6..??,,Plan: 3/f/4
-2026-03-08,Arms + Shoulders,Dumbell Drag Curls,1,11,11/10,10.0,,,Plan: 2/f/14
-2026-03-08,Arms + Shoulders,Dumbell Drag Curls,2,,Focused on breathing/10,10.0,,,Plan: 2/f/14
-2026-03-08,Arms + Shoulders,Military Press,1,6,6/30,30.0,Lower to 20,,Plan: 3/10/30
-2026-03-08,Arms + Shoulders,Military Press,2,9,9/20,20.0,Lower to 20,,Plan: 3/10/30
-2026-03-08,Arms + Shoulders,Military Press,3,11,11/20,20.0,Lower to 20,,Plan: 3/10/30
-2026-03-08,Arms + Shoulders,Reverse Curls,1,,Focues on breathing/15,15.0,Lower to 15,,Plan: 2/f/20
-2026-03-08,Arms + Shoulders,Reverse Curls,2,13,13/15,15.0,Lower to 15,,Plan: 2/f/20
-2026-03-08,Arms + Shoulders,Overhead Tricep Rope Pulldown,1,20,20/32,32.0,Go with 41,,Plan: 2/12/32
-2026-03-08,Arms + Shoulders,Overhead Tricep Rope Pulldown,2,,8/41 + 4/32,,Go with 41,,Plan: 2/12/32
-2026-03-08,Arms + Shoulders,Tricep rope pulldown,1,,5/32 + 4/27.5,,Go with 27.5,,Plan: 2/12/27
-2026-03-08,Arms + Shoulders,Tricep rope pulldown,2,,8.5/27.5,27.5,Go with 27.5,,Plan: 2/12/27
-2026-03-08,Arms + Shoulders,Preacher Curls,1,9,9/40,40.0,,,Plan: 2/10/40
-2026-03-08,Arms + Shoulders,Preacher Curls,2,7,7/40,40.0,,,Plan: 2/10/40
-2026-03-08,Arms + Shoulders,S/6 + Bi/6 + Tri/4,1,,,,,,
-2026-03-16,Arms + Shoulders,Lateral Raises,1,30,30,,,,Plan: 2/f/4
-2026-03-16,Arms + Shoulders,Lateral Raises,2,20,20,,,,Plan: 2/f/4
-2026-03-16,Arms + Shoulders,Barbell Curls,1,12,12/20,20.0,Maybe go with 25,,Plan: 2/f/20
-2026-03-16,Arms + Shoulders,Barbell Curls,2,,12.5/20,20.0,Maybe go with 25,,Plan: 2/f/20
-2026-03-16,Arms + Shoulders,Military Press,1,12,12/25,25.0,,,Plan: 2/10/25
-2026-03-16,Arms + Shoulders,Military Press,2,12,12/25,25.0,,,Plan: 2/10/25
-2026-03-16,Arms + Shoulders,Reverse Curls,1,17,17/15,15.0,,,Plan: 2/15/15
-2026-03-16,Arms + Shoulders,Reverse Curls,2,17,17/15,15.0,,,Plan: 2/15/15
-2026-03-16,Arms + Shoulders,Overhead Tricep Rope Pulldown,1,9,9/41,41.0,,,Plan: 2/12/41
-2026-03-16,Arms + Shoulders,Overhead Tricep Rope Pulldown,2,8,8/41,41.0,,,Plan: 2/12/41
-2026-03-16,Arms + Shoulders,Tricep rope pulldown,1,8,8/27.5,27.5,,,Plan: 2/12/27.5
-2026-03-16,Arms + Shoulders,Tricep rope pulldown,2,,12.5/27.5,27.5,,,Plan: 2/12/27.5
-2026-03-16,Arms + Shoulders,Preacher Curls,1,,9.5/40,40.0,,,Plan: 2/10/40
-2026-03-16,Arms + Shoulders,Preacher Curls,2,,9.5/40,40.0,,,Plan: 2/10/40
-2026-03-23,Arms + Shoulders,Lateral Raises,1,20,20/4,4.0,Add 3rd set?,,Plan: 2/f/4
-2026-03-23,Arms + Shoulders,Lateral Raises,2,20,20/4,4.0,Add 3rd set?,,Plan: 2/f/4
-2026-03-23,Arms + Shoulders,Barbell Curls,1,,8.5/25,25.0,Stick with 20,,Plan: 2/f/25
-2026-03-23,Arms + Shoulders,Barbell Curls,2,12,12/20,20.0,Stick with 20,,Plan: 2/f/25
-2026-03-23,Arms + Shoulders,Military Press,1,13,13/25,25.0,,,Plan: 2/12/25
-2026-03-23,Arms + Shoulders,Military Press,2,12,12/25,25.0,,,Plan: 2/12/25
-2026-03-23,Arms + Shoulders,Reverse Curls,1,16,16/15,15.0,Move within the upper part of the ROM.,,Plan: 2/15/15
-2026-03-23,Arms + Shoulders,Reverse Curls,2,12,12/15,15.0,Move within the upper part of the ROM.,,Plan: 2/15/15
-2026-03-23,Arms + Shoulders,Overhead Tricep Rope Pulldown,1,,12/41+4/36,,,,Plan: 2/12/41
-2026-03-23,Arms + Shoulders,Overhead Tricep Rope Pulldown,2,,7/41+4/32,,,,Plan: 2/12/41
-2026-03-23,Arms + Shoulders,Tricep rope pulldown,1,12,12/27.5,27.5,,,Plan: 2/12/27.5
-2026-03-23,Arms + Shoulders,Tricep rope pulldown,2,10,10/27.5,27.5,,,Plan: 2/12/27.5
-2026-03-23,Arms + Shoulders,Lateral Hammer Curls,1,10,10/12,12.0,,,Plan: 2/10/12ea
-2026-03-23,Arms + Shoulders,Lateral Hammer Curls,2,10,10/12,12.0,,,Plan: 2/10/12ea
-2026-03-30,Arms + Shoulders,Lateral Raises,1,,f/6,6.0,,,Plan: 2/f/4
-2026-03-30,Arms + Shoulders,Lateral Raises,2,,f/4,4.0,,,Plan: 2/f/4
-2026-03-30,Arms + Shoulders,Reverse Curls,1,21,21/15,15.0,,,Plan: 2/15/15
-2026-03-30,Arms + Shoulders,Military Press,1,,12/25/behind-neck,,,,Plan: 2/12/25
-2026-03-30,Arms + Shoulders,Military Press,2,,12/25/behind-neck,,,,Plan: 2/12/25
-2026-03-30,Arms + Shoulders,Biceps Curl,1,15,15/35,35.0,,,Plan: 2/12/
-2026-03-30,Arms + Shoulders,Overhead Tricep Rope Pulldown,1,12,12/36,36.0,,,Plan: 2/15/36
-2026-03-30,Arms + Shoulders,Overhead Tricep Rope Pulldown,2,10,10/36,36.0,,,Plan: 2/15/36
-2026-03-30,Arms + Shoulders,Tricep rope pulldown,1,12,12/27.5,27.5,,,Plan: 2/12/27.5
-2026-03-30,Arms + Shoulders,Tricep rope pulldown,2,12,12/22.5,22.5,,,Plan: 2/12/27.5
-2026-03-30,Arms + Shoulders,Lateral Hammer Curls,1,,,,,,Plan: 2/8/14
-2026-04-06,Arms + Shoulders,Pull ups,1,,,,,,Plan: x2
-2026-04-06,Arms + Shoulders,Seated row,1,,,,,,Plan: 2/12/55
-2026-04-06,Arms + Shoulders,Lat cable pull downs,1,,,,,,Plan: 2/12/41
-2026-04-06,Arms + Shoulders,Cable rows,1,,,,,,Plan: 2/12/45
-2026-04-06,Arms + Shoulders,Lateral Hammer curls,1,,,,,,Plan: 2/8/14
-2026-04-06,Arms + Shoulders,Reverse Curls,1,,,,,,Plan: 2/10/20
-2026-04-06,Arms + Shoulders,Preacher curls,1,,,,,,Plan: 2/10/40
-2026-04-07,,Pull ups,1,9,9,,,,Plan: x2 | 6+4
-2026-04-07,,Seated row,1,16,16/50,50.0,,,Plan: 2/12/55
-2026-04-07,,Seated row,2,10,10/55,55.0,,,
-2026-04-07,,Seated row,3,,Retain 50 / focus on proper form,,,,
-2026-04-07,,Lat cable pull downs,1,,13.5/41,41.0,,,Plan: 2/12/41 | Vary grip width
-2026-04-07,,Lat cable pull downs,2,12,12/41,41.0,,,
-2026-04-07,,Cable rows,1,,8/45+4/36,,,,Plan: 2/12/45 | Lower weight
-2026-04-07,,Cable rows,2,12,12/36,36.0,,,
-2026-04-07,,Lateral Hammer curls,1,6,6/14,14.0,,,Plan: 2/8/14 | Retain 14
-2026-04-07,,Lateral Hammer curls,2,6,6/14,14.0,,,
-2026-04-07,,Reverse Curls,1,16,16/15,15.0,,,Plan: 2/10/15
-2026-04-07,,Reverse Curls,2,15,15/15,15.0,,,
-2026-04-07,,Preacher curls,1,,6/45+6/30,,,,Plan: 2/10/40
-2026-04-07,,Preacher curls,2,,6/40+5/30,,,,
-2026-06-24,,Pull ups,1,8,8/3,3.0,,,6+4
-2026-06-24,,Pull ups,2,10,10,,,,
-2026-06-24,,Pull ups,3,6,6,,,,
-2026-06-24,,Cable rows,1,7,7,,,,Plan: 8/3/45.5
-2026-06-24,,Cable rows,2,,7.5,,,,
-2026-06-24,,Cable rows,3,7,7,,,,
-2026-06-24,,Lat pulldowns,1,14,14/40,40.0,,,Plan: 10/3/45
-2026-06-24,,Lat pulldowns,2,9,9/45,45.0,,,
-2026-06-24,,Lat pulldowns,3,9,9/45,45.0,,,
-2026-06-24,,Seated rows,1,8,8,,,,Plan: 10/3/25
-2026-06-24,,Seated rows,2,10,10,,,,
-2026-06-24,,Seated rows,3,10,10,,,,
-2026-06-24,,Lat rope pull downs,1,8,8,,,,Plan: 10/3/36 | Lower weight?
-2026-06-24,,Lat rope pull downs,2,7,7,,,,
-2026-06-24,,Lat rope pull downs,3,6,6,,,,
-2026-06-24,,Precher curls,1,9,9,,,,Plan: 10/3/40
-2026-06-24,,Precher curls,2,7,7,,,,
-2026-06-24,,Precher curls,3,4,4,,,,
-2026-06-24,,Reverse curls,1,,,,,,
-2026-06-29,,Pull ups,1,8,8/3,3.0,,,Maybe 9
-2026-06-29,,Pull ups,2,8,8,,,,
-2026-06-29,,Pull ups,3,8,8,,,,
-2026-06-29,,Pull ups,4,8,8,,,,
-2026-06-29,,Seated rows,1,12,12,,,,Plan: 8/3/30
-2026-06-29,,Seated rows,2,12,12,,,,
-2026-06-29,,Seated rows,3,12,12,,,,
-2026-06-29,,Lat pull downs,1,11,11,,,,Plan: 10/3/25
-2026-06-29,,Lat pull downs,2,12,12,,,,
-2026-06-29,,Lat pull downs,3,11,11,,,,
-2026-06-29,,T-bar rows,1,10,10,,,,Plan: 10/3/15
-2026-06-29,,T-bar rows,2,,12.5,,,,
-2026-06-29,,T-bar rows,3,12,12,,,,
-2026-06-29,,Lat rope PDs,1,12,12,,,,Plan: 10/3/36
-2026-06-29,,Lat rope PDs,2,,10.5,,,,
-2026-06-29,,Lat rope PDs,3,12,12,,,,
-2026-06-29,,Reverse curls,1,12,12,,,,Plan: 12/3/15
-2026-06-29,,Reverse curls,2,12,12,,,,
-2026-06-29,,Reverse curls,3,12,12,,,,
-2026-06-29,,Preacher Curls,1,10,10,,,,Plan: 10/3/40 | lower to 35
-2026-06-29,,Preacher Curls,2,,5+4/30,,,,
-2026-06-29,,Preacher Curls,3,,7.5/35,35.0,,,
-2026-04-08,,Smith machine incline,1,5,5/40 warmup,,,,Plan: 2/?/55
-2026-04-08,,Smith machine incline,2,6,6/55,55.0,,,
-2026-04-08,,Smith machine incline,3,3,3/55,55.0,,,
-2026-04-08,,Incline Chest press machine,1,,9.5/30,30.0,,,Plan: 2/12/30
-2026-04-08,,Incline Chest press machine,2,6,6/30,30.0,,,
-2026-04-08,,Pec deck flies,1,,10 w/p/35,,,,Plan: 2/f/25 | Stick to 35
-2026-04-08,,Pec deck flies,2,,9w/p/35,,,,
-2026-04-08,,Shoulder press,1,12,12/30,30.0,,,Plan: 2/12/30
-2026-04-08,,Shoulder press,2,9,9/30,30.0,,,
-2026-04-08,,Tricep rope pull down,1,,,,,,Plan: 2/12/27.5
-2026-06-25,,Smith machine BP,1,7,7/50,50.0,,,Plan: 3/8/50
-2026-06-25,,Smith machine BP,2,4,4/50,50.0,,,
-2026-06-25,,Smith machine BP,3,,6/45+6/40,,,,
-2026-06-25,,Chest press,1,7,7/45,45.0,,,Plan: 3/10/45 | Stick with 45
-2026-06-25,,Chest press,2,,9.5/45,45.0,,,
-2026-06-25,,Chest press,3,7,7/45,45.0,,,
-2026-06-25,,Shoulder Press,1,,11.5/25,25.0,,,Plan: 3/10/25
-2026-06-25,,Shoulder Press,2,7,7/30,30.0,,,
-2026-06-25,,Shoulder Press,3,6,6/25,25.0,,,
-2026-06-25,,Shoulder Press,4,9,9/25?,,,,
-2026-06-25,,Tricep pull downs,1,8,8/32,32.0,,,Plan: 3/10/27.5
-2026-06-25,,Tricep pull downs,2,7,7/27.5,27.5,,,
-2026-06-25,,Tricep pull downs,3,6,6/27.5,27.5,,,
-2026-06-25,,Overhead tricep PD,1,7,7/32,32.0,,,Plan: 3/10/32
-2026-06-25,,Overhead tricep PD,2,12,12/32,32.0,,,
-2026-06-25,,Overhead tricep PD,3,8,8/32,32.0,,,
-2026-06-30,,Pull ups,1,8,8/3,3.0,,,Maybe 9
-2026-06-30,,Pull ups,2,8,8,,,,
-2026-06-30,,Pull ups,3,8,8,,,,
-2026-06-30,,Pull ups,4,8,8,,,,
-2026-06-30,,Seated rows,1,12,12,,,,Plan: 8/3/30
-2026-06-30,,Seated rows,2,12,12,,,,
-2026-06-30,,Seated rows,3,12,12,,,,
-2026-06-30,,Lat pull downs,1,11,11,,,,Plan: 10/3/25
-2026-06-30,,Lat pull downs,2,12,12,,,,
-2026-06-30,,Lat pull downs,3,11,11,,,,
-2026-06-30,,T-bar rows,1,10,10,,,,Plan: 10/3/15
-2026-06-30,,T-bar rows,2,,12.5,,,,
-2026-06-30,,T-bar rows,3,12,12,,,,
-2026-06-30,,Lat rope PDs,1,12,12,,,,Plan: 10/3/36
-2026-06-30,,Lat rope PDs,2,,10.5,,,,
-2026-06-30,,Lat rope PDs,3,12,12,,,,
-2026-06-30,,Reverse curls,1,12,12,,,,Plan: 12/3/15
-2026-06-30,,Reverse curls,2,12,12,,,,
-2026-06-30,,Reverse curls,3,12,12,,,,
-2026-06-30,,Preacher Curls,1,10,10,,,,Plan: 10/3/40 | lower to 35
-2026-06-30,,Preacher Curls,2,,5+4/30,,,,
-2026-06-30,,Preacher Curls,3,,7.5/35,35.0,,,
-2026-07-01,,Perfect squats,1,10,10/0,0.0,,,Plan: 8/3/10
-2026-07-01,,Perfect squats,2,10,10/10,10.0,,,
-2026-07-01,,Perfect squats,3,10,10/10,10.0,,,
-2026-07-01,,Hip adduction,1,12,12/50,50.0,,,Plan: 10/3/65
-2026-07-01,,Hip adduction,2,15,15/65,65.0,,,
-2026-07-01,,Leg press,1,10,10/0,0.0,,,Plan: 12/3/2000
-2026-07-01,,Leg press,2,12,12/0,0.0,,,
+session_key,exercise,exercise_raw,set_number,reps,reps_raw,weight_kg,weight_raw,rpe,notes
+1,Pull-ups,Pull-ups,1,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
+1,Pull-ups,Pull-ups,2,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
+1,Pull-ups,Pull-ups,3,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
+1,Pull-ups,Pull-ups,4,6,6,0.0,0,8 (Interrupted by forearm fatiuge,
+1,Neutral-Grip Pull-ups,Neutral Grip Pull Ups,1,5,5,,,,
+1,Neutral-Grip Pull-ups,Neutral Grip Pull Ups,2,,4 (forearms almost failed before back),,,,
+1,Lat Pulldown,Lat Pull downs,1,10,10,36.0,36,8 (also interrupted by FA),
+1,Lat Pulldown,Lat Pull downs,2,11,11,36.0,36,8 (also interrupted by FA),
+1,T-Bar Row,T-bar rows,1,12,12,15.0,15,7 increase weight or do 12 reps,
+1,T-Bar Row,T-bar rows,2,10,10,15.0,15,7 increase weight or do 12 reps,
+1,T-Bar Row,T-bar rows,3,10,10,15.0,15,7 increase weight or do 12 reps,
+1,T-Bar Row,T-bar rows,4,15,15,15.0,15,7 increase weight or do 12 reps,
+1,Seated Cable Row,Seated Cable Rows,1,10,10 / 35kg,35.0,12 ea,,
+1,Seated Cable Row,Seated Cable Rows,2,,12 each (20kg),12.0,12 ea,,
+1,Seated Cable Row,Seated Cable Rows,3,40,40kg,12.0,12 ea,,
+1,Seated Cable Row,Seated Cable Rows,4,12,12 ea / 20kg,20.0,12 ea,,
+1,Hammer Curls,Hammer Curls,1,6,6 ea / 12kg,12.0,,,
+1,Hammer Curls,Hammer Curls,2,6,6ea / 12kg,12.0,,,
+1,Hammer Curls,Hammer Curls,3,10,10ea / 10kg,10.0,,,
+1,Hammer Curls,Hammer Curls,4,10,10ea / 10kg,10.0,,,
+1,Preacher Curls,Preacher Curls,1,10,10,25.0,25,(Make sure elbows touch the supporting pad),
+1,Preacher Curls,Preacher Curls,2,9,9,25.0,25,(Make sure elbows touch the supporting pad),
+1,Preacher Curls,Preacher Curls,3,7,7,25.0,25,(Make sure elbows touch the supporting pad),
+2,Pull-ups,Pull-ups,1,6,6,0.0,0,6 could be the sweet spot? + focus more on negatives,
+2,Pull-ups,Pull-ups,2,7,7,0.0,0,6 could be the sweet spot? + focus more on negatives,
+2,Pull-ups,Pull-ups,3,,5 (did more partial reps to reach 9),0.0,0,6 could be the sweet spot? + focus more on negatives,
+2,Pull-ups,Pull-ups,4,,5 (did more partial reps to reach failure),0.0,0,6 could be the sweet spot? + focus more on negatives,
+2,Neutral-Grip Pull-ups,Nutral Grip Pull ups,1,7,7,,,Maybe 5 is the optimal,
+2,Neutral-Grip Pull-ups,Nutral Grip Pull ups,2,,7 (beginning to fail at 5),,,Maybe 5 is the optimal,
+2,Neutral-Grip Pull-ups,Nutral Grip Pull ups,3,5,5,,,Maybe 5 is the optimal,
+2,Neutral-Grip Pull-ups,Nutral Grip Pull ups,4,5,5,,,Maybe 5 is the optimal,
+2,T-Bar Row,T-bar rows,1,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
+2,T-Bar Row,T-bar rows,2,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
+2,T-Bar Row,T-bar rows,3,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
+2,T-Bar Row,T-bar rows,4,12,12,20.0,20,Increased weight to 20 (Ain't bad but think I can do more; probably increase weight and decrease reps?),
+2,Seated Cable Row,Seated cable rows,1,12,12ea/20kgs,20.0,20,Warming up with independent set and moving on to both feels good.,
+2,Seated Cable Row,Seated cable rows,2,12,12ea,20.0,20,Warming up with independent set and moving on to both feels good.,
+2,Seated Cable Row,Seated cable rows,3,10,10/35kgs,35.0,20,Warming up with independent set and moving on to both feels good.,
+2,Seated Cable Row,Seated cable rows,4,,10+to failure,20.0,20,Warming up with independent set and moving on to both feels good.,
+2,Hammer Curls,Hammer Curls,1,10,10ea,10.0,10,Should Increase reps,
+2,Hammer Curls,Hammer Curls,2,10,10ea,10.0,10,Should Increase reps,
+2,Hammer Curls,Hammer Curls,3,10,10ea,10.0,10,Should Increase reps,
+2,Hammer Curls,Hammer Curls,4,,10ea (out of spite addition; previous 2 sets were interrupted),10.0,10,Should Increase reps,
+2,Preacher Curls,Preacher Curls,1,10,10,25.0,25,,
+2,Preacher Curls,Preacher Curls,2,,6+partial reps of 2,25.0,25,,
+2,Preacher Curls,Preacher Curls,3,6,6,25.0,25,,
+3,Pull-ups,Pull ups,1,6,6,0.0,0,9 (negatives seem to be effective),
+3,Pull-ups,Pull ups,2,6,6,0.0,0,9 (negatives seem to be effective),
+3,Pull-ups,Pull ups,3,,5+3 negatives,0.0,0,9 (negatives seem to be effective),
+3,Pull-ups,Pull ups,4,,4+3negatives,0.0,0,9 (negatives seem to be effective),
+3,Neutral-Grip Pull-ups,Neutral Grip Pull ups,1,5,5,,,10 Negatives do work,
+3,Neutral-Grip Pull-ups,Neutral Grip Pull ups,2,,5+1 negative,,,10 Negatives do work,
+3,Neutral-Grip Pull-ups,Neutral Grip Pull ups,3,,4+3 negatives,,,10 Negatives do work,
+3,Neutral-Grip Pull-ups,Neutral Grip Pull ups,4,,4+3 negatives,,,10 Negatives do work,
+3,T-Bar Row,T-bar rows 4/6/30kgs,1,8,8,30.0,30,(Pratice proper form with 25kgs next time),Plan: 4/6/30kgs
+3,T-Bar Row,T-bar rows 4/6/30kgs,2,7,7,30.0,30,(Pratice proper form with 25kgs next time),
+3,T-Bar Row,T-bar rows 4/6/30kgs,3,7,7,30.0,30,(Pratice proper form with 25kgs next time),
+3,T-Bar Row,T-bar rows 4/6/30kgs,4,7,7,30.0,30,(Pratice proper form with 25kgs next time),
+3,Seated Cable Row,Seated Cable rows,1,10,10,40.0,40,(Decrease weight to 35?),
+3,Seated Cable Row,Seated Cable rows,2,10,10,40.0,40,(Decrease weight to 35?),
+3,Seated Cable Row,Seated Cable rows,3,,10 (beginning to fail around 6 or 7),40.0,40,(Decrease weight to 35?),
+3,Seated Cable Row,Seated Cable rows,4,10,10,40.0,40,(Decrease weight to 35?),
+4,Pull-ups,Pull Ups 4/6/0 (with Negatives),1,6,6,0.0,0,Weak forearms Almost unable to go up after 4 sets,Plan: 4/6/0
+4,Pull-ups,Pull Ups 4/6/0 (with Negatives),2,7,7,0.0,0,Weak forearms Almost unable to go up after 4 sets,
+4,Pull-ups,Pull Ups 4/6/0 (with Negatives),3,,5+3 negatives,0.0,0,Weak forearms Almost unable to go up after 4 sets,
+4,Pull-ups,Pull Ups 4/6/0 (with Negatives),4,,3+4 negatives,0.0,0,Weak forearms Almost unable to go up after 4 sets,
+4,T-Bar Row,T-bar rows 4/10/25,1,8,8,25.0,25,Should decrease weight to 20 and focus on proper form,Plan: 4/10/25
+4,T-Bar Row,T-bar rows 4/10/25,2,8,8,25.0,25,Should decrease weight to 20 and focus on proper form,
+4,T-Bar Row,T-bar rows 4/10/25,3,10,10/20kgs,20.0,25,Should decrease weight to 20 and focus on proper form,
+4,T-Bar Row,T-bar rows 4/10/25,4,11,11/20kgs,20.0,25,Should decrease weight to 20 and focus on proper form,
+4,Lat Pulldown,Lat pull downs 4/12/,1,,test/30kgs ea,30.0,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
+4,Lat Pulldown,Lat pull downs 4/12/,2,10,10/35kgs ea,35.0,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
+4,Lat Pulldown,Lat pull downs 4/12/,3,10,10,,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
+4,Lat Pulldown,Lat pull downs 4/12/,4,8,8,,last set with 10/30kgs ea,4/9/35kgs seems to be optimal,
+4,Seated Cable Row,Seated Cable rows 4/10/40,1,8,8,40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),Plan: 4/10/40
+4,Seated Cable Row,Seated Cable rows 4/10/40,2,8,8,40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),
+4,Seated Cable Row,Seated Cable rows 4/10/40,3,,8 (beginning to fail at 6),40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),
+4,Seated Cable Row,Seated Cable rows 4/10/40,4,8,8,40.0,40,Stop at chest (while including the stop 4/8/40 feels good for now),
+4,Lat Pulldown,Pull down machine,1,8,8/42.5,42.5,,,
+5,Pull-ups,Pull Ups (with Negatives),1,6,6,0.0,0,Increase reps to 7,
+5,Pull-ups,Pull Ups (with Negatives),2,6,6,0.0,0,Increase reps to 7,
+5,Pull-ups,Pull Ups (with Negatives),3,,4+2,0.0,0,Increase reps to 7,
+5,Pull-ups,Pull Ups (with Negatives),4,,3+3,0.0,0,Increase reps to 7,
+5,T-Bar Row,T-bar rows,1,10,10,20.0,20,Feels good! Ficus on proper form,
+5,T-Bar Row,T-bar rows,2,10,10,20.0,20,Feels good! Ficus on proper form,
+5,T-Bar Row,T-bar rows,3,10,10,20.0,20,Feels good! Ficus on proper form,
+5,T-Bar Row,T-bar rows,4,,To failure (10),20.0,20,Feels good! Ficus on proper form,
+5,Lat Pulldown,Lat pull downs,1,9,9/35kgs ea,35.0,,,
+5,Lat Pulldown,Lat pull downs,2,10,10/30,30.0,,,
+5,Lat Pulldown,Lat pull downs,3,10,10/30,30.0,,,
+5,Lat Pulldown,Lat pull downs,4,,To failure (8),,,,
+5,Seated Cable Row,Seated Cable rows 4/10/40,1,4,4/40,40.0,30,vary weight IAW fatigue,Plan: 4/10/40
+5,Seated Cable Row,Seated Cable rows 4/10/40,2,10,10/30,30.0,30,vary weight IAW fatigue,
+5,Seated Cable Row,Seated Cable rows 4/10/40,3,10,10/30,30.0,30,vary weight IAW fatigue,
+5,Seated Cable Row,Seated Cable rows 4/10/40,4,,To failure (10),30.0,30,vary weight IAW fatigue,
+6,Pull-ups,Pull Ups 4/7/0,1,7,7,0.0,0,Extremely difficult after second set => longer rests,Plan: 4/7/0
+6,Pull-ups,Pull Ups 4/7/0,2,7,7,0.0,0,Extremely difficult after second set => longer rests,
+6,Pull-ups,Pull Ups 4/7/0,3,,3 + 3 negatives,0.0,0,Extremely difficult after second set => longer rests,
+6,Pull-ups,Pull Ups 4/7/0,4,,2+4 negatives,0.0,0,Extremely difficult after second set => longer rests,
+6,T-Bar Row,T-bar rows 4/10/20,1,10,10,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),Plan: 4/10/20
+6,T-Bar Row,T-bar rows 4/10/20,2,10,10,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),
+6,T-Bar Row,T-bar rows 4/10/20,3,10,10,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),
+6,T-Bar Row,T-bar rows 4/10/20,4,11,11,20.0,20,Continue practicing proper form (retain reps. go to failure on last set),
+6,Lat Pulldown,Lat pull downs 4/12/25ea,1,14,14,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),Plan: 4/12/25ea
+6,Lat Pulldown,Lat pull downs 4/12/25ea,2,14,14,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),
+6,Lat Pulldown,Lat pull downs 4/12/25ea,3,12,12,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),
+6,Lat Pulldown,Lat pull downs 4/12/25ea,4,12,12,25.0,25ea,Pull elbows as close as possible (add a stop at the point of full contraction),
+6,Seated Cable Row,Seated Cable rows 4/12/30,1,9,9/35,35.0,,Use grips (Increase reps and go with 3 sets?),Plan: 4/12/30
+6,Seated Cable Row,Seated Cable rows 4/12/30,2,10,10/30,30.0,,Use grips (Increase reps and go with 3 sets?),
+6,Seated Cable Row,Seated Cable rows 4/12/30,3,10,10/30,30.0,,Use grips (Increase reps and go with 3 sets?),
+6,Seated Cable Row,Seated Cable rows 4/12/30,4,12,12/30,30.0,,Use grips (Increase reps and go with 3 sets?),
+6,Preacher Curls,Preacher Curls 3/10/30,1,10,10,,,,Plan: 3/10/30
+6,Preacher Curls,Preacher Curls 3/10/30,2,,9 (failed to go all the way up at 9),,,,
+6,Preacher Curls,Preacher Curls 3/10/30,3,6,6,,,,
+7,Pull-ups,Pull ups 3/7/0,1,7,7,0.0,0,,Plan: 3/7/0
+7,Pull-ups,Pull ups 3/7/0,2,7,7,0.0,0,,
+7,Pull-ups,Pull ups 3/7/0,3,,3+4 negatives,0.0,0,,
+7,Neutral-Grip Pull-ups,N-grip Pull ups 3/5/0,1,5,5,0.0,0,The addition of NGPs feels good. Maybe 3/6 + 3/5?,Plan: 3/5/0
+7,Neutral-Grip Pull-ups,N-grip Pull ups 3/5/0,2,5,5,0.0,0,The addition of NGPs feels good. Maybe 3/6 + 3/5?,
+7,Neutral-Grip Pull-ups,N-grip Pull ups 3/5/0,3,5,5,0.0,0,The addition of NGPs feels good. Maybe 3/6 + 3/5?,
+7,T-Bar Row,T-bar rows 4/10/20,1,10,10,20.0,20,,Plan: 4/10/20
+7,T-Bar Row,T-bar rows 4/10/20,2,10,10,20.0,20,,
+7,T-Bar Row,T-bar rows 4/10/20,3,10,10,20.0,20,,
+7,T-Bar Row,T-bar rows 4/10/20,4,10,10,20.0,20,,
+7,Lat Pulldown,Lat pull downs 3/12/25 ea,1,15,15/25ea,25.0,,,Plan: 3/12/25
+7,Lat Pulldown,Lat pull downs 3/12/25 ea,2,13,13/30ea,30.0,,,
+7,Lat Pulldown,Lat pull downs 3/12/25 ea,3,8,8/30ea,30.0,,,
+7,Lat Pulldown,Lat pull downs 3/12/25 ea,4,,9-to failure/25ea,25.0,,,
+7,Seated Row Machine,Seated row machine 3/12/20,1,12,12,20.0,20,,Plan: 3/12/20
+7,Seated Row Machine,Seated row machine 3/12/20,2,12,12,20.0,20,,
+7,Seated Row Machine,Seated row machine 3/12/20,3,12,12,20.0,20,,
+7,Hammer Curls,Hammer Curls,1,6,6ea/12,12.0,,,
+7,Hammer Curls,Hammer Curls,2,12,12ea/10,10.0,,,
+7,Hammer Curls,Hammer Curls,3,7,7ea/10,10.0,,,
+7,Barbell Curls,Barbell Curls,1,8,8/20,20.0,,,
+7,Barbell Curls,Barbell Curls,2,6,6/20,20.0,,,
+8,Pull-ups,Pull ups 3/7/0,1,7,7,0.0,0,Uncertain of the effect of morning workout,Plan: 3/7/0
+8,Pull-ups,Pull ups 3/7/0,2,7,7,0.0,0,Uncertain of the effect of morning workout,
+8,Pull-ups,Pull ups 3/7/0,3,4,4,0.0,0,Uncertain of the effect of morning workout,
+8,Neutral-Grip Pull-ups,N-grip Pull ups 3/6/0,1,6,6,0.0,0,,Plan: 3/6/0
+8,Neutral-Grip Pull-ups,N-grip Pull ups 3/6/0,2,6,6,0.0,0,,
+8,Neutral-Grip Pull-ups,N-grip Pull ups 3/6/0,3,5,5,0.0,0,,
+8,Seated Row Machine,Chest Supported Seated Row machine 3/12/20,1,14,14,20.0,20,,Plan: 3/12/20
+8,Seated Row Machine,Chest Supported Seated Row machine 3/12/20,2,14,14,20.0,20,,
+8,Seated Row Machine,Chest Supported Seated Row machine 3/12/20,3,12,12,20.0,20,,
+8,Lat Pulldown,Lat pull downs 3/12/25 ea,1,12,12,25.0,25ea,,Plan: 3/12/25
+8,Lat Pulldown,Lat pull downs 3/12/25 ea,2,14,14,25.0,25ea,,
+8,Lat Pulldown,Lat pull downs 3/12/25 ea,3,14,14,25.0,25ea,,
+8,Seated Cable Row,Seated cable rows 3/10/40,1,11,11,,,,Plan: 3/10/40
+8,Hammer Curls,Hammer Curls 4/10/10,1,12,12/10,10.0,,,Plan: 4/10/10
+8,Hammer Curls,Hammer Curls 4/10/10,2,10,10/13,13.0,,,
+8,Hammer Curls,Hammer Curls 4/10/10,3,15,15/11,11.0,,,
+8,Hammer Curls,Hammer Curls 4/10/10,4,10,10/11,11.0,,,
+8,Barbell Curls,Barbell Curls 4/8/20,1,9,9/20,20.0,,,Plan: 4/8/20
+8,Barbell Curls,Barbell Curls 4/8/20,2,9,9/20,20.0,,,
+8,Barbell Curls,Barbell Curls 4/8/20,3,9,9/20,20.0,,,
+8,Barbell Curls,Barbell Curls 4/8/20,4,9,9/20,20.0,,,
+9,Pull-ups,Pull ups To failure x3,1,,7.5,0.0,0,decrease to 2 sets,
+9,Pull-ups,Pull ups To failure x3,2,,6+2,0.0,0,decrease to 2 sets,
+9,Pull-ups,Pull ups To failure x3,3,,2 unable to go up,0.0,0,decrease to 2 sets,
+9,Pull-ups,Pull ups To failure x3,4,10,10,0.0,0,decrease to 2 sets,
+9,Neutral-Grip Pull-ups,N-grip Pull ups to Failure x2,1,,6.5,,,decrease to 2 sets,
+9,Neutral-Grip Pull-ups,N-grip Pull ups to Failure x2,2,,5.5,,,decrease to 2 sets,
+9,T-Bar Row,T-bar rows 3/10/20,1,12,12,20.0,20,nauscious and lower back pain Completly drained out,Plan: 3/10/20
+9,T-Bar Row,T-bar rows 3/10/20,2,12,12,20.0,20,nauscious and lower back pain Completly drained out,
+9,T-Bar Row,T-bar rows 3/10/20,3,12,12,20.0,20,nauscious and lower back pain Completly drained out,
+9,Lat Pulldown,Lat rope pull downs 3/12/40,1,14,14/35,35.0,,Stick to 12/40,Plan: 3/12/40
+9,Lat Pulldown,Lat rope pull downs 3/12/40,2,12,12/40,40.0,,Stick to 12/40,
+9,Lat Pulldown,Lat rope pull downs 3/12/40,3,8,8/45,45.0,,Stick to 12/40,
+9,Seated Cable Row,Seated cable row 3/12/40,1,8,8/36,36.0,,,Plan: 3/12/40
+9,Seated Cable Row,Seated cable row 3/12/40,2,8,8/36,36.0,,,
+9,Lat Pulldown,Rope pull down (back),1,10,10/32,32.0,,,
+9,Lat Pulldown,Rope pull down (back),2,,8.5/32,32.0,,,
+9,Hammer Curls,Hammer Curls 3/10/10,1,12,12/10,10.0,,Maybe go with 2 sets,Plan: 3/10/10
+9,Hammer Curls,Hammer Curls 3/10/10,2,11,11/10,10.0,,Maybe go with 2 sets,
+9,Hammer Curls,Hammer Curls 3/10/10,3,6,6/10,10.0,,Maybe go with 2 sets,
+9,Preacher Curls,Preacher Curls 3/10/30,1,12,12/30,30.0,,,Plan: 3/10/30
+9,Preacher Curls,Preacher Curls 3/10/30,2,12,12/30,30.0,,,
+10,Pull-ups,Pull ups to Failure x2,1,,7.5,0.0,0,,
+10,Pull-ups,Pull ups to Failure x2,2,,5 + partial reps,0.0,0,,
+10,Neutral-Grip Pull-ups,N-grip Pull ups to Failure x2,1,,5+partial reps,0.0,0,Inclusion of partial reps feels effective,
+10,Neutral-Grip Pull-ups,N-grip Pull ups to Failure x2,2,,3+partial reps,0.0,0,Inclusion of partial reps feels effective,
+10,T-Bar Row,T-bar rows 3/12/20,1,12,12,20.0,20,Increased reps to 12. Maintain,Plan: 3/12/20
+10,T-Bar Row,T-bar rows 3/12/20,2,12,12,20.0,20,Increased reps to 12. Maintain,
+10,T-Bar Row,T-bar rows 3/12/20,3,12,12,20.0,20,Increased reps to 12. Maintain,
+10,Lat Pulldown,Lat cable pull downs 3/12/40,1,12,12/41,41.0,,Forearms completely failing,Plan: 3/12/40
+10,Lat Pulldown,Lat cable pull downs 3/12/40,2,12,12/41,41.0,,Forearms completely failing,
+10,Lat Pulldown,Lat cable pull downs 3/12/40,3,12,12/32,32.0,,Forearms completely failing,
+10,Seated Cable Row,Lat cable rows 3/10/40 (pause for 3 seconds),1,10,3/10/40 (planned),40.0,,,Derived from plan: 3/10/40
+10,Seated Cable Row,Lat cable rows 3/10/40 (pause for 3 seconds),2,10,3/10/40 (planned),40.0,,,
+10,Seated Cable Row,Lat cable rows 3/10/40 (pause for 3 seconds),3,10,3/10/40 (planned),40.0,,,
+10,Hammer Curls,Hammer Curls 3/12/10,1,14,14/10,10.0,,,Plan: 3/12/10
+10,Preacher Curls,Preacher Curls 3/10/35,1,10,3/10/35 (planned),35.0,,,Derived from plan: 3/10/35
+10,Preacher Curls,Preacher Curls 3/10/35,2,10,3/10/35 (planned),35.0,,,
+10,Preacher Curls,Preacher Curls 3/10/35,3,10,3/10/35 (planned),35.0,,,
+12,Pull-ups,Pull ups to Failure x3,1,,7+2 negatives,0.0,0,,
+12,Pull-ups,Pull ups to Failure x3,2,,3 + 4 negatives,0.0,0,,
+12,Pull-ups,Pull ups to Failure x3,3,,1+5 Negatives,0.0,0,,
+12,Neutral-Grip Pull-ups,N-grip Pull ups to Failure x2,1,,4+3,0.0,0,,
+12,Neutral-Grip Pull-ups,N-grip Pull ups to Failure x2,2,,4+1,0.0,0,,
+12,T-Bar Row,T-bar rows 4/9/30,1,15,15/20,20.0,,,Plan: 4/9/30
+12,T-Bar Row,T-bar rows 4/9/30,2,9,9/25,25.0,,,
+12,T-Bar Row,T-bar rows 4/9/30,3,10,10/25,25.0,,,
+12,Lat Pulldown,Lat cable pull downs 4/12/40,1,10,10/41,41.0,,Increase to 45,Plan: 4/12/40
+12,Lat Pulldown,Lat cable pull downs 4/12/40,2,10,10/45,45.0,,Increase to 45,
+12,Lat Pulldown,Lat cable pull downs 4/12/40,3,,6.5/45,45.0,,Increase to 45,
+12,Seated Cable Row,Lat cable rows 3/10/40 (pause for 3 seconds),1,12,12/32,32.0,,Forearms are failing,Plan: 3/10/40
+12,Seated Cable Row,Lat cable rows 3/10/40 (pause for 3 seconds),2,12,12/32,32.0,,Forearms are failing,
+12,Seated Cable Row,Lat cable rows 3/10/40 (pause for 3 seconds),3,12,12/32,32.0,,Forearms are failing,
+12,Reverse Curls,Reverse Curls 3/12/10,1,12,3/12/10 (planned),10.0,,,Derived from plan: 3/12/10
+12,Reverse Curls,Reverse Curls 3/12/10,2,12,3/12/10 (planned),10.0,,,
+12,Reverse Curls,Reverse Curls 3/12/10,3,12,3/12/10 (planned),10.0,,,
+12,Preacher Curls,Preacher Curls 3/10/35,1,12,12/35,35.0,,,Plan: 3/10/35
+12,Preacher Curls,Preacher Curls 3/10/35,2,7,7/40,40.0,,,
+12,Preacher Curls,Preacher Curls 3/10/35,3,7,7/35,35.0,,,
+13,Pull-ups,Pull ups to Failure,1,2,2,0.0,0,,
+13,Pull-ups,Pull ups to Failure,2,,6+4,0.0,0,,
+13,Pull-ups,Pull ups to Failure,3,,6+4,0.0,0,,
+13,T-Bar Row,T-bar rows,1,,2/9/30,25.0,25,Retain 25,
+13,T-Bar Row,T-bar rows,2,10,10,25.0,25,Retain 25,
+13,T-Bar Row,T-bar rows,3,8,8,25.0,25,Retain 25,
+13,Lat Pulldown,Lat cable pull downs,1,,2/12/40,45.5,45.5,Maybe lower weight and achieve full ROM?,
+13,Lat Pulldown,Lat cable pull downs,2,,12.5/45.5,45.5,45.5,Maybe lower weight and achieve full ROM?,
+13,Lat Pulldown,Lat cable pull downs,3,12,12/45.5,45.5,45.5,Maybe lower weight and achieve full ROM?,
+13,Seated Cable Row,Lat cable rows,1,,2/10/40 (pause for 3 seconds),,,,
+13,Seated Cable Row,Lat cable rows,2,7,7/40,40.0,,,
+13,Seated Cable Row,Lat cable rows,3,10,10/35,35.0,,,
+14,Pull-ups,Pull ups,1,,x2,,,,
+14,Pull-ups,Pull ups,2,,8+5+4,,,,
+14,Pull-ups,Pull ups,3,,5+3,,,,
+14,Barbell Row,Barbell rows,1,,2/15/30,,,,
+14,Lat Pulldown,Lat pull downs,1,,2/20/33,,,Increase weight to 36,
+14,Lat Pulldown,Lat pull downs,2,20,20/33,33.0,,Increase weight to 36,
+14,Lat Pulldown,Lat pull downs,3,20,20/36,36.0,,Increase weight to 36,
+14,Seated Cable Row,Cable rows,1,,2/15/40,,,,
+14,Seated Cable Row,Cable rows,2,15,15/40,40.0,,,
+14,Seated Cable Row,Cable rows,3,9,9/45,45.0,,,
+14,Reverse Curls,Reverse Curls,1,,2/12/20,,,,
+14,Reverse Curls,Reverse Curls,2,12,12/20,20.0,,,
+14,Reverse Curls,Reverse Curls,3,9,9/20,20.0,,,
+14,Preacher Curls,Preacher Curls,1,,2/8/45,,,,
+14,Preacher Curls,Preacher Curls,2,,6/45+3/35,,,,
+15,Pull-ups,Pull ups,1,,x2,,,,
+15,Pull-ups,Pull ups,2,,8+2+4,,,,
+15,Pull-ups,Pull ups,3,,0+6.5+4,,,,
+15,Neutral-Grip Pull-ups,NG pull ups,1,,x1,,,,
+15,Neutral-Grip Pull-ups,NG pull ups,2,7,7,,,,
+15,T-Bar Row,T-bar rows,1,,2/10/25,,,,
+15,T-Bar Row,T-bar rows,2,12,12/25,25.0,,,
+15,T-Bar Row,T-bar rows,3,,9/25+5/15,,,,
+15,Lat Pulldown,Lat cable pull downs,1,,2/20/36,,,,
+15,Lat Pulldown,Lat cable pull downs,2,19,19/36,36.0,,,
+15,Seated Cable Row,Cable rows,1,,2/10/45,,,,
+15,Seated Cable Row,Cable rows,2,10,10/45.5,45.5,,,
+15,Seated Cable Row,Cable rows,3,10,10/41,41.0,,,
+15,Reverse Curls,Reverse Curls,1,,2/15/15,,,,
+15,Reverse Curls,Reverse Curls,2,16,16/15,15.0,,,
+15,Reverse Curls,Reverse Curls,3,16,16/15,15.0,,,
+15,Barbell Curls,Barbell Curls,1,,2/10/20,,,,
+16,Pull-ups,Pull ups,1,,x2,,,,
+16,Pull-ups,Pull ups,2,,9+4,,,,
+16,Pull-ups,Pull ups,3,,5+4,,,,
+16,Neutral-Grip Pull-ups,NG pull ups,1,,x1,,,,
+16,Neutral-Grip Pull-ups,NG pull ups,2,6,6,,,,
+16,Seated Row Machine,Seated row,1,,2/12/60,,,,
+16,Seated Row Machine,Seated row,2,15,15/50,50.0,,,
+16,Lat Pulldown,Lat cable pull downs,1,,2/12/41,,,,
+16,Lat Pulldown,Lat cable pull downs,2,,9/45+7/35,,,,
+16,Lat Pulldown,Lat cable pull downs,3,10,10/40,40.0,,,
+16,Seated Cable Row,Cable rows,1,,2/12/45,,,,
+16,Seated Cable Row,Cable rows,2,12,12/45,45.0,,,
+16,Seated Cable Row,Cable rows,3,10,10/45,45.0,,,
+16,Reverse Curls,Reverse Curls,1,,2/15/15,,,,
+16,Reverse Curls,Reverse Curls,2,20,20/15,15.0,,,
+16,Reverse Curls,Reverse Curls,3,18,18/15,15.0,,,
+16,Barbell Curls,Biceps Curl,1,,2/15/35,,,,
+16,Barbell Curls,Biceps Curl,2,12,12/35,35.0,,,
+16,Preacher Curls,Preacher curls,1,,1/12/40,,,,
+17,Pull-ups,Pull ups,1,,x2,,,,
+17,Pull-ups,Pull ups,2,9,9,,,,
+17,Pull-ups,Pull ups,3,,6+4,,,,
+17,Seated Row Machine,Seated row,1,,2/12/55,,,Retain 50 / focus on proper form,
+17,Seated Row Machine,Seated row,2,16,16/50,50.0,,Retain 50 / focus on proper form,
+17,Seated Row Machine,Seated row,3,10,10/55,55.0,,Retain 50 / focus on proper form,
+17,Lat Pulldown,Lat cable pull downs,1,,2/12/41,,,Vary grip width,
+17,Lat Pulldown,Lat cable pull downs,2,,13.5/41,41.0,,Vary grip width,
+17,Lat Pulldown,Lat cable pull downs,3,12,12/41,41.0,,Vary grip width,
+17,Seated Cable Row,Cable rows,1,,2/12/45,,,Lower weight,
+17,Seated Cable Row,Cable rows,2,,8/45+4/36,,,Lower weight,
+17,Seated Cable Row,Cable rows,3,12,12/36,36.0,,Lower weight,
+17,Hammer Curls,Lateral Hammer curls,1,,2/8/14,,,Retain 14,
+17,Hammer Curls,Lateral Hammer curls,2,6,6/14,14.0,,Retain 14,
+17,Hammer Curls,Lateral Hammer curls,3,6,6/14,14.0,,Retain 14,
+17,Reverse Curls,Reverse Curls,1,,2/10/15,,,,
+17,Reverse Curls,Reverse Curls,2,16,16/15,15.0,,,
+17,Reverse Curls,Reverse Curls,3,15,15/15,15.0,,,
+17,Preacher Curls,Preacher curls,1,,2/10/40,,,,
+17,Preacher Curls,Preacher curls,2,,6/45+6/30,,,,
+17,Preacher Curls,Preacher curls,3,,6/40+5/30,,,,
+18,Pull-ups,Pullups,1,,x2,,,,
+18,Pull-ups,Pullups,2,9,9,,,,
+18,Pull-ups,Pullups,3,7,7,,,,
+18,Seated Row Machine,Seated row,1,,2/12/55,,,,
+18,Seated Row Machine,Seated row,2,15,15/55,55.0,,,
+18,Seated Row Machine,Seated row,3,12,12/55,55.0,,,
+18,Lat Pulldown,Lat cable pull downs,1,,2/10/45,,,,
+18,Lat Pulldown,Lat cable pull downs,2,9,9/45,45.0,,,
+18,Lat Pulldown,Lat cable pull downs,3,12,12/41,41.0,,,
+18,Seated Row Machine,Seated rows,1,,2/10/45,,,,
+18,Seated Row Machine,Seated rows,2,9,9/45,45.0,,,
+18,Seated Row Machine,Seated rows,3,,4/45+4/36,,,,
+18,Hammer Curls,Lateral Hammer curls,1,,2/7/12,,,,
+18,Hammer Curls,Lateral Hammer curls,2,,10+2,,,,
+18,Hammer Curls,Lateral Hammer curls,3,,10+3,,,,
+18,Reverse Curls,Reverse curls,1,,2/15/15,,,,
+18,Reverse Curls,Reverse curls,2,15,15/15,15.0,,,
+18,Reverse Curls,Reverse curls,3,15,15/15,15.0,,,
+18,Barbell Curls,Arm Curls,1,,2/10/25,,,,
+18,Barbell Curls,Arm Curls,2,,8.5/20,20.0,,,
+19,Pec Deck Fly,FliesPec Deck Fly,1,12,12/40kg,40.0,,,
+19,Pec Deck Fly,FliesPec Deck Fly,2,10,10/45kg,45.0,,,
+19,Pec Deck Fly,FliesPec Deck Fly,3,10,10/45kg,45.0,,,
+19,Incline Chest Press,Incline Chest PressIncline Chest Press Machine,1,,test/20kg,20.0,,,
+19,Incline Chest Press,Incline Chest PressIncline Chest Press Machine,2,10,10/20kg,20.0,,,
+19,Incline Chest Press,Incline Chest PressIncline Chest Press Machine,3,6,6/20kg,20.0,,,
+19,Incline Chest Press,Incline Chest PressIncline Chest Press Machine,4,6,6/20,20.0,,,
+19,Chest Press Machine,Chest Press Machine,1,6,6/20kg,20.0,,,
+19,Chest Press Machine,Chest Press Machine,2,5,5/20kg,20.0,,,
+19,Chest Press Machine,Chest Press Machine,3,7,7/15kg,15.0,,,
+19,Chest Press Machine,Chest Press Machine,4,5,5/15,15.0,,,
+19,Flat Bench Press (Smith Machine),Military PressSmith Machine Bench Press,1,8,8/20kg,20.0,,,
+19,Flat Bench Press (Smith Machine),Military PressSmith Machine Bench Press,2,10,10/30kg,30.0,,,
+19,Flat Bench Press (Smith Machine),Military PressSmith Machine Bench Press,3,4,4/40kg,40.0,,,
+19,Overhead Press,Overhead Press 3/12Military Press,1,7,7/20kg,20.0,,,
+19,Overhead Press,Overhead Press 3/12Military Press,2,5,5/20kg,20.0,,,
+20,Pec Deck Fly,FliesPec Deck Fly,1,12,12,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
+20,Pec Deck Fly,FliesPec Deck Fly,2,12,12,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
+20,Pec Deck Fly,FliesPec Deck Fly,3,12,12,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
+20,Pec Deck Fly,FliesPec Deck Fly,4,10,10,45.0,45kg,Don't use too much energy. Probably move it to the last set?,
+20,Incline Chest Press,Incline Chest Press (Smith Machine),1,10,10,30.0,30kg,,
+20,Incline Chest Press,Incline Chest Press (Smith Machine),2,8,8,30.0,30kg,,
+20,Incline Chest Press,Incline Chest Press (Smith Machine),3,5,5/35,35.0,30kg,,
+20,Incline Chest Press,Incline chest press machine,1,4,4/20kg,20.0,20kg,,
+20,Incline Chest Press,Incline chest press machine,2,8,8/15kg,15.0,20kg,,
+20,Incline Chest Press,Incline chest press machine,3,7,7/15kg,15.0,20kg,,
+20,Incline Chest Press,Incline chest press machine,4,5,5,20.0,20kg,,
+20,Flat Bench Press (Smith Machine),Smith Machine Bench Press,1,10,10,40.0,40kg,"Try to do some warm ups, Should focus more on the machine or lower the weight and practice on my form?",
+20,Flat Bench Press (Smith Machine),Smith Machine Bench Press,2,10,10,40.0,40kg,"Try to do some warm ups, Should focus more on the machine or lower the weight and practice on my form?",
+20,Flat Bench Press (Smith Machine),Smith Machine Bench Press,3,5,5,40.0,40kg,"Try to do some warm ups, Should focus more on the machine or lower the weight and practice on my form?",
+20,Overhead Press,Overhead Press 3/12Military Press,1,6,6,15.0,15kg,,
+20,Overhead Press,Overhead Press 3/12Military Press,2,5,5/20kg,20.0,15kg,,
+20,Chest Press Machine,Chest Press (drop set),1,12,12/15kg,15.0,,Adding some drop sets to the end of my workout sounds good,
+20,Chest Press Machine,Chest Press (drop set),2,12,12/10kg,10.0,,Adding some drop sets to the end of my workout sounds good,
+20,Chest Press Machine,Chest Press (drop set),3,,5kg to failure,,,Adding some drop sets to the end of my workout sounds good,
+21,Flat Bench Press (Smith Machine),Smith Machine Bench Press,1,10,10/40kgs,40.0,,50 with consistent reps would be better next time.,
+21,Flat Bench Press (Smith Machine),Smith Machine Bench Press,2,6,6/50kgs,50.0,,50 with consistent reps would be better next time.,
+21,Flat Bench Press (Smith Machine),Smith Machine Bench Press,3,8,8/50kgs,50.0,,50 with consistent reps would be better next time.,
+21,Flat Bench Press (Smith Machine),Smith Machine Bench Press,4,5,5/50kgs,50.0,,50 with consistent reps would be better next time.,
+21,Incline Chest Press,Smith Machine Incline,1,8,8/40kgs,40.0,,Consistent reps of 7 or 6,
+21,Incline Chest Press,Smith Machine Incline,2,7,7/40kgs (failed to go up at 8),,,Consistent reps of 7 or 6,
+21,Incline Chest Press,Smith Machine Incline,3,6,6,,,Consistent reps of 7 or 6,
+21,Incline Chest Press,Smith Machine Incline,4,5,5,,,Consistent reps of 7 or 6,
+21,Pec Deck Fly,Pec Dec flies,1,7,7/45kgs,45.0,,Should reduce weight and retain reps,
+21,Pec Deck Fly,Pec Dec flies,2,8,8/40kgs,40.0,,Should reduce weight and retain reps,
+21,Pec Deck Fly,Pec Dec flies,3,9,9,,,Should reduce weight and retain reps,
+21,Pec Deck Fly,Pec Dec flies,4,,7 (without full ROM),,,Should reduce weight and retain reps,
+21,Overhead Press,Military press,1,8,8/20kgs,20.0,20kgs,4sets with 30 + 1 drop set to zero,
+21,Overhead Press,Military press,2,7,7/30kgs,30.0,20kgs,4sets with 30 + 1 drop set to zero,
+21,Overhead Press,Military press,3,7,7/30kgs,30.0,20kgs,4sets with 30 + 1 drop set to zero,
+21,Overhead Press,Military press,4,5,5/30kgs,30.0,20kgs,4sets with 30 + 1 drop set to zero,
+21,Chest Press Machine,Machine Chest press drop set,1,11,11/30kgs,30.0,,,
+21,Chest Press Machine,Machine Chest press drop set,2,7,7/20kgs,20.0,,,
+21,Chest Press Machine,Machine Chest press drop set,3,11,11/20kgs,20.0,,,
+21,Chest Press Machine,Machine Chest press drop set,4,10,10/10kgs,10.0,,,
+21,Hammer Curls,Hammer Curls,1,9,9ea,12.0,12kgs,,
+21,Hammer Curls,Hammer Curls,2,7,7ea,12.0,12kgs,,
+21,Hammer Curls,Hammer Curls,3,7,7ea,12.0,12kgs,,
+21,Preacher Curls,Preacher Curls,1,12,12,30.0,30kgs,Keep arms parallel to eachother (decrease reps),
+21,Preacher Curls,Preacher Curls,2,9,9,30.0,30kgs,Keep arms parallel to eachother (decrease reps),
+21,Preacher Curls,Preacher Curls,3,7,7,30.0,30kgs,Keep arms parallel to eachother (decrease reps),
+22,Chest Press Machine,Machine chest press,1,10,10,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
+22,Chest Press Machine,Machine chest press,2,10,10,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
+22,Chest Press Machine,Machine chest press,3,,8/40 + 3/30,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
+22,Chest Press Machine,Machine chest press,4,,6/40+4/30,40.0,40kgs,Next time decrease reps per set and i ncrease weight?,
+22,Incline Chest Press,Incline Chest Press Machine 4/20/6,1,8,8,20.0,20,Can't feel my chest,Plan: 4/20/6
+22,Incline Chest Press,Incline Chest Press Machine 4/20/6,2,6,6,20.0,20,Can't feel my chest,
+22,Incline Chest Press,Incline Chest Press Machine 4/20/6,3,5,5,20.0,20,Can't feel my chest,
+22,Incline Chest Press,Incline Chest Press Machine 4/20/6,4,6,6,20.0,20,Can't feel my chest,
+22,Incline Chest Press,Smith Machine Incline chest press,1,8,8/30,30.0,,,
+22,Incline Chest Press,Smith Machine Incline chest press,2,7,7/30,30.0,,,
+22,Incline Chest Press,Smith Machine Incline chest press,3,6,6,,,,
+22,Incline Chest Press,Smith Machine Incline chest press,4,8,8/20,20.0,,,
+23,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/7/50,1,7,7/40,40.0,40,Decreased weight to 40 (return to 50 based on condition),Plan: 3/7/50
+23,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/7/50,2,7,7,40.0,40,Decreased weight to 40 (return to 50 based on condition),
+23,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/7/50,3,6,6,40.0,40,Decreased weight to 40 (return to 50 based on condition),
+23,Incline Chest Press,Smith Machine Incline 3/8/40,1,3,3/40,40.0,,Decreased weight to 35 (return to 40),Plan: 3/8/40
+23,Incline Chest Press,Smith Machine Incline 3/8/40,2,7,7/35,35.0,,Decreased weight to 35 (return to 40),
+23,Incline Chest Press,Smith Machine Incline 3/8/40,3,7,7/35,35.0,,Decreased weight to 35 (return to 40),
+23,Incline Chest Press,Smith Machine Incline 3/8/40,4,4,4/35,35.0,,Decreased weight to 35 (return to 40),
+23,Pec Deck Fly,Pec Dec flies 3/8/40,1,10,10/27.5,27.5,,Make sure to stop at chest,Plan: 3/8/40
+23,Pec Deck Fly,Pec Dec flies 3/8/40,2,8,8/40,40.0,,Make sure to stop at chest,
+23,Pec Deck Fly,Pec Dec flies 3/8/40,3,6,6/40,40.0,,Make sure to stop at chest,
+23,Pec Deck Fly,Pec Dec flies 3/8/40,4,5,5/35 (feeling heavy fatigue),,,Make sure to stop at chest,
+23,Dumbbell Chest Press,Dumbell Chest Press,1,,test/10ea,10.0,,14ea feels good,
+23,Dumbbell Chest Press,Dumbell Chest Press,2,10,10/14ea,14.0,,14ea feels good,
+23,Dumbbell Chest Press,Dumbell Chest Press,3,10,10/14ea,14.0,,14ea feels good,
+23,Overhead Press,Military press 3/8/30,1,6,6/30,30.0,,Experiencing Heavy fatigue,Plan: 3/8/30
+23,Overhead Press,Military press 3/8/30,2,5,5/25,25.0,,Experiencing Heavy fatigue,
+23,Lateral Raises,Lateral Raises 3/F/20,1,20,20/20,20.0,20,,Plan: 3/F/20
+23,Lateral Raises,Lateral Raises 3/F/20,2,15,15ea/20,20.0,20,,
+23,Lateral Raises,Lateral Raises 3/F/20,3,,10 + 10ea,20.0,20,,
+24,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/8/40,1,8,8/45,45.0,,9/45 or 7/50,Plan: 3/8/40
+24,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/8/40,2,8,8/50,50.0,,9/45 or 7/50,
+24,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/8/40,3,6,6/50,50.0,,9/45 or 7/50,
+24,Incline Chest Press,Smith Machine Incline Bench 3/8/35,1,8,8/40,40.0,,7/40 or 9/35?,Plan: 3/8/35
+24,Incline Chest Press,Smith Machine Incline Bench 3/8/35,2,6,6/40,40.0,,7/40 or 9/35?,
+24,Incline Chest Press,Smith Machine Incline Bench 3/8/35,3,7,7/35,35.0,,7/40 or 9/35?,
+24,Incline Chest Press,Smith Machine Incline Bench 3/8/35,4,9,9/20,20.0,,7/40 or 9/35?,
+24,Pec Deck Fly,Pec Dec flies 3/8/40,1,7,7,,,,Plan: 3/8/40
+24,Pec Deck Fly,Pec Dec flies 3/8/40,2,,8 (Beginning to fail at 6),,,,
+24,Pec Deck Fly,Pec Dec flies 3/8/40,3,5,5,,,,
+24,Pec Deck Fly,Pec Dec flies 3/8/40,4,8,8/30,30.0,,,
+24,Dumbbell Chest Press,Dumbell Chest Press 4/10/14ea,1,10,10/14,14.0,,,Plan: 4/10/14ea
+24,Dumbbell Chest Press,Dumbell Chest Press 4/10/14ea,2,12,12/12,12.0,,,
+24,Dumbbell Chest Press,Dumbell Chest Press 4/10/14ea,3,11,11/12,12.0,,,
+24,Dumbbell Chest Press,Dumbell Chest Press 4/10/14ea,4,10,10/12,12.0,,,
+24,Overhead Press,Military press 4/8/30,1,5,5/30,30.0,,,Plan: 4/8/30
+24,Overhead Press,Military press 4/8/30,2,5,5/25,25.0,,,
+24,Overhead Press,Military press 4/8/30,3,6,6/20,20.0,,,
+24,Overhead Press,Military press 4/8/30,4,7,7/20,20.0,,,
+25,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/9/45,1,,Warm up 10/20,20.0,,Test 3/7/45,Plan: 3/9/45
+25,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/9/45,2,8,8/45,45.0,,Test 3/7/45,
+25,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/9/45,3,6,6/45,45.0,,Test 3/7/45,
+25,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/9/45,4,6,6/45,45.0,,Test 3/7/45,
+25,Incline Chest Press,Smith Machine Incline Bench 3/9/35,1,,Warm up 10/0,0.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,Plan: 3/9/35
+25,Incline Chest Press,Smith Machine Incline Bench 3/9/35,2,8,8/35,35.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,
+25,Incline Chest Press,Smith Machine Incline Bench 3/9/35,3,7,7/35,35.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,
+25,Incline Chest Press,Smith Machine Incline Bench 3/9/35,4,6,6/35,35.0,,Go with 3/7/35? Maybe lower weight to 40 and 30 for both bench presses.,
+25,Pec Deck Fly,Pec Dec flies 3/9/30,1,9,9/30,30.0,,Maybe 10/30 or 10/35 next time,Plan: 3/9/30
+25,Pec Deck Fly,Pec Dec flies 3/9/30,2,9,9/30,30.0,,Maybe 10/30 or 10/35 next time,
+25,Pec Deck Fly,Pec Dec flies 3/9/30,3,11,11/30,30.0,,Maybe 10/30 or 10/35 next time,
+25,Overhead Press,Military press 3/8/25,1,8,8/25,25.0,,,Plan: 3/8/25
+25,Overhead Press,Military press 3/8/25,2,7,7/25,25.0,,,
+25,Overhead Press,Military press 3/8/25,3,7,7/25,25.0,,,
+25,Dumbbell Chest Press,Dumbell Chest Press 3/10/14ea,1,,9.5/14ea,14.0,,Lower weight and focus on form,Plan: 3/10/14ea
+25,Dumbbell Chest Press,Dumbell Chest Press 3/10/14ea,2,7,7/14ea,14.0,,Lower weight and focus on form,
+25,Dumbbell Chest Press,Dumbell Chest Press 3/10/14ea,3,10,10/12ea,12.0,,Lower weight and focus on form,
+25,Tricep Pulldown,Tricep Rope Pull down 2/12/27.5,1,10,10/27.5,27.5,,,Plan: 2/12/27.5
+25,Tricep Pulldown,Tricep Rope Pull down 2/12/27.5,2,8,8/27.5,27.5,,,
+25,Tricep Pulldown,Tricep Rope Pull down 2/12/27.5,3,8,8/22.5,22.5,,,
+25,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/10/27.5,1,20,20/22.5,22.5,,,Plan: 2/10/27.5
+25,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/10/27.5,2,15,15/27.5,27.5,,,
+25,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/10/27.5,3,,8/32 + 4/27.5,,,,
+26,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/9/45,1,8,8/40,40.0,,,Plan: 3/9/45
+26,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/9/45,2,5,5/50,50.0,,,
+26,Flat Bench Press (Smith Machine),Smith Machine Bench Press 3/9/45,3,8,8/40,40.0,,,
+26,Incline Chest Press,Smith Machine Incline Bench 3/9/35,1,8,8/30,30.0,,,Plan: 3/9/35
+26,Incline Chest Press,Smith Machine Incline Bench 3/9/35,2,7,7/35,35.0,,,
+26,Incline Chest Press,Smith Machine Incline Bench 3/9/35,3,7,7/30,30.0,,,
+26,Pec Deck Fly,Pec Dec flies 3/9/30,1,9,3/9/30 (planned),30.0,,,Derived from plan: 3/9/30
+26,Pec Deck Fly,Pec Dec flies 3/9/30,2,9,3/9/30 (planned),30.0,,,
+26,Pec Deck Fly,Pec Dec flies 3/9/30,3,9,3/9/30 (planned),30.0,,,
+26,Overhead Press,Military press 3/8/25,1,8,8/25,25.0,,,Plan: 3/8/25
+26,Overhead Press,Military press 3/8/25,2,8,8/25,25.0,,,
+26,Overhead Press,Military press 3/8/25,3,6,6/25,25.0,,,
+26,Dumbbell Chest Press,Dumbell Chest Press 3/10/14ea,1,10,3/10/14ea (planned),14.0,,,Derived from plan: 3/10/14ea
+26,Dumbbell Chest Press,Dumbell Chest Press 3/10/14ea,2,10,3/10/14ea (planned),14.0,,,
+26,Dumbbell Chest Press,Dumbell Chest Press 3/10/14ea,3,10,3/10/14ea (planned),14.0,,,
+27,Incline Chest Press,Smith Machine Incline Bench 3/9/45,1,,Warmup,,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,Plan: 3/9/45
+27,Incline Chest Press,Smith Machine Incline Bench 3/9/45,2,9,9/45,45.0,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,
+27,Incline Chest Press,Smith Machine Incline Bench 3/9/45,3,,8.5/45,45.0,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,
+27,Incline Chest Press,Smith Machine Incline Bench 3/9/45,4,6,6/45,45.0,8/40,Feels Fucking Amazing / Align the bar right above my nipples / Decrease weight to 40 and focus on consistent reps or 7/45 * 2 + 8/40 * 2,
+27,Dumbbell Chest Press,Dumbell Chest Press 3/12/12ea,1,10,10/12,12.0,,Need to focus more on posture / stick with 10 for a while,Plan: 3/12/12ea
+27,Dumbbell Chest Press,Dumbell Chest Press 3/12/12ea,2,13,13/10,10.0,,Need to focus more on posture / stick with 10 for a while,
+27,Dumbbell Chest Press,Dumbell Chest Press 3/12/12ea,3,13,13/10,10.0,,Need to focus more on posture / stick with 10 for a while,
+27,Pec Deck Fly,Pec Dec flies 3/10/35,1,12,12/40,40.0,,pause 3 seconds,Plan: 3/10/35
+27,Pec Deck Fly,Pec Dec flies 3/10/35,2,9,9/40,40.0,,pause 3 seconds,
+27,Pec Deck Fly,Pec Dec flies 3/10/35,3,7,7/40,40.0,,pause 3 seconds,
+27,Chest Press Machine,Machine Chest Press 3/10/40,1,,testing other machines,,,,Plan: 3/10/40
+27,Chest Press Machine,Machine Chest Press 3/10/40,2,7,7/30,30.0,,,
+27,Chest Press Machine,Machine Chest Press 3/10/40,3,10,10/30,30.0,,,
+27,Overhead Press,Military press 3/8/25,1,10,10/25,25.0,,,Plan: 3/8/25
+27,Overhead Press,Military press 3/8/25,2,10,10/25,25.0,,,
+27,Overhead Press,Military press 3/8/25,3,7,7/25,25.0,,,
+27,Overhead Press,Military press 3/8/25,4,8,8/20,20.0,,,
+27,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/27.5,1,18,18/27.5,27.5,,,Plan: 2/12/27.5
+27,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/27.5,2,9,9/32,32.0,,,
+27,Tricep Pulldown,Tricep Rope Pull down 2/12/27.5,1,7,7/27.5,27.5,,,Plan: 2/12/27.5
+28,Incline Chest Press,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,1,7,7/45,45.0,,,
+28,Incline Chest Press,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,2,5,5/45,45.0,,,
+28,Incline Chest Press,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,3,6,6/40,40.0,,,
+28,Incline Chest Press,Smith Machine Incline Bench 7/45 * 2 + 8/40 * 2,4,6,6/40,40.0,,,
+28,Dumbbell Chest Press,Dumbell Chest Press 3/12/10ea,1,,Pass,,,,Plan: 3/12/10ea
+28,Pec Deck Fly,Pec Dec flies 3/10/35,1,10,3/10/35 (planned),35.0,,,Derived from plan: 3/10/35
+28,Pec Deck Fly,Pec Dec flies 3/10/35,2,10,3/10/35 (planned),35.0,,,
+28,Pec Deck Fly,Pec Dec flies 3/10/35,3,10,3/10/35 (planned),35.0,,,
+28,Overhead Press,Military press 3/8/25,1,12,12/25,25.0,,Increase weight to 30,Plan: 3/8/25
+28,Overhead Press,Military press 3/8/25,2,9,9/30,30.0,,Increase weight to 30,
+28,Overhead Press,Military press 3/8/25,3,6,6/30,30.0,,Increase weight to 30,
+28,Chest Press Machine,Machine Chest Press 3/10/40,1,12,12/30,30.0,,,Plan: 3/10/40
+28,Chest Press Machine,Machine Chest Press 3/10/40,2,13,13/30,30.0,,,
+28,Chest Press Machine,Machine Chest Press 3/10/40,3,,9.5/30,30.0,,,
+28,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/27.5,1,15,15/27.5,27.5,,Definitely add weight / use bar instead of rope,Plan: 2/12/27.5
+28,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/27.5,2,15,15/32,32.0,,Definitely add weight / use bar instead of rope,
+28,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/27.5,3,13,13/36,36.0,,Definitely add weight / use bar instead of rope,
+28,Tricep Pulldown,Tricep Rope Pull down 2/12/27.5,1,8,8/36,36.0,,,Plan: 2/12/27.5
+28,Tricep Pulldown,Tricep Rope Pull down 2/12/27.5,2,,7/36 + 5/32,,,,
+28,Tricep Pulldown,Tricep Rope Pull down 2/12/27.5,3,6,6/32,32.0,,,
+29,Incline Chest Press,Smith Machine Incline Bench 7/45 + 7/50 + 7/40,1,7,7/45,45.0,,Maybe start with 50 next time / stick to 45? until I reach 10 clean reps,
+29,Incline Chest Press,Smith Machine Incline Bench 7/45 + 7/50 + 7/40,2,,5.5/50,50.0,,Maybe start with 50 next time / stick to 45? until I reach 10 clean reps,
+29,Incline Chest Press,Smith Machine Incline Bench 7/45 + 7/50 + 7/40,3,6,6/45,45.0,,Maybe start with 50 next time / stick to 45? until I reach 10 clean reps,
+29,Chest Press Machine,Machine Chest Press 3/10/40,1,10,10/40,40.0,,9/40? or retain,Plan: 3/10/40
+29,Chest Press Machine,Machine Chest Press 3/10/40,2,,9.5/40,40.0,,9/40? or retain,
+29,Chest Press Machine,Machine Chest Press 3/10/40,3,,7.5/50,50.0,,9/40? or retain,
+29,Pec Deck Fly,Pec Dec flies 2/10/40,1,10,10/40,40.0,,,Plan: 2/10/40
+29,Pec Deck Fly,Pec Dec flies 2/10/40,2,,7.5/40,40.0,,,
+29,Dumbbell Chest Press,Dumbell Chest Press 2/12/10ea,1,16,16/10,10.0,,,Plan: 2/12/10ea
+29,Dumbbell Chest Press,Dumbell Chest Press 2/12/10ea,2,12,12/10,10.0,,,
+29,Overhead Press,Military press 3/8/30,1,11,11/30,30.0,,,Plan: 3/8/30
+29,Overhead Press,Military press 3/8/30,2,,7.5/35,35.0,,,
+29,Overhead Press,Military press 3/8/30,3,,6.5/30,30.0,,,
+29,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/36,1,12,12/36,36.0,,Try 11/36,Plan: 2/12/36
+29,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/36,2,9,9/36,36.0,,Try 11/36,
+29,Tricep Pulldown,Tricep Rope Pull down 2/12/36,1,,7.5/32,32.0,,,Plan: 2/12/36
+29,Tricep Pulldown,Tricep Rope Pull down 2/12/36,2,6,6/32,32.0,,,
+29,Tricep Pulldown,Tricep Rope Pull down 2/12/36,3,7,7/22.5,22.5,,,
+30,Incline Chest Press,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,1,6,6/50,50.0,,,
+30,Incline Chest Press,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,2,4,4/50,50.0,,,
+30,Incline Chest Press,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,3,,7.5/40,40.0,,,
+30,Incline Chest Press,Smith Machine Incline 6/50 + 6/50 + 6/45 + 6/45,4,6,6/40,40.0,,,
+30,Chest Press Machine,Machine Chest Press 3/10/40,1,12,12/40,40.0,,,Plan: 3/10/40
+30,Chest Press Machine,Machine Chest Press 3/10/40,2,7,7/40,40.0,,,
+30,Chest Press Machine,Machine Chest Press 3/10/40,3,7,7/40,40.0,,,
+30,Pec Deck Fly,Pec Dec flies 2/10/40,1,8,8/40,40.0,,,Plan: 2/10/40
+30,Pec Deck Fly,Pec Dec flies 2/10/40,2,12,12ea/25,25.0,,,
+30,Pec Deck Fly,Pec Dec flies 2/10/40,3,6,6/50,50.0,,,
+30,Dumbbell Chest Press,Dumbell Chest Press 2/12/10ea,1,12,12/10,10.0,,Increase to 3/12/12,Plan: 2/12/10ea
+30,Dumbbell Chest Press,Dumbell Chest Press 2/12/10ea,2,12,12/12,12.0,,Increase to 3/12/12,
+30,Dumbbell Chest Press,Dumbell Chest Press 2/12/10ea,3,14,14/12,12.0,,Increase to 3/12/12,
+30,Overhead Press,Military press 4/8/35,1,6,6/35,35.0,,,Plan: 4/8/35
+30,Overhead Press,Military press 4/8/35,2,,6.5/30,30.0,,,
+30,Overhead Press,Military press 4/8/35,3,6,6/30,30.0,,,
+30,Overhead Press,Military press 4/8/35,4,6,6/30,30.0,,,
+30,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/36,1,13,13/36,36.0,,,Plan: 2/12/36
+30,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/36,2,,5/41+4/36,,,,
+30,Overhead Tricep Pulldown,Overhead Tricep Rope Pull down 2/12/36,3,6,6/36,36.0,,,
+30,Tricep Pulldown,Tricep Rope Pull down 3/12/36,1,,8.5/32,32.0,,,Plan: 3/12/36
+30,Tricep Pulldown,Tricep Rope Pull down 3/12/36,2,6,6/32,32.0,,,
+30,Tricep Pulldown,Tricep Rope Pull down 3/12/36,3,6,6/32,32.0,,,
+30,Incline Chest Press,Smith Machine Incline,1,,2/6/50,,,,
+30,Chest Press Machine,Machine Chest Press,1,,2/10/50,,,,
+30,Pec Deck Fly,Pec Dec flies,1,,2/10/50,,,,
+30,Dumbbell Chest Press,Dumbell Chest Press,1,,2/12/12,,,,
+30,Lateral Raises,Lateral Raises,1,,2/f/6,,,,
+30,Overhead Press,Military press,1,,2/10/25,,,,
+30,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,1,,2/12/41,,,,
+30,Tricep Pulldown,Tricep rope pulldown,1,,2/12/27,,,,
+31,Incline Chest Press,Incline bench,1,,2/8/50,,,,
+31,Incline Chest Press,Incline bench,2,,8.5,,,,
+31,Incline Chest Press,Incline bench,3,,6.5,,,,
+31,Chest Press Machine,Chest press machine,1,,2/12/40,,,,
+31,Chest Press Machine,Chest press machine,2,10,10/40,40.0,,,
+31,Chest Press Machine,Chest press machine,3,8,8/40,40.0,,,
+31,Pec Deck Fly,pec deck flies,1,,2/15/20,,,,
+31,Dumbbell Chest Press,Dumbell chest press,1,,2/15/16,,,,
+31,Dumbbell Chest Press,Dumbell chest press,2,14,14/14,14.0,,,
+31,Dumbbell Chest Press,Dumbell chest press,3,14,14/14,14.0,,,
+31,Lateral Raises,Lateral Raises,1,,2/f/4,,,,
+31,Lateral Raises,Lateral Raises,2,14,14/4,4.0,,,
+31,Lateral Raises,Lateral Raises,3,15,15/4,4.0,,,
+31,Overhead Press,Shoulder press,1,,2/12/25,,,,
+31,Overhead Press,Shoulder press,2,10,10/25,25.0,,,
+31,Overhead Press,Shoulder press,3,9,9/25,25.0,,,
+31,Tricep Pulldown,Tricep pull down,1,,2/12/27.5,,,,
+31,Tricep Pulldown,Tricep pull down,2,14,14/27.5,27.5,,,
+33,Incline Chest Press,Smith machine incline,1,,2/?/55,,,,
+33,Incline Chest Press,Smith machine incline,2,5,5/40 warmup,,,,
+33,Incline Chest Press,Smith machine incline,3,6,6/55,55.0,,,
+33,Incline Chest Press,Smith machine incline,4,3,3/55,55.0,,,
+33,Incline Chest Press,Incline Chest press machine,1,,2/12/30,,,,
+33,Incline Chest Press,Incline Chest press machine,2,,9.5/30,30.0,,,
+33,Incline Chest Press,Incline Chest press machine,3,6,6/30,30.0,,,
+33,Pec Deck Fly,Pec deck flies,1,,2/f/25,,,Stick to 35,
+33,Pec Deck Fly,Pec deck flies,2,,10 w/p/35,,,Stick to 35,
+33,Pec Deck Fly,Pec deck flies,3,,9w/p/35,,,Stick to 35,
+33,Overhead Press,Shoulder press,1,,2/12/30,,,,
+33,Overhead Press,Shoulder press,2,12,12/30,30.0,,,
+33,Overhead Press,Shoulder press,3,9,9/30,30.0,,,
+33,Tricep Pulldown,Tricep rope pull down,1,,2/12/27.5,,,,
+34,Incline Chest Press,Incline bench,1,,2/8/55,,,,
+34,Incline Chest Press,Incline bench,2,,2/55 + 7/40,,,,
+34,Incline Chest Press,Incline Chest press machine,1,,2/8/30,,,,
+34,Incline Chest Press,Incline Chest press machine,2,,7.5/30,30.0,,,
+34,Incline Chest Press,Incline Chest press machine,3,5,5/30,30.0,,,
+34,Overhead Press,Shoulder press,1,,2/8/30,,,,
+34,Overhead Press,Shoulder press,2,9,9/30,30.0,,,
+34,Overhead Press,Shoulder press,3,7,7/30,30.0,,,
+34,Tricep Pulldown,Tricep pull downs,1,,2/12/27.5,,,,
+34,Tricep Pulldown,Tricep pull downs,2,7,7/32,32.0,,,
+34,Tricep Pulldown,Tricep pull downs,3,10,10/32,32.0,,,
+34,Tricep Pulldown,Tricep pull downs,4,,10/32+5/22,,,,
+34,Pec Deck Fly,Pec deck flies,1,,2/12/35,,,,
+34,Pec Deck Fly,Pec deck flies,2,14,14/30,30.0,,,
+34,Pec Deck Fly,Pec deck flies,3,12,12/35,35.0,,,
+35,Perfect Squats,Perfect Squats,1,8,8,10.0,10,8,
+35,Perfect Squats,Perfect Squats,2,8,8,10.0,10,8,
+35,Perfect Squats,Perfect Squats,3,8,8,10.0,10,8,
+35,Perfect Squats,Perfect Squats,4,8,8,10.0,10,8,
+35,Leg Press,Leg Press,1,7,7,0.0,0,10,
+35,Leg Press,Leg Press,2,8,8,0.0,0,10,
+35,Leg Press,Leg Press,3,8,8,0.0,0,10,
+35,Leg Press,Leg Press,4,8,8,0.0,0,10,
+35,Leg Extensions,Leg Extensions,1,10,10,35.0,35,10,
+35,Leg Extensions,Leg Extensions,2,10,10,35.0,35,10,
+35,Leg Extensions,Leg Extensions,3,10,10,35.0,35,10,
+35,Seated Leg Curls,Seated Leg Curls,1,8,8,42.5,42.5,5,
+35,Seated Leg Curls,Seated Leg Curls,2,10,10,42.5,42.5,5,
+35,Seated Leg Curls,Seated Leg Curls,3,9,9,42.5,42.5,5,
+35,Seated Leg Curls,Seated Leg Curls,4,14,14,42.5,42.5,5,
+35,Hip Abduction,Hip Abduction 3/12,1,10,10,80.0,80,,
+35,Hip Abduction,Hip Abduction 3/12,2,5,5,80.0,80,,
+35,Hip Abduction,Hip Abduction 3/12,3,12,12/57.5,57.5,80,,
+35,Hip Adduction,Hip Adduction 3/12,1,12,12,65.0,65,8,
+35,Hip Adduction,Hip Adduction 3/12,2,12,12,65.0,65,8,
+35,Hip Adduction,Hip Adduction 3/12,3,14,14,65.0,65,8,
+35,Hip Adduction,Hip Adduction 3/12,4,,X,65.0,65,8,
+36,Perfect Squats,Perfect Squats 4/9,1,9,9,10.0,10,10,
+36,Perfect Squats,Perfect Squats 4/9,2,9,9,10.0,10,10,
+36,Perfect Squats,Perfect Squats 4/9,3,9,9,10.0,10,10,
+36,Perfect Squats,Perfect Squats 4/9,4,9,9,10.0,10,10,
+36,Leg Press,Seated Leg Press Machine,1,,8 (Drained by the warm ups),,42.5 (Should In crease the weight to 50? next time),9,
+36,Leg Press,Seated Leg Press Machine,2,10,10,,42.5 (Should In crease the weight to 50? next time),9,
+36,Leg Press,Seated Leg Press Machine,3,,12 (I should go all the way down to stimulate my glutes),,42.5 (Should In crease the weight to 50? next time),9,
+36,Leg Press,Seated Leg Press Machine,4,12,12,,42.5 (Should In crease the weight to 50? next time),9,
+36,Leg Extensions,Leg Extensions,1,10,10,35.0,35,10,
+36,Leg Extensions,Leg Extensions,2,12,12,35.0,35,10,
+36,Leg Extensions,Leg Extensions,3,11,11,35.0,35,10,
+36,Seated Leg Curls,Seated Leg Curls,1,12,12/42.5,42.5,57.5,,
+36,Seated Leg Curls,Seated Leg Curls,2,11,11,57.5,57.5,,
+36,Seated Leg Curls,Seated Leg Curls,3,4,4,57.5,57.5,,
+36,Hip Abduction,Hip Abductuon,1,12,12,65.0,65,,
+36,Hip Abduction,Hip Abductuon,2,12,12,65.0,65,,
+36,Hip Adduction,Adduction,1,16,16,65.0,65,8 Should Increase weight,
+36,Hip Adduction,Adduction,2,16,16,65.0,65,8 Should Increase weight,
+36,Hip Adduction,Adduction,3,20,20,65.0,65,8 Should Increase weight,
+37,Perfect Squats,Perfect Squats,1,9,9,,4/9/10,8 (Increase weight to 12.5?),
+37,Perfect Squats,Perfect Squats,2,9,9,,4/9/10,8 (Increase weight to 12.5?),
+37,Perfect Squats,Perfect Squats,3,9,9,,4/9/10,8 (Increase weight to 12.5?),
+37,Perfect Squats,Perfect Squats,4,9,9,,4/9/10,8 (Increase weight to 12.5?),
+37,Leg Press,Seated Leg Press Machine,1,9,9/0,0.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
+37,Leg Press,Seated Leg Press Machine,2,8,8/20kg,20.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
+37,Leg Press,Seated Leg Press Machine,3,10,10/20kg,20.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
+37,Leg Press,Seated Leg Press Machine,4,10,10/40kg,40.0,4/10/50 or 4/8/0,8 (Increase weight to 40) 4/8/40?,
+37,Leg Extensions,Leg Extensions,1,12,12,,3/12/35,9 (Add 1 set or Increase weight and decrement reps?),
+37,Leg Extensions,Leg Extensions,2,12,12,,3/12/35,9 (Add 1 set or Increase weight and decrement reps?),
+37,Leg Extensions,Leg Extensions,3,12,12,,3/12/35,9 (Add 1 set or Increase weight and decrement reps?),
+37,Seated Leg Curls,Seated Leg Curls,1,,,,3/10/57.5,Delete & Substitute w/ Leg press drop set?,
+37,Hip Abduction,Hip Abductuon,1,12,12/72.5kg,72.5,3/12/65,Lean torso forward to maximize hip stimulus (Decrease rep to 10 and increase set to 4?),
+37,Hip Abduction,Hip Abductuon,2,12,12/72.5 Beginning to fail @ 8,,3/12/65,Lean torso forward to maximize hip stimulus (Decrease rep to 10 and increase set to 4?),
+37,Hip Abduction,Hip Abductuon,3,12,12/72.5,72.5,3/12/65,Lean torso forward to maximize hip stimulus (Decrease rep to 10 and increase set to 4?),
+37,Hip Adduction,Adduction,1,12,12/80,80.0,3/12/72.5,Increase sets? Depending on the fatigue I build up on the preceding sets,
+37,Hip Adduction,Adduction,2,13,13/80,80.0,3/12/72.5,Increase sets? Depending on the fatigue I build up on the preceding sets,
+37,Hip Adduction,Adduction,3,14,14/80,80.0,3/12/72.5,Increase sets? Depending on the fatigue I build up on the preceding sets,
+38,Perfect Squats,Perfect Squats,1,8,8,15.0,15kgs,Doing 4/6/20 next time,
+38,Perfect Squats,Perfect Squats,2,8,8,15.0,15kgs,Doing 4/6/20 next time,
+38,Perfect Squats,Perfect Squats,3,8,8,15.0,15kgs,Doing 4/6/20 next time,
+38,Perfect Squats,Perfect Squats,4,8,8/20,20.0,15kgs,Doing 4/6/20 next time,
+38,Leg Press,Seated Leg Press Machine,1,8,8,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
+38,Leg Press,Seated Leg Press Machine,2,8,8,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
+38,Leg Press,Seated Leg Press Machine,3,8,8,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
+38,Leg Press,Seated Leg Press Machine,4,,X,40.0,40kgs,(Keep feet slanted and at a high position on the board) (Decrease reps?),
+38,Leg Extensions,Leg Extensions,1,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
+38,Leg Extensions,Leg Extensions,2,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
+38,Leg Extensions,Leg Extensions,3,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
+38,Leg Extensions,Leg Extensions,4,10,10,42.5,42.5,Add more weight...? or Decrease and compensate with more reps?,
+38,Hip Adduction,Hip Adduction,1,10,10,72.5,72.5,Retain weight increase reps,
+38,Hip Adduction,Hip Adduction,2,10,10,72.5,72.5,Retain weight increase reps,
+38,Hip Adduction,Hip Adduction,3,10,10,72.5,72.5,Retain weight increase reps,
+38,Hip Adduction,Hip Adduction,4,10,10,72.5,72.5,Retain weight increase reps,
+38,Tricep Pulldown,Tricep rope pull down,1,,test,27.5,27.5,,
+38,Tricep Pulldown,Tricep rope pull down,2,12,12,27.5,27.5,,
+38,Tricep Pulldown,Tricep rope pull down,3,12,12,27.5,27.5,,
+38,Tricep Pulldown,Tricep rope pull down,4,,12 (started to fail at 10),27.5,27.5,,
+38,Overhead Tricep Pulldown,Overhead tricep pull down,1,8,8,27.5,27.5,,
+38,Overhead Tricep Pulldown,Overhead tricep pull down,2,8,8,27.5,27.5,,
+38,Overhead Tricep Pulldown,Overhead tricep pull down,3,8,8,27.5,27.5,,
+38,Overhead Tricep Pulldown,Overhead tricep pull down,4,,X,27.5,27.5,,
+39,Smith Machine Squats,Smith Machine Squats,1,8,8,30.0,30kgs,Go back to perfect squats or continue practice with low weight,
+39,Smith Machine Squats,Smith Machine Squats,2,8,8,30.0,30kgs,Go back to perfect squats or continue practice with low weight,
+39,Smith Machine Squats,Smith Machine Squats,3,7,7/40,40.0,30kgs,Go back to perfect squats or continue practice with low weight,
+39,Smith Machine Squats,Smith Machine Squats,4,10,10/20,20.0,30kgs,Go back to perfect squats or continue practice with low weight,
+39,Leg Press,Seated leg press Machine,1,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
+39,Leg Press,Seated leg press Machine,2,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
+39,Leg Press,Seated leg press Machine,3,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
+39,Leg Press,Seated leg press Machine,4,7,7,40.0,40 kgs,Decreased reps to 7 => Perfect,
+39,Leg Extensions,leg extensions,1,10,10,42.5,42.5,,
+39,Leg Extensions,leg extensions,2,11,11,42.5,42.5,,
+39,Leg Extensions,leg extensions,3,10,10,42.5,42.5,,
+39,Leg Extensions,leg extensions,4,11,11,42.5,42.5,,
+39,Overhead Press,Military press,1,10,10/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
+39,Overhead Press,Military press,2,9,9/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
+39,Overhead Press,Military press,3,11,11/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
+39,Overhead Press,Military press,4,9,9/30,30.0,9/20,Increase to 35 and decrease reps to 7 or 8,
+39,Lateral Raises,Lateral Raises,1,,10 together / 20,20.0,,,
+39,Lateral Raises,Lateral Raises,2,12,12 ea /27.5,27.5,,,
+39,Lateral Raises,Lateral Raises,3,,together to failure / 20,20.0,,,
+40,Smith Machine Squats,Smith Machine Squats 3/10/30,1,10,10,30.0,30,Keep back straight,Plan: 3/10/30
+40,Smith Machine Squats,Smith Machine Squats 3/10/30,2,10,10,30.0,30,Keep back straight,
+40,Smith Machine Squats,Smith Machine Squats 3/10/30,3,10,10,30.0,30,Keep back straight,
+40,Smith Machine Squats,Smith Machine Squats 3/10/30,4,,X,30.0,30,Keep back straight,
+40,Leg Press,Seated leg press Machine 3/8/40,1,8,8,40.0,40,This is maximum intensity (Ensure full ROM),Plan: 3/8/40
+40,Leg Press,Seated leg press Machine 3/8/40,2,,7 (failed at 7),40.0,40,This is maximum intensity (Ensure full ROM),
+40,Leg Press,Seated leg press Machine 3/8/40,3,8,8,40.0,40,This is maximum intensity (Ensure full ROM),
+40,Leg Press,Seated leg press Machine 3/8/40,4,,X,40.0,40,This is maximum intensity (Ensure full ROM),
+40,Leg Extensions,leg extensions 3/12/42.5,1,12,12,40.0,40,,Plan: 3/12/42.5
+40,Leg Extensions,leg extensions 3/12/42.5,2,9,9,40.0,40,,
+40,Leg Extensions,leg extensions 3/12/42.5,3,12,12/30,30.0,40,,
+40,Lateral Raises,Lateral Raises 4/12ea/27.5,1,20,20ea / 27.5,27.5,,,Plan: 4/12ea/27.5
+40,Lateral Raises,Lateral Raises 4/12ea/27.5,2,15,15ea/27.5,27.5,,,
+40,Hammer Curls,Hammer Curls 4/9ea/12,1,,X,,,,Plan: 4/9ea/12
+40,Tricep Pulldown,Tricep rope pull down 3/12/27.5,1,,X,,,,Plan: 3/12/27.5
+40,Overhead Tricep Pulldown,Overhead tricep pull down 4/8/27.5,1,,X,,,,Plan: 4/8/27.5
+41,Perfect Squats,Perfect Squats 3/8/20,1,8,8,20.0,20,Keep back straight (3/8/25 or 30),Plan: 3/8/20
+41,Perfect Squats,Perfect Squats 3/8/20,2,8,8,20.0,20,Keep back straight (3/8/25 or 30),
+41,Perfect Squats,Perfect Squats 3/8/20,3,8,8/25,25.0,20,Keep back straight (3/8/25 or 30),
+41,Perfect Squats,Perfect Squats 3/8/20,4,7,7/25,25.0,20,Keep back straight (3/8/25 or 30),
+41,Leg Press,Seated Leg press Machine 3/8/40,1,8,8,,,Increase weight to 60,Plan: 3/8/40
+41,Leg Press,Seated Leg press Machine 3/8/40,2,8,8,,,Increase weight to 60,
+41,Leg Press,Seated Leg press Machine 3/8/40,3,7,7/60,60.0,,Increase weight to 60,
+41,Hip Abduction,Hip Abductions 4/12/72.5,1,12,12,,,3 sets with increased intensity,Plan: 4/12/72.5
+41,Hip Abduction,Hip Abductions 4/12/72.5,2,12,12,,,3 sets with increased intensity,
+41,Hip Abduction,Hip Abductions 4/12/72.5,3,12,12,,,3 sets with increased intensity,
+41,Hip Abduction,Hip Abductions 4/12/72.5,4,,12 failing at 7-8 (continued with partial reps),,,3 sets with increased intensity,
+41,Hip Adduction,Hip Adductions 4/12/80,1,14,14,,,Same as above,Plan: 4/12/80
+41,Hip Adduction,Hip Adductions 4/12/80,2,12,12,,,Same as above,
+42,Perfect Squats,Perfect Squats 3/8/20,1,8,8,20.0,20,Keep back straight,Plan: 3/8/20
+42,Perfect Squats,Perfect Squats 3/8/20,2,8,8,20.0,20,Keep back straight,
+42,Perfect Squats,Perfect Squats 3/8/20,3,8,8,20.0,20,Keep back straight,
+42,Leg Press,Seated leg press 3/8/40,1,8,8,40.0,40,Place feet lower,Plan: 3/8/40
+42,Leg Press,Seated leg press 3/8/40,2,8,8,40.0,40,Place feet lower,
+42,Leg Press,Seated leg press 3/8/40,3,8,8,40.0,40,Place feet lower,
+42,Hip Abduction,Hip abductions 3/12/72.5,1,12,12,,,,Plan: 3/12/72.5
+42,Hip Abduction,Hip abductions 3/12/72.5,2,11,11,,,,
+42,Hip Abduction,Hip abductions 3/12/72.5,3,8,8,,,,
+43,Perfect Squats,Perfect Squats 4/8/20,1,8,8,,,4 sets not easy,Plan: 4/8/20
+43,Perfect Squats,Perfect Squats 4/8/20,2,8,8,,,4 sets not easy,
+43,Perfect Squats,Perfect Squats 4/8/20,3,,7.5,,,4 sets not easy,
+43,Perfect Squats,Perfect Squats 4/8/20,4,7,7,,,4 sets not easy,
+43,Leg Press,Seated Leg press 3/8/60,1,6,6/60,60.0,,,Plan: 3/8/60
+43,Leg Press,Seated Leg press 3/8/60,2,7,7/60,60.0,,,
+43,Leg Press,Seated Leg press 3/8/60,3,6,6/60,60.0,,,
+44,Perfect Squats,Perfect Squats 4/8/30,1,10,10/20,20.0,,Start w/ 30 and subsequently lower,Plan: 4/8/30
+44,Perfect Squats,Perfect Squats 4/8/30,2,8,8/30,30.0,,Start w/ 30 and subsequently lower,
+44,Perfect Squats,Perfect Squats 4/8/30,3,6,6/30,30.0,,Start w/ 30 and subsequently lower,
+44,Perfect Squats,Perfect Squats 4/8/30,4,8,8/20,20.0,,Start w/ 30 and subsequently lower,
+44,Leg Press,Seated leg press 4/7/60,1,7,7/60,60.0,,,Plan: 4/7/60
+44,Leg Press,Seated leg press 4/7/60,2,7,7/60,60.0,,,
+44,Leg Press,Seated leg press 4/7/60,3,7,7/60,60.0,,,
+44,Leg Press,Seated leg press 4/7/60,4,8,8/20,20.0,,,
+44,Hip Abduction,Hip Abductions 3/12/72.5,1,12,12/72.5,72.5,,Start with 80,Plan: 3/12/72.5
+44,Hip Abduction,Hip Abductions 3/12/72.5,2,,8.5/80,80.0,,Start with 80,
+44,Hip Abduction,Hip Abductions 3/12/72.5,3,,9.5/80,80.0,,Start with 80,
+44,Hip Abduction,Hip Abductions 3/12/72.5,4,10,10/72.5,72.5,,Start with 80,
+44,Leg Extensions,Leg extensions 3/12/42.5,1,12,12/42.5,42.5,,,Plan: 3/12/42.5
+44,Leg Extensions,Leg extensions 3/12/42.5,2,,9.5/42.5,42.5,,,
+44,Leg Extensions,Leg extensions 3/12/42.5,3,10,10/50,50.0,,,
+45,Incline Chest Press,Smith Machine Incline,1,,2/6/50,,,8/50,
+45,Incline Chest Press,Smith Machine Incline,2,8,8,,,8/50,
+45,Incline Chest Press,Smith Machine Incline,3,,7.5,,,8/50,
+45,Chest Press Machine,Machine Chest Press,1,,2/10/50,,,Increase to 50,
+45,Chest Press Machine,Machine Chest Press,2,10,10/50,50.0,,Increase to 50,
+45,Chest Press Machine,Machine Chest Press,3,8,8/50,50.0,,Increase to 50,
+45,Pec Deck Fly,Pec Dec flies,1,,2/10/50,,,,
+45,Pec Deck Fly,Pec Dec flies,2,6,6/50,50.0,,,
+45,Pec Deck Fly,Pec Dec flies,3,7,7/40,40.0,,,
+45,Dumbbell Chest Press,Dumbell Chest Press,1,,2/12/12,,,,
+45,Dumbbell Chest Press,Dumbell Chest Press,2,14,14/14,14.0,,,
+45,Lateral Raises,Lateral Raises,1,,2/f/6,,,,
+45,Lateral Raises,Lateral Raises,2,15,15/6,6.0,,,
+45,Lateral Raises,Lateral Raises,3,,10/6+6/4,,,,
+45,Overhead Press,Military press,1,,2/10/25,,,,
+45,Overhead Press,Military press,2,10,10/25,25.0,,,
+45,Overhead Press,Military press,3,,8.5/25,25.0,,,
+46,Incline Chest Press,Incline smith machine chest press,1,,2/7/50,,,,
+46,Incline Chest Press,Incline smith machine chest press,2,,Warmup/40,40.0,,,
+46,Incline Chest Press,Incline smith machine chest press,3,8,8/50,50.0,,,
+46,Incline Chest Press,Incline smith machine chest press,4,,6.5/50,50.0,,,
+46,Chest Press Machine,Chest press machine,1,,2/10/40,,,,
+46,Chest Press Machine,Chest press machine,2,12,12/40,40.0,,,
+46,Chest Press Machine,Chest press machine,3,,9.5/40,40.0,,,
+46,Pec Deck Fly,Pec dec flies,1,,2/10/50,,,,
+46,Dumbbell Chest Press,Dumbell chest press,1,,2/10/14,,,,
+46,Dumbbell Chest Press,Dumbell chest press,2,12,12/14,14.0,,,
+46,Dumbbell Chest Press,Dumbell chest press,3,12,12/14,14.0,,,
+46,Lateral Raises,Lateral Raises,1,,2/f/6,,,,
+46,Overhead Press,Military press,1,,2/10/25,,,,
+48,Pull-ups,Pull ups x2,1,,7+3,,,,
+48,Pull-ups,Pull ups x2,2,,6+5,,,,
+48,Incline Chest Press,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,1,,Warmup,,,,
+48,Incline Chest Press,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,2,5,5/50,50.0,,,
+48,Incline Chest Press,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,3,,8.5/40,40.0,,,
+48,Incline Chest Press,Smith Machine Incline Warmup + 7/50 + 7/50 + 7/40,4,,8.5/40,40.0,,,
+48,T-Bar Row,T-bar rows Warmups + 2/9/30,1,10,10/30,30.0,,Go with 10/25,Plan: 2/9/30
+48,T-Bar Row,T-bar rows Warmups + 2/9/30,2,14,14/20,20.0,,Go with 10/25,
+48,Chest Press Machine,Machine Chest Press 3/10/50,1,7,7/30 (incline),,,,Plan: 3/10/50
+48,Chest Press Machine,Machine Chest Press 3/10/50,2,5,5/30 (incline),,,,
+48,Chest Press Machine,Machine Chest Press 3/10/50,3,,4.5/30 (incline),,,,
+48,Lat Pulldown,Lat cable pull downs 2/12/45,1,14,14/45,45.0,,,Plan: 2/12/45
+48,Lat Pulldown,Lat cable pull downs 2/12/45,2,8,8/50,50.0,,,
+48,Dumbbell Chest Press,Dumbell Chest Press 3/12/12,1,12,12/12,12.0,,,Plan: 3/12/12
+48,Dumbbell Chest Press,Dumbell Chest Press 3/12/12,2,15,15/12,12.0,,,
+48,Dumbbell Chest Press,Dumbell Chest Press 3/12/12,3,12,12/12,12.0,,,
+49,Pull-ups,Pull ups,1,,x2,,,Try to reach 7 reps,
+49,Pull-ups,Pull ups,2,,6+,,,Try to reach 7 reps,
+49,Pull-ups,Pull ups,3,,6+,,,Try to reach 7 reps,
+49,Incline Chest Press,Smith Machine Incline Warmup,1,,2/6/50,,,Start with 40 or 45,
+49,Incline Chest Press,Smith Machine Incline Warmup,2,4,4/50,50.0,,Start with 40 or 45,
+49,Incline Chest Press,Smith Machine Incline Warmup,3,,8.5/40,40.0,,Start with 40 or 45,
+49,T-Bar Row,T-bar rows,1,,2/9/25,,,Full ROM with 20,
+49,T-Bar Row,T-bar rows,2,,Warm up,,,Full ROM with 20,
+49,T-Bar Row,T-bar rows,3,15,15/10,10.0,,Full ROM with 20,
+49,T-Bar Row,T-bar rows,4,14,14/20,20.0,,Full ROM with 20,
+49,Chest Press Machine,Machine Chest Press,1,,2/10/50,,,,
+49,Chest Press Machine,Machine Chest Press,2,14,14/40,40.0,,,
+49,Chest Press Machine,Machine Chest Press,3,10,10/50,50.0,,,
+49,Chest Press Machine,Machine Chest Press,4,6,6/40,40.0,,,
+49,Lat Pulldown,Lat cable pull downs (Full ROM),1,,2/12/33,,,Full ROM with 32,
+49,Lat Pulldown,Lat cable pull downs (Full ROM),2,20,20/27.5,27.5,,Full ROM with 32,
+49,Lat Pulldown,Lat cable pull downs (Full ROM),3,20,20/32,32.0,,Full ROM with 32,
+49,Dumbbell Chest Press,Dumbell Chest Press,1,,2/12/12,,,,
+49,Dumbbell Chest Press,Dumbell Chest Press,2,14,14/14,14.0,,,
+49,Dumbbell Chest Press,Dumbell Chest Press,3,14,14/12,12.0,,,
+50,Pull-ups,Pull ups,1,8,8,,,,
+50,Pull-ups,Pull ups,2,6,6,,,,
+50,Incline Chest Press,Incline bench,1,11,11/40,40.0,,,
+50,Incline Chest Press,Incline bench,2,,9.5/40,40.0,,,
+50,Seated Row Machine,Smith Machine row,1,9,9/40,40.0,,,
+50,Seated Row Machine,Smith Machine row,2,14,14/30,30.0,,,
+50,Chest Press Machine,Machine chest press,1,12,12/40,40.0,,,
+50,Chest Press Machine,Machine chest press,2,12,12/40,40.0,,,
+51,Pull-ups,Pull ups,1,,x2,,,,
+51,Pull-ups,Pull ups,2,9,9,,,,
+51,Pull-ups,Pull ups,3,7,7,,,,
+51,Incline Chest Press,Incline chest press,1,,2/8/50,,,,
+51,Incline Chest Press,Incline chest press,2,6,6/50,50.0,,,
+51,Incline Chest Press,Incline chest press,3,8,8/45,45.0,,,
+51,Seated Row Machine,Seated row,1,2,2/,,,Red machine (go with 60?),
+51,Seated Row Machine,Seated row,2,16,16/31.5,31.5,,Red machine (go with 60?),
+51,Seated Row Machine,Seated row,3,16,16/50 (red machine),,,Red machine (go with 60?),
+51,Chest Press Machine,Chest press machine,1,8,8/30,30.0,,,
+51,Chest Press Machine,Chest press machine,2,6,6/30,30.0,,,
+51,Seated Cable Row,Seated Cable rows,1,,2/10/45.5,,,,
+51,Seated Cable Row,Seated Cable rows,2,12,12/45.5,45.5,,,
+51,Seated Cable Row,Seated Cable rows,3,10,10/45.5,45.5,,,
+51,Pec Deck Fly,Pec deck flies,1,2,2/,,,,
+53,Lateral Raises,Lateral Raises,1,31,31/4,4.0,Maybe go with 6..??,,Plan: 3/f/4
+53,Lateral Raises,Lateral Raises,2,22,22/4,4.0,Maybe go with 6..??,,
+53,Lateral Raises,Lateral Raises,3,15,15/6,6.0,Maybe go with 6..??,,
+53,Dumbbell Drag Curls,Dumbell Drag Curls,1,11,11/10,10.0,,,Plan: 2/f/14
+53,Dumbbell Drag Curls,Dumbell Drag Curls,2,,Focused on breathing/10,10.0,,,
+53,Overhead Press,Military Press,1,6,6/30,30.0,Lower to 20,,Plan: 3/10/30
+53,Overhead Press,Military Press,2,9,9/20,20.0,Lower to 20,,
+53,Overhead Press,Military Press,3,11,11/20,20.0,Lower to 20,,
+53,Reverse Curls,Reverse Curls,1,,Focues on breathing/15,15.0,Lower to 15,,Plan: 2/f/20
+53,Reverse Curls,Reverse Curls,2,13,13/15,15.0,Lower to 15,,
+53,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,1,20,20/32,32.0,Go with 41,,Plan: 2/12/32
+53,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,2,,8/41 + 4/32,,Go with 41,,
+53,Tricep Pulldown,Tricep rope pulldown,1,,5/32 + 4/27.5,,Go with 27.5,,Plan: 2/12/27
+53,Tricep Pulldown,Tricep rope pulldown,2,,8.5/27.5,27.5,Go with 27.5,,
+53,Preacher Curls,Preacher Curls,1,9,9/40,40.0,,,Plan: 2/10/40
+53,Preacher Curls,Preacher Curls,2,7,7/40,40.0,,,
+54,Lateral Raises,Lateral Raises,1,30,30,,,,Plan: 2/f/4
+54,Lateral Raises,Lateral Raises,2,20,20,,,,
+54,Barbell Curls,Barbell Curls,1,12,12/20,20.0,Maybe go with 25,,Plan: 2/f/20
+54,Barbell Curls,Barbell Curls,2,,12.5/20,20.0,Maybe go with 25,,
+54,Overhead Press,Military Press,1,12,12/25,25.0,,,Plan: 2/10/25
+54,Overhead Press,Military Press,2,12,12/25,25.0,,,
+54,Reverse Curls,Reverse Curls,1,17,17/15,15.0,,,Plan: 2/15/15
+54,Reverse Curls,Reverse Curls,2,17,17/15,15.0,,,
+54,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,1,9,9/41,41.0,,,Plan: 2/12/41
+54,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,2,8,8/41,41.0,,,
+54,Tricep Pulldown,Tricep rope pulldown,1,8,8/27.5,27.5,,,Plan: 2/12/27.5
+54,Tricep Pulldown,Tricep rope pulldown,2,,12.5/27.5,27.5,,,
+54,Preacher Curls,Preacher Curls,1,,9.5/40,40.0,,,Plan: 2/10/40
+54,Preacher Curls,Preacher Curls,2,,9.5/40,40.0,,,
+55,Lateral Raises,Lateral Raises,1,20,20/4,4.0,Add 3rd set?,,Plan: 2/f/4
+55,Lateral Raises,Lateral Raises,2,20,20/4,4.0,Add 3rd set?,,
+55,Barbell Curls,Barbell Curls,1,,8.5/25,25.0,Stick with 20,,Plan: 2/f/25
+55,Barbell Curls,Barbell Curls,2,12,12/20,20.0,Stick with 20,,
+55,Overhead Press,Military Press,1,13,13/25,25.0,,,Plan: 2/12/25
+55,Overhead Press,Military Press,2,12,12/25,25.0,,,
+55,Reverse Curls,Reverse Curls,1,16,16/15,15.0,Move within the upper part of the ROM.,,Plan: 2/15/15
+55,Reverse Curls,Reverse Curls,2,12,12/15,15.0,Move within the upper part of the ROM.,,
+55,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,1,,12/41+4/36,,,,Plan: 2/12/41
+55,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,2,,7/41+4/32,,,,
+55,Tricep Pulldown,Tricep rope pulldown,1,12,12/27.5,27.5,,,Plan: 2/12/27.5
+55,Tricep Pulldown,Tricep rope pulldown,2,10,10/27.5,27.5,,,
+55,Hammer Curls,Lateral Hammer Curls,1,10,10/12,12.0,,,Plan: 2/10/12ea
+55,Hammer Curls,Lateral Hammer Curls,2,10,10/12,12.0,,,
+56,Lateral Raises,Lateral Raises,1,,f/6,6.0,,,Plan: 2/f/4
+56,Lateral Raises,Lateral Raises,2,,f/4,4.0,,,
+56,Reverse Curls,Reverse Curls,1,21,21/15,15.0,,,Plan: 2/15/15
+56,Overhead Press,Military Press,1,,12/25/behind-neck,,,,Plan: 2/12/25
+56,Overhead Press,Military Press,2,,12/25/behind-neck,,,,
+56,Barbell Curls,Biceps Curl,1,15,15/35,35.0,,,
+56,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,1,12,12/36,36.0,,,Plan: 2/15/36
+56,Overhead Tricep Pulldown,Overhead Tricep Rope Pulldown,2,10,10/36,36.0,,,
+56,Tricep Pulldown,Tricep rope pulldown,1,12,12/27.5,27.5,,,Plan: 2/12/27.5
+56,Tricep Pulldown,Tricep rope pulldown,2,12,12/22.5,22.5,,,
+56,Hammer Curls,Lateral Hammer Curls,1,8,2/8/14 (planned),14.0,,,Derived from plan: 2/8/14
+56,Hammer Curls,Lateral Hammer Curls,2,8,2/8/14 (planned),14.0,,,
+57,Pull-ups,Pull ups,1,,,,,,
+57,Seated Row Machine,Seated row,1,12,2/12/55 (planned),55.0,,,Derived from plan: 2/12/55
+57,Seated Row Machine,Seated row,2,12,2/12/55 (planned),55.0,,,
+57,Lat Pulldown,Lat cable pull downs,1,12,2/12/41 (planned),41.0,,,Derived from plan: 2/12/41
+57,Lat Pulldown,Lat cable pull downs,2,12,2/12/41 (planned),41.0,,,
+57,Seated Cable Row,Cable rows,1,12,2/12/45 (planned),45.0,,,Derived from plan: 2/12/45
+57,Seated Cable Row,Cable rows,2,12,2/12/45 (planned),45.0,,,
+57,Hammer Curls,Lateral Hammer curls,1,8,2/8/14 (planned),14.0,,,Derived from plan: 2/8/14
+57,Hammer Curls,Lateral Hammer curls,2,8,2/8/14 (planned),14.0,,,
+57,Reverse Curls,Reverse Curls,1,10,2/10/20 (planned),20.0,,,Derived from plan: 2/10/20
+57,Reverse Curls,Reverse Curls,2,10,2/10/20 (planned),20.0,,,
+57,Preacher Curls,Preacher curls,1,10,2/10/40 (planned),40.0,,,Derived from plan: 2/10/40
+57,Preacher Curls,Preacher curls,2,10,2/10/40 (planned),40.0,,,
+58,Pull-ups,Pull ups,1,9,9,,,,6+4
+58,Seated Row Machine,Seated row,1,16,16/50,50.0,,,Plan: 2/12/55
+58,Seated Row Machine,Seated row,2,10,10/55,55.0,,,
+58,Seated Row Machine,Seated row,3,,Retain 50 / focus on proper form,,,,
+58,Lat Pulldown,Lat cable pull downs,1,,13.5/41,41.0,,,Plan: 2/12/41
+58,Lat Pulldown,Lat cable pull downs,2,12,12/41,41.0,,,Vary grip width
+58,Seated Cable Row,Cable rows,1,,8/45+4/36,,,,Plan: 2/12/45
+58,Seated Cable Row,Cable rows,2,12,12/36,36.0,,,Lower weight
+58,Hammer Curls,Lateral Hammer curls,1,6,6/14,14.0,,,Plan: 2/8/14
+58,Hammer Curls,Lateral Hammer curls,2,6,6/14,14.0,,,Retain 14
+58,Reverse Curls,Reverse Curls,1,16,16/15,15.0,,,Plan: 2/10/15
+58,Reverse Curls,Reverse Curls,2,15,15/15,15.0,,,
+58,Preacher Curls,Preacher curls,1,,6/45+6/30,,,,Plan: 2/10/40
+58,Preacher Curls,Preacher curls,2,,6/40+5/30,,,,
+59,Pull-ups,Pull ups,1,8,8/3,3.0,,,
+59,Pull-ups,Pull ups,2,10,10,,,,
+59,Pull-ups,Pull ups,3,6,6,,,,6+4
+59,Seated Cable Row,Cable rows,1,7,7,,,,Plan: 8/3/45.5
+59,Seated Cable Row,Cable rows,2,,7.5,,,,
+59,Seated Cable Row,Cable rows,3,7,7,,,,
+59,Lat Pulldown,Lat pulldowns,1,14,14/40,40.0,,,Plan: 10/3/45
+59,Lat Pulldown,Lat pulldowns,2,9,9/45,45.0,,,
+59,Lat Pulldown,Lat pulldowns,3,9,9/45,45.0,,,
+59,Seated Row Machine,Seated rows,1,8,8,,,,Plan: 10/3/25
+59,Seated Row Machine,Seated rows,2,10,10,,,,
+59,Seated Row Machine,Seated rows,3,10,10,,,,
+59,Lat Pulldown,Lat rope pull downs,1,8,8,,,,Plan: 10/3/36
+59,Lat Pulldown,Lat rope pull downs,2,7,7,,,,
+59,Lat Pulldown,Lat rope pull downs,3,6,6,,,,Lower weight?
+59,Preacher Curls,Precher curls,1,9,9,,,,Plan: 10/3/40
+59,Preacher Curls,Precher curls,2,7,7,,,,
+59,Preacher Curls,Precher curls,3,4,4,,,,
+59,Reverse Curls,Reverse curls,1,,,,,,
+60,Pull-ups,Pull ups,1,8,8/3,3.0,,,
+60,Pull-ups,Pull ups,2,8,8,,,,
+60,Pull-ups,Pull ups,3,8,8,,,,
+60,Pull-ups,Pull ups,4,8,8,,,,Maybe 9
+60,Seated Row Machine,Seated rows,1,12,12,,,,Plan: 8/3/30
+60,Seated Row Machine,Seated rows,2,12,12,,,,
+60,Seated Row Machine,Seated rows,3,12,12,,,,
+60,Lat Pulldown,Lat pull downs,1,11,11,,,,Plan: 10/3/25
+60,Lat Pulldown,Lat pull downs,2,12,12,,,,
+60,Lat Pulldown,Lat pull downs,3,11,11,,,,
+60,T-Bar Row,T-bar rows,1,10,10,,,,Plan: 10/3/15
+60,T-Bar Row,T-bar rows,2,,12.5,,,,
+60,T-Bar Row,T-bar rows,3,12,12,,,,
+60,Lat Pulldown,Lat rope PDs,1,12,12,,,,Plan: 10/3/36
+60,Lat Pulldown,Lat rope PDs,2,,10.5,,,,
+60,Lat Pulldown,Lat rope PDs,3,12,12,,,,
+60,Reverse Curls,Reverse curls,1,12,12,,,,
+60,Reverse Curls,Reverse curls,2,12,12,,,,
+60,Reverse Curls,Reverse curls,3,12,12,,,,
+60,Preacher Curls,Preacher Curls,1,10,10,,,,Plan: 10/3/40
+60,Preacher Curls,Preacher Curls,2,,5+4/30,,,,
+60,Preacher Curls,Preacher Curls,3,,7.5/35,35.0,,,lower to 35
+61,Incline Chest Press,Smith machine incline,1,5,5/40 warmup,,,,
+61,Incline Chest Press,Smith machine incline,2,6,6/55,55.0,,,
+61,Incline Chest Press,Smith machine incline,3,3,3/55,55.0,,,
+61,Incline Chest Press,Incline Chest press machine,1,,9.5/30,30.0,,,Plan: 2/12/30
+61,Incline Chest Press,Incline Chest press machine,2,6,6/30,30.0,,,
+61,Pec Deck Fly,Pec deck flies,1,,10 w/p/35,,,,Plan: 2/f/25
+61,Pec Deck Fly,Pec deck flies,2,,9w/p/35,,,,Stick to 35
+61,Overhead Press,Shoulder press,1,12,12/30,30.0,,,Plan: 2/12/30
+61,Overhead Press,Shoulder press,2,9,9/30,30.0,,,
+61,Tricep Pulldown,Tricep rope pull down,1,12,2/12/27.5 (planned),27.5,,,Derived from plan: 2/12/27.5
+61,Tricep Pulldown,Tricep rope pull down,2,12,2/12/27.5 (planned),27.5,,,
+62,Flat Bench Press (Smith Machine),Smith machine BP,1,7,7/50,50.0,,,Plan: 3/8/50
+62,Flat Bench Press (Smith Machine),Smith machine BP,2,4,4/50,50.0,,,
+62,Flat Bench Press (Smith Machine),Smith machine BP,3,,6/45+6/40,,,,
+62,Chest Press Machine,Chest press,1,7,7/45,45.0,,,Plan: 3/10/45
+62,Chest Press Machine,Chest press,2,,9.5/45,45.0,,,
+62,Chest Press Machine,Chest press,3,7,7/45,45.0,,,Stick with 45
+62,Overhead Press,Shoulder Press,1,,11.5/25,25.0,,,Plan: 3/10/25
+62,Overhead Press,Shoulder Press,2,7,7/30,30.0,,,
+62,Overhead Press,Shoulder Press,3,6,6/25,25.0,,,
+62,Overhead Press,Shoulder Press,4,9,9/25?,,,,
+62,Tricep Pulldown,Tricep pull downs,1,8,8/32,32.0,,,Plan: 3/10/27.5
+62,Tricep Pulldown,Tricep pull downs,2,7,7/27.5,27.5,,,
+62,Tricep Pulldown,Tricep pull downs,3,6,6/27.5,27.5,,,
+62,Overhead Tricep Pulldown,Overhead tricep PD,1,7,7/32,32.0,,,Plan: 3/10/32
+62,Overhead Tricep Pulldown,Overhead tricep PD,2,12,12/32,32.0,,,
+62,Overhead Tricep Pulldown,Overhead tricep PD,3,8,8/32,32.0,,,
+63,Pull-ups,Pull ups,1,8,8/3,3.0,,,
+63,Pull-ups,Pull ups,2,8,8,,,,
+63,Pull-ups,Pull ups,3,8,8,,,,
+63,Pull-ups,Pull ups,4,8,8,,,,Maybe 9
+63,Seated Row Machine,Seated rows,1,12,12,,,,Plan: 8/3/30
+63,Seated Row Machine,Seated rows,2,12,12,,,,
+63,Seated Row Machine,Seated rows,3,12,12,,,,
+63,Lat Pulldown,Lat pull downs,1,11,11,,,,Plan: 10/3/25
+63,Lat Pulldown,Lat pull downs,2,12,12,,,,
+63,Lat Pulldown,Lat pull downs,3,11,11,,,,
+63,T-Bar Row,T-bar rows,1,10,10,,,,Plan: 10/3/15
+63,T-Bar Row,T-bar rows,2,,12.5,,,,
+63,T-Bar Row,T-bar rows,3,12,12,,,,
+63,Lat Pulldown,Lat rope PDs,1,12,12,,,,Plan: 10/3/36
+63,Lat Pulldown,Lat rope PDs,2,,10.5,,,,
+63,Lat Pulldown,Lat rope PDs,3,12,12,,,,
+63,Reverse Curls,Reverse curls,1,12,12,,,,
+63,Reverse Curls,Reverse curls,2,12,12,,,,
+63,Reverse Curls,Reverse curls,3,12,12,,,,
+63,Preacher Curls,Preacher Curls,1,10,10,,,,Plan: 10/3/40
+63,Preacher Curls,Preacher Curls,2,,5+4/30,,,,
+63,Preacher Curls,Preacher Curls,3,,7.5/35,35.0,,,lower to 35
+64,Perfect Squats,Perfect squats,1,10,10/0,0.0,,,Plan: 8/3/10
+64,Perfect Squats,Perfect squats,2,10,10/10,10.0,,,
+64,Perfect Squats,Perfect squats,3,10,10/10,10.0,,,
+64,Hip Adduction,Hip adduction,1,12,12/50,50.0,,,Plan: 10/3/65
+64,Hip Adduction,Hip adduction,2,15,15/65,65.0,,,
+64,Leg Press,Leg press,1,10,10/0,0.0,,,
+64,Leg Press,Leg press,2,12,12/0,0.0,,,

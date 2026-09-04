@@ -2,6 +2,12 @@ const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANO
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+  }[c]));
+}
+
 // ---------------------------------------------------------------- tabs ----
 document.querySelectorAll("nav.tabs button").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -17,66 +23,113 @@ document.querySelectorAll("nav.tabs button").forEach((btn) => {
 // ------------------------------------------------------------- datalists --
 async function loadDistinctLists() {
   const { data: exRows } = await sb.from("workout_sets").select("exercise").not("exercise", "is", null);
-  const { data: grpRows } = await sb.from("workout_sets").select("muscle_group").not("muscle_group", "is", null);
+  const { data: catRows } = await sb.from("workout_sessions").select("category").not("category", "is", null);
 
   const exercises = [...new Set((exRows || []).map((r) => r.exercise))].sort();
-  const groups = [...new Set((grpRows || []).map((r) => r.muscle_group))].sort();
+  const categories = [...new Set((catRows || []).map((r) => r.category))].sort();
 
-  const exList = document.getElementById("exercises");
-  exList.innerHTML = exercises.map((e) => `<option value="${escapeHtml(e)}">`).join("");
-
-  const grpList = document.getElementById("muscle-groups");
-  grpList.innerHTML = groups.map((g) => `<option value="${escapeHtml(g)}">`).join("");
+  document.getElementById("exercises").innerHTML = exercises.map((e) => `<option value="${escapeHtml(e)}">`).join("");
+  document.getElementById("categories").innerHTML = categories.map((c) => `<option value="${escapeHtml(c)}">`).join("");
 
   const progressSelect = document.getElementById("progress-exercise");
+  const prev = progressSelect.value;
   progressSelect.innerHTML = exercises.map((e) => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join("");
-}
-
-function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  }[c]));
+  if (exercises.includes(prev)) progressSelect.value = prev;
 }
 
 // ------------------------------------------------------------- log form ---
-document.getElementById("set-form").querySelector('[name="log_date"]').value = todayISO();
+document.getElementById("s-date").value = todayISO();
 document.getElementById("bw-date").value = todayISO();
 
-document.getElementById("save-set").addEventListener("click", async () => {
-  const form = document.getElementById("set-form");
-  const fd = new FormData(form);
-  const statusEl = document.getElementById("set-status");
+const exerciseRowsEl = document.getElementById("exercise-rows");
+const exerciseRowTemplate = document.getElementById("exercise-row-template");
 
-  const row = {
-    log_date: fd.get("log_date"),
-    muscle_group: fd.get("muscle_group") || null,
-    exercise: fd.get("exercise"),
-    set_number: fd.get("set_number") ? parseInt(fd.get("set_number"), 10) : 1,
-    reps: fd.get("reps") ? parseInt(fd.get("reps"), 10) : null,
-    weight_kg: fd.get("weight_kg") ? parseFloat(fd.get("weight_kg")) : null,
-    rpe: fd.get("rpe") || null,
-    notes: fd.get("notes") || null,
-  };
+function addExerciseRow() {
+  const node = exerciseRowTemplate.content.cloneNode(true);
+  node.querySelector(".remove-exercise-row").addEventListener("click", (e) => {
+    e.target.closest(".exercise-row").remove();
+  });
+  exerciseRowsEl.appendChild(node);
+}
+document.getElementById("add-exercise-row").addEventListener("click", addExerciseRow);
+addExerciseRow(); // start with one row
 
-  if (!row.log_date || !row.exercise) {
-    statusEl.textContent = "Date and exercise are required.";
+function resetSessionForm() {
+  document.getElementById("s-date").value = todayISO();
+  document.getElementById("s-category").value = "";
+  document.getElementById("s-start").value = "";
+  document.getElementById("s-end").value = "";
+  exerciseRowsEl.innerHTML = "";
+  addExerciseRow();
+  document.getElementById("session-status").textContent = "";
+  document.getElementById("session-status").classList.remove("error");
+}
+document.getElementById("reset-session").addEventListener("click", resetSessionForm);
+
+document.getElementById("save-session").addEventListener("click", async () => {
+  const statusEl = document.getElementById("session-status");
+  const log_date = document.getElementById("s-date").value;
+  const category = document.getElementById("s-category").value.trim() || null;
+  const start_time = document.getElementById("s-start").value || null;
+  const end_time = document.getElementById("s-end").value || null;
+
+  if (!log_date) {
+    statusEl.textContent = "Date is required.";
     statusEl.classList.add("error");
     return;
   }
 
-  const { error } = await sb.from("workout_sets").insert(row);
-  if (error) {
-    statusEl.textContent = `Error: ${error.message}`;
+  const exerciseRows = [...exerciseRowsEl.querySelectorAll(".exercise-row")];
+  const entries = exerciseRows.map((row) => ({
+    exercise: row.querySelector(".ex-name").value.trim(),
+    sets: parseInt(row.querySelector(".ex-sets").value, 10) || 0,
+    reps: row.querySelector(".ex-reps").value ? parseInt(row.querySelector(".ex-reps").value, 10) : null,
+    weight_kg: row.querySelector(".ex-weight").value ? parseFloat(row.querySelector(".ex-weight").value) : null,
+    rpe: row.querySelector(".ex-rpe").value.trim() || null,
+  })).filter((e) => e.exercise && e.sets > 0);
+
+  if (entries.length === 0) {
+    statusEl.textContent = "Add at least one exercise (name + sets).";
     statusEl.classList.add("error");
     return;
   }
+
+  const { data: session, error: sessErr } = await sb
+    .from("workout_sessions")
+    .insert({ log_date, category, start_time, end_time })
+    .select()
+    .single();
+
+  if (sessErr) {
+    statusEl.textContent = `Error: ${sessErr.message}`;
+    statusEl.classList.add("error");
+    return;
+  }
+
+  const setRows = [];
+  entries.forEach((e) => {
+    for (let i = 1; i <= e.sets; i++) {
+      setRows.push({
+        session_id: session.id,
+        exercise: e.exercise,
+        set_number: i,
+        reps: e.reps,
+        weight_kg: e.weight_kg,
+        rpe: e.rpe,
+      });
+    }
+  });
+
+  const { error: setsErr } = await sb.from("workout_sets").insert(setRows);
+  if (setsErr) {
+    statusEl.textContent = `Session saved, but sets failed: ${setsErr.message}`;
+    statusEl.classList.add("error");
+    return;
+  }
+
   statusEl.classList.remove("error");
   statusEl.textContent = "Saved ✓";
-  const nextSet = row.set_number + 1;
-  form.querySelector('[name="set_number"]').value = nextSet;
-  form.querySelector('[name="reps"]').value = "";
-  form.querySelector('[name="weight_kg"]').value = "";
-  form.querySelector('[name="notes"]').value = "";
+  resetSessionForm();
   loadDistinctLists();
 });
 
@@ -101,14 +154,14 @@ document.getElementById("save-bw").addEventListener("click", async () => {
 });
 
 // -------------------------------------------------------------- history ---
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 20;
 let historyOffset = 0;
 
 function currentFilters() {
   return {
     from: document.getElementById("f-from").value || null,
     to: document.getElementById("f-to").value || null,
-    group: document.getElementById("f-group").value.trim() || null,
+    category: document.getElementById("f-category").value.trim() || null,
     exercise: document.getElementById("f-exercise").value.trim() || null,
   };
 }
@@ -116,14 +169,19 @@ function currentFilters() {
 async function loadHistory(reset) {
   if (reset) {
     historyOffset = 0;
-    document.querySelector("#sets-table tbody").innerHTML = "";
+    document.getElementById("sessions-list").innerHTML = "";
   }
   const f = currentFilters();
-  let q = sb.from("workout_sets").select("*").order("log_date", { ascending: false }).order("set_number", { ascending: true });
+
+  let q = sb
+    .from("workout_sessions")
+    .select("*, workout_sets(*)")
+    .order("log_date", { ascending: false })
+    .order("id", { ascending: false });
   if (f.from) q = q.gte("log_date", f.from);
   if (f.to) q = q.lte("log_date", f.to);
-  if (f.group) q = q.eq("muscle_group", f.group);
-  if (f.exercise) q = q.ilike("exercise", `%${f.exercise}%`);
+  if (f.category) q = q.eq("category", f.category);
+  if (f.exercise) q = q.ilike("workout_sets.exercise", `%${f.exercise}%`);
   q = q.range(historyOffset, historyOffset + PAGE_SIZE - 1);
 
   const { data, error } = await q;
@@ -131,35 +189,61 @@ async function loadHistory(reset) {
     console.error(error);
     return;
   }
-  const tbody = document.querySelector("#sets-table tbody");
-  data.forEach((row) => tbody.appendChild(setRowEl(row)));
+
+  let sessions = data;
+  if (f.exercise) sessions = sessions.filter((s) => (s.workout_sets || []).length > 0);
+
+  const list = document.getElementById("sessions-list");
+  sessions.forEach((s) => list.appendChild(sessionCardEl(s)));
   historyOffset += data.length;
-  document.getElementById("sets-empty").style.display = (tbody.children.length === 0) ? "block" : "none";
-  document.getElementById("load-more-sets").style.display = data.length < PAGE_SIZE ? "none" : "inline-block";
+
+  document.getElementById("sessions-empty").style.display = (list.children.length === 0) ? "block" : "none";
+  document.getElementById("load-more-sessions").style.display = data.length < PAGE_SIZE ? "none" : "inline-block";
 
   if (reset) loadBodyWeightTable();
 }
 
-function setRowEl(row) {
-  const tr = document.createElement("tr");
-  tr.innerHTML = `
-    <td>${row.log_date}</td>
-    <td>${escapeHtml(row.muscle_group || "")}</td>
-    <td>${escapeHtml(row.exercise)}</td>
-    <td>${row.set_number ?? ""}</td>
-    <td>${row.reps ?? escapeHtml(row.reps_raw || "")}</td>
-    <td>${row.weight_kg ?? ""}</td>
-    <td>${escapeHtml(row.rpe || "")}</td>
-    <td class="notes-cell">${escapeHtml(row.notes || "")}</td>
-    <td><button class="btn danger small" data-id="${row.id}">Delete</button></td>
+function sessionCardEl(session) {
+  const card = document.createElement("div");
+  card.className = "card session-card";
+
+  const timeRange = [session.start_time, session.end_time].filter(Boolean).map((t) => t.slice(0, 5)).join(" – ");
+
+  // group sets by exercise, preserving first-seen order
+  const byExercise = new Map();
+  (session.workout_sets || [])
+    .sort((a, b) => a.set_number - b.set_number)
+    .forEach((row) => {
+      if (!byExercise.has(row.exercise)) byExercise.set(row.exercise, []);
+      byExercise.get(row.exercise).push(row);
+    });
+
+  const exerciseHtml = [...byExercise.entries()].map(([exercise, rows]) => {
+    const setsHtml = rows.map((r) => {
+      const reps = r.reps ?? escapeHtml(r.reps_raw || "?");
+      const weight = r.weight_kg != null ? `${r.weight_kg}kg` : "";
+      return `<span class="set-chip">${reps}${weight ? " × " + weight : ""}</span>`;
+    }).join("");
+    return `<div class="exercise-line"><strong>${escapeHtml(exercise)}</strong><div class="set-chips">${setsHtml}</div></div>`;
+  }).join("");
+
+  card.innerHTML = `
+    <div class="session-head">
+      <div>
+        <span class="session-date">${session.log_date}</span>
+        ${session.category ? `<span class="badge">${escapeHtml(session.category)}</span>` : ""}
+        ${timeRange ? `<span class="session-time">${timeRange}</span>` : ""}
+      </div>
+      <button class="btn danger small" data-action="delete-session">Delete</button>
+    </div>
+    <div class="session-body">${exerciseHtml || '<span class="empty">No exercises.</span>'}</div>
   `;
-  tr.querySelector("button").addEventListener("click", async (e) => {
-    if (!confirm("Delete this set?")) return;
-    const id = e.target.dataset.id;
-    const { error } = await sb.from("workout_sets").delete().eq("id", id);
-    if (!error) tr.remove();
+  card.querySelector('[data-action="delete-session"]').addEventListener("click", async () => {
+    if (!confirm("Delete this whole session (and its sets)?")) return;
+    const { error } = await sb.from("workout_sessions").delete().eq("id", session.id);
+    if (!error) card.remove();
   });
-  return tr;
+  return card;
 }
 
 async function loadBodyWeightTable() {
@@ -183,11 +267,11 @@ document.getElementById("apply-filters").addEventListener("click", () => loadHis
 document.getElementById("clear-filters").addEventListener("click", () => {
   document.getElementById("f-from").value = "";
   document.getElementById("f-to").value = "";
-  document.getElementById("f-group").value = "";
+  document.getElementById("f-category").value = "";
   document.getElementById("f-exercise").value = "";
   loadHistory(true);
 });
-document.getElementById("load-more-sets").addEventListener("click", () => loadHistory(false));
+document.getElementById("load-more-sessions").addEventListener("click", () => loadHistory(false));
 
 // -------------------------------------------------------------- progress --
 let bwChart, exerciseChart;
@@ -226,15 +310,16 @@ async function renderExerciseChart() {
 
   const { data, error } = await sb
     .from("workout_sets")
-    .select("log_date, reps, weight_kg")
-    .eq("exercise", exercise)
-    .order("log_date", { ascending: true });
+    .select("reps, weight_kg, workout_sessions(log_date)")
+    .eq("exercise", exercise);
   if (error || !data) return;
 
   const bySession = {};
   data.forEach((r) => {
-    if (!bySession[r.log_date]) bySession[r.log_date] = [];
-    bySession[r.log_date].push(r);
+    const d = r.workout_sessions?.log_date;
+    if (!d) return;
+    if (!bySession[d]) bySession[d] = [];
+    bySession[d].push(r);
   });
 
   const labels = Object.keys(bySession).sort();
@@ -246,7 +331,6 @@ async function renderExerciseChart() {
     if (metric === "max_reps") {
       return Math.max(...sets.map((s) => s.reps ?? 0));
     }
-    // volume = sum(reps * weight)
     return sets.reduce((sum, s) => sum + (s.reps ?? 0) * (s.weight_kg ?? 0), 0);
   });
 

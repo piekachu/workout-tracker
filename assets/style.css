@@ -216,3 +216,67 @@ footer {
   font-size: 0.85rem;
   padding: 10px 0;
 }
+
+/* --- exercise rows (Log form) --- */
+.exercise-row {
+  display: grid;
+  grid-template-columns: 2fr 0.8fr 0.8fr 1fr 0.8fr auto;
+  gap: 8px;
+  align-items: end;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.exercise-row:first-child { padding-top: 0; }
+.exercise-row .remove-exercise-row {
+  height: 34px;
+}
+
+/* --- session cards (History) --- */
+.session-card { padding: 14px 18px; }
+.session-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.session-date {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-right: 10px;
+}
+.session-time {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  margin-left: 10px;
+}
+.badge {
+  display: inline-block;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.exercise-line {
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+.exercise-line:first-child { border-top: none; }
+.set-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.set-chip {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
