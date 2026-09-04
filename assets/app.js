@@ -1,6 +1,13 @@
 const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+// Local-date (not UTC) YYYY-MM-DD -- toISOString()/new Date("YYYY-MM-DD") are both
+// UTC-based and drift a day off in timezones ahead of/behind UTC around midnight.
+function localISO(d = new Date()) {
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+const todayISO = () => localISO();
+const GROUPS = ["Back + Biceps", "Chest + Triceps", "Shoulder + Arms", "Legs", "Whole body"];
 
 function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({
@@ -8,350 +15,280 @@ function escapeHtml(s) {
   }[c]));
 }
 
-// ---------------------------------------------------------------- tabs ----
-document.querySelectorAll("nav.tabs button").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.remove("active"));
-    document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
-    btn.classList.add("active");
-    document.getElementById(`panel-${btn.dataset.tab}`).classList.add("active");
-    if (btn.dataset.tab === "history") loadHistory(true);
-    if (btn.dataset.tab === "progress") loadProgress();
+// ============================================================ consistency
+async function loadConsistency() {
+  const { data, error } = await sb.from("workout_sessions").select("log_date");
+  if (error) return;
+  const dates = new Set((data || []).map((r) => r.log_date));
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = localISO(today);
+
+  // last 4 weeks stat (ISO date strings sort/compare lexicographically)
+  const fourWeeksAgoStr = localISO(addDays(today, -28));
+  const recentCount = [...dates].filter((d) => d >= fourWeeksAgoStr && d <= todayStr).length;
+  document.getElementById("stat-recent").textContent = recentCount;
+
+  // current weekly streak: consecutive 7-day windows ending this week with >=1 session
+  let streak = 0;
+  for (let w = 0; ; w++) {
+    const endStr = localISO(addDays(today, -w * 7));
+    const startStr = localISO(addDays(today, -w * 7 - 6));
+    const hasSession = [...dates].some((d) => d >= startStr && d <= endStr);
+    if (!hasSession) break;
+    streak++;
+    if (streak > 104) break;
+  }
+  document.getElementById("stat-streak").textContent = streak;
+
+  // heatmap: 18 weeks, Sun-Sat columns
+  const WEEKS = 18;
+  const endOfGrid = addDays(today, 6 - today.getDay()); // extend to end of this week (Sat)
+  const startOfGrid = addDays(endOfGrid, -(WEEKS * 7 - 1));
+
+  const heatmap = document.getElementById("heatmap");
+  heatmap.innerHTML = "";
+  for (let i = 0; i < WEEKS * 7; i++) {
+    const d = addDays(startOfGrid, i);
+    const iso = localISO(d);
+    const cell = document.createElement("div");
+    cell.className = "heat-cell";
+    if (dates.has(iso)) cell.classList.add("filled");
+    if (iso === todayStr) cell.classList.add("today");
+    if (iso > todayStr) cell.style.visibility = "hidden";
+    cell.title = iso;
+    heatmap.appendChild(cell);
+  }
+}
+
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+// ============================================================ catalog ----
+let catalogByCategory = {};
+let allExerciseNames = [];
+
+async function loadCatalog() {
+  const { data, error } = await sb.from("exercise_catalog").select("*").order("sort_order");
+  if (error) return;
+  catalogByCategory = {};
+  GROUPS.forEach((g) => (catalogByCategory[g] = []));
+  (data || []).forEach((row) => {
+    if (!catalogByCategory[row.category]) catalogByCategory[row.category] = [];
+    catalogByCategory[row.category].push(row);
   });
+  allExerciseNames = [...new Set((data || []).map((r) => r.exercise))].sort();
+  document.getElementById("exercise-options").innerHTML =
+    allExerciseNames.map((e) => `<option value="${escapeHtml(e)}">`).join("");
+}
+
+function goalText(row) {
+  if (!row) return "";
+  const parts = [row.target_sets ?? "?", row.target_reps ?? "?", row.target_weight != null ? row.target_weight : "?"];
+  return `Goal: ${parts.join("/")}`;
+}
+
+// ============================================================ category picker
+const picker = document.getElementById("category-picker");
+GROUPS.forEach((g) => {
+  const btn = document.createElement("button");
+  btn.className = "category-btn";
+  btn.textContent = g;
+  btn.dataset.category = g;
+  btn.addEventListener("click", () => selectCategory(g));
+  picker.appendChild(btn);
 });
 
-// ------------------------------------------------------------- datalists --
-async function loadDistinctLists() {
-  const { data: exRows } = await sb.from("workout_sets").select("exercise").not("exercise", "is", null);
-  const { data: catRows } = await sb.from("workout_sessions").select("category").not("category", "is", null);
+let selectedCategory = null;
 
-  const exercises = [...new Set((exRows || []).map((r) => r.exercise))].sort();
-  const categories = [...new Set((catRows || []).map((r) => r.category))].sort();
+function selectCategory(category) {
+  selectedCategory = category;
+  [...picker.children].forEach((b) => b.classList.toggle("active", b.dataset.category === category));
+  document.getElementById("log-form").hidden = false;
 
-  document.getElementById("exercises").innerHTML = exercises.map((e) => `<option value="${escapeHtml(e)}">`).join("");
-  document.getElementById("categories").innerHTML = categories.map((c) => `<option value="${escapeHtml(c)}">`).join("");
-
-  const progressSelect = document.getElementById("progress-exercise");
-  const prev = progressSelect.value;
-  progressSelect.innerHTML = exercises.map((e) => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join("");
-  if (exercises.includes(prev)) progressSelect.value = prev;
+  const list = document.getElementById("exercise-list");
+  list.innerHTML = "";
+  const rows = catalogByCategory[category] || [];
+  if (rows.length === 0) {
+    addExerciseRow(); // Whole body / empty category: start with one blank row
+  } else {
+    rows.forEach((row) => addExerciseRow(row));
+  }
 }
 
-// ------------------------------------------------------------- log form ---
-document.getElementById("s-date").value = todayISO();
-document.getElementById("bw-date").value = todayISO();
-
-const exerciseRowsEl = document.getElementById("exercise-rows");
+// ============================================================ exercise rows
+const exerciseListEl = document.getElementById("exercise-list");
 const exerciseRowTemplate = document.getElementById("exercise-row-template");
+const setInputTemplate = document.getElementById("set-input-template");
 
-function addExerciseRow() {
-  const node = exerciseRowTemplate.content.cloneNode(true);
-  node.querySelector(".remove-exercise-row").addEventListener("click", (e) => {
-    e.target.closest(".exercise-row").remove();
-  });
-  exerciseRowsEl.appendChild(node);
+function addSetInput(setsContainer) {
+  const node = setInputTemplate.content.cloneNode(true);
+  const num = setsContainer.children.length + 1;
+  node.querySelector(".set-num").textContent = num;
+  setsContainer.appendChild(node);
 }
-document.getElementById("add-exercise-row").addEventListener("click", addExerciseRow);
-addExerciseRow(); // start with one row
 
-function resetSessionForm() {
+function addExerciseRow(catalogRow) {
+  const node = exerciseRowTemplate.content.cloneNode(true);
+  const row = node.querySelector(".ex-row");
+  const nameInput = row.querySelector(".ex-name");
+  const setsContainer = row.querySelector(".ex-sets");
+
+  if (catalogRow) {
+    nameInput.value = catalogRow.exercise;
+    row.querySelector(".ex-goal").textContent = goalText(catalogRow);
+    row.dataset.targetWeight = catalogRow.target_weight ?? "";
+  }
+
+  const nSets = catalogRow?.target_sets || 3;
+  for (let i = 0; i < nSets; i++) addSetInput(setsContainer);
+
+  row.querySelector(".add-set").addEventListener("click", () => addSetInput(setsContainer));
+  row.querySelector(".remove-btn").addEventListener("click", () => row.remove());
+
+  exerciseListEl.appendChild(node);
+}
+
+document.getElementById("add-exercise").addEventListener("click", () => addExerciseRow());
+
+// ============================================================ save --------
+document.getElementById("s-date").value = todayISO();
+
+function resetLogForm() {
   document.getElementById("s-date").value = todayISO();
-  document.getElementById("s-category").value = "";
+  document.getElementById("s-bodyweight").value = "";
   document.getElementById("s-start").value = "";
   document.getElementById("s-end").value = "";
-  exerciseRowsEl.innerHTML = "";
-  addExerciseRow();
+  document.getElementById("log-form").hidden = true;
+  [...picker.children].forEach((b) => b.classList.remove("active"));
+  selectedCategory = null;
   document.getElementById("session-status").textContent = "";
   document.getElementById("session-status").classList.remove("error");
 }
-document.getElementById("reset-session").addEventListener("click", resetSessionForm);
 
 document.getElementById("save-session").addEventListener("click", async () => {
   const statusEl = document.getElementById("session-status");
   const log_date = document.getElementById("s-date").value;
-  const category = document.getElementById("s-category").value.trim() || null;
+  const bodyweight = document.getElementById("s-bodyweight").value;
   const start_time = document.getElementById("s-start").value || null;
   const end_time = document.getElementById("s-end").value || null;
 
-  if (!log_date) {
-    statusEl.textContent = "Date is required.";
+  if (!log_date || !selectedCategory) {
+    statusEl.textContent = "Date and category are required.";
     statusEl.classList.add("error");
     return;
   }
 
-  const exerciseRows = [...exerciseRowsEl.querySelectorAll(".exercise-row")];
-  const entries = exerciseRows.map((row) => ({
-    exercise: row.querySelector(".ex-name").value.trim(),
-    sets: parseInt(row.querySelector(".ex-sets").value, 10) || 0,
-    reps: row.querySelector(".ex-reps").value ? parseInt(row.querySelector(".ex-reps").value, 10) : null,
-    weight_kg: row.querySelector(".ex-weight").value ? parseFloat(row.querySelector(".ex-weight").value) : null,
-    rpe: row.querySelector(".ex-rpe").value.trim() || null,
-  })).filter((e) => e.exercise && e.sets > 0);
+  const exerciseRows = [...exerciseListEl.querySelectorAll(".ex-row")];
+  const setRows = [];
+  exerciseRows.forEach((row) => {
+    const exercise = row.querySelector(".ex-name").value.trim();
+    if (!exercise) return;
+    const comment = row.querySelector(".ex-comment").value.trim() || null;
+    const sets = [...row.querySelectorAll(".set-input")];
+    let setNum = 0;
+    sets.forEach((s) => {
+      const repsVal = s.querySelector(".set-reps").value;
+      const weightVal = s.querySelector(".set-weight").value;
+      if (repsVal === "" && weightVal === "") return; // skip untouched set slots
+      setNum++;
+      setRows.push({
+        exercise,
+        set_number: setNum,
+        reps: repsVal !== "" ? parseInt(repsVal, 10) : null,
+        weight_kg: weightVal !== "" ? parseFloat(weightVal) : null,
+        notes: setNum === 1 ? comment : null,
+      });
+    });
+  });
 
-  if (entries.length === 0) {
-    statusEl.textContent = "Add at least one exercise (name + sets).";
+  if (setRows.length === 0) {
+    statusEl.textContent = "Log at least one set.";
     statusEl.classList.add("error");
     return;
   }
 
   const { data: session, error: sessErr } = await sb
     .from("workout_sessions")
-    .insert({ log_date, category, start_time, end_time })
+    .insert({ log_date, category: selectedCategory, start_time, end_time })
     .select()
     .single();
-
   if (sessErr) {
     statusEl.textContent = `Error: ${sessErr.message}`;
     statusEl.classList.add("error");
     return;
   }
 
-  const setRows = [];
-  entries.forEach((e) => {
-    for (let i = 1; i <= e.sets; i++) {
-      setRows.push({
-        session_id: session.id,
-        exercise: e.exercise,
-        set_number: i,
-        reps: e.reps,
-        weight_kg: e.weight_kg,
-        rpe: e.rpe,
-      });
-    }
-  });
-
-  const { error: setsErr } = await sb.from("workout_sets").insert(setRows);
+  const { error: setsErr } = await sb.from("workout_sets")
+    .insert(setRows.map((r) => ({ ...r, session_id: session.id })));
   if (setsErr) {
     statusEl.textContent = `Session saved, but sets failed: ${setsErr.message}`;
     statusEl.classList.add("error");
     return;
   }
 
+  if (bodyweight) {
+    await sb.from("body_weight").upsert(
+      { log_date, weight_kg: parseFloat(bodyweight) },
+      { onConflict: "log_date" }
+    );
+  }
+
   statusEl.classList.remove("error");
   statusEl.textContent = "Saved ✓";
-  resetSessionForm();
-  loadDistinctLists();
+  setTimeout(() => {
+    resetLogForm();
+    loadConsistency();
+    loadRecent();
+  }, 700);
 });
 
-document.getElementById("save-bw").addEventListener("click", async () => {
-  const statusEl = document.getElementById("bw-status");
-  const log_date = document.getElementById("bw-date").value;
-  const weight_kg = parseFloat(document.getElementById("bw-weight").value);
-  if (!log_date || Number.isNaN(weight_kg)) {
-    statusEl.textContent = "Date and weight are required.";
-    statusEl.classList.add("error");
-    return;
-  }
-  const { error } = await sb.from("body_weight").upsert({ log_date, weight_kg }, { onConflict: "log_date" });
-  if (error) {
-    statusEl.textContent = `Error: ${error.message}`;
-    statusEl.classList.add("error");
-    return;
-  }
-  statusEl.classList.remove("error");
-  statusEl.textContent = "Saved ✓";
-  document.getElementById("bw-weight").value = "";
-});
-
-// -------------------------------------------------------------- history ---
-const PAGE_SIZE = 20;
-let historyOffset = 0;
-
-function currentFilters() {
-  return {
-    from: document.getElementById("f-from").value || null,
-    to: document.getElementById("f-to").value || null,
-    category: document.getElementById("f-category").value.trim() || null,
-    exercise: document.getElementById("f-exercise").value.trim() || null,
-  };
-}
-
-async function loadHistory(reset) {
-  if (reset) {
-    historyOffset = 0;
-    document.getElementById("sessions-list").innerHTML = "";
-  }
-  const f = currentFilters();
-
-  let q = sb
+// ============================================================ recent ------
+async function loadRecent() {
+  const { data, error } = await sb
     .from("workout_sessions")
     .select("*, workout_sets(*)")
     .order("log_date", { ascending: false })
-    .order("id", { ascending: false });
-  if (f.from) q = q.gte("log_date", f.from);
-  if (f.to) q = q.lte("log_date", f.to);
-  if (f.category) q = q.eq("category", f.category);
-  if (f.exercise) q = q.ilike("workout_sets.exercise", `%${f.exercise}%`);
-  q = q.range(historyOffset, historyOffset + PAGE_SIZE - 1);
+    .order("id", { ascending: false })
+    .limit(8);
+  if (error) return;
 
-  const { data, error } = await q;
-  if (error) {
-    console.error(error);
+  const list = document.getElementById("recent-list");
+  list.innerHTML = "";
+  if (!data || data.length === 0) {
+    list.innerHTML = '<p class="empty">No workouts logged yet.</p>';
     return;
   }
 
-  let sessions = data;
-  if (f.exercise) sessions = sessions.filter((s) => (s.workout_sets || []).length > 0);
-
-  const list = document.getElementById("sessions-list");
-  sessions.forEach((s) => list.appendChild(sessionCardEl(s)));
-  historyOffset += data.length;
-
-  document.getElementById("sessions-empty").style.display = (list.children.length === 0) ? "block" : "none";
-  document.getElementById("load-more-sessions").style.display = data.length < PAGE_SIZE ? "none" : "inline-block";
-
-  if (reset) loadBodyWeightTable();
-}
-
-function sessionCardEl(session) {
-  const card = document.createElement("div");
-  card.className = "card session-card";
-
-  const timeRange = [session.start_time, session.end_time].filter(Boolean).map((t) => t.slice(0, 5)).join(" – ");
-
-  // group sets by exercise, preserving first-seen order
-  const byExercise = new Map();
-  (session.workout_sets || [])
-    .sort((a, b) => a.set_number - b.set_number)
-    .forEach((row) => {
-      if (!byExercise.has(row.exercise)) byExercise.set(row.exercise, []);
-      byExercise.get(row.exercise).push(row);
-    });
-
-  const exerciseHtml = [...byExercise.entries()].map(([exercise, rows]) => {
-    const setsHtml = rows.map((r) => {
-      const reps = r.reps ?? escapeHtml(r.reps_raw || "?");
-      const weight = r.weight_kg != null ? `${r.weight_kg}kg` : "";
-      return `<span class="set-chip">${reps}${weight ? " × " + weight : ""}</span>`;
-    }).join("");
-    return `<div class="exercise-line"><strong>${escapeHtml(exercise)}</strong><div class="set-chips">${setsHtml}</div></div>`;
-  }).join("");
-
-  card.innerHTML = `
-    <div class="session-head">
-      <div>
-        <span class="session-date">${session.log_date}</span>
-        ${session.category ? `<span class="badge">${escapeHtml(session.category)}</span>` : ""}
-        ${timeRange ? `<span class="session-time">${timeRange}</span>` : ""}
+  data.forEach((session) => {
+    const exercises = [...new Set((session.workout_sets || []).map((s) => s.exercise))];
+    const div = document.createElement("div");
+    div.className = "recent-item";
+    const timeRange = [session.start_time, session.end_time].filter(Boolean).map((t) => t.slice(0, 5)).join(" – ");
+    div.innerHTML = `
+      <div class="recent-head">
+        <span><span class="date">${session.log_date}</span> · ${escapeHtml(session.category || "")}${timeRange ? " · " + timeRange : ""}</span>
+        <button class="remove-btn" title="Delete">✕</button>
       </div>
-      <button class="btn danger small" data-action="delete-session">Delete</button>
-    </div>
-    <div class="session-body">${exerciseHtml || '<span class="empty">No exercises.</span>'}</div>
-  `;
-  card.querySelector('[data-action="delete-session"]').addEventListener("click", async () => {
-    if (!confirm("Delete this whole session (and its sets)?")) return;
-    const { error } = await sb.from("workout_sessions").delete().eq("id", session.id);
-    if (!error) card.remove();
-  });
-  return card;
-}
-
-async function loadBodyWeightTable() {
-  const { data, error } = await sb.from("body_weight").select("*").order("log_date", { ascending: false }).limit(100);
-  if (error) return;
-  const tbody = document.querySelector("#bw-table tbody");
-  tbody.innerHTML = "";
-  data.forEach((row) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${row.log_date}</td><td>${row.weight_kg}</td><td><button class="btn danger small">Delete</button></td>`;
-    tr.querySelector("button").addEventListener("click", async () => {
-      if (!confirm("Delete this entry?")) return;
-      const { error: delErr } = await sb.from("body_weight").delete().eq("id", row.id);
-      if (!delErr) tr.remove();
+      <div class="recent-exercises">${exercises.map(escapeHtml).join(", ") || "—"}</div>
+    `;
+    div.querySelector(".remove-btn").addEventListener("click", async () => {
+      if (!confirm("Delete this workout?")) return;
+      const { error: delErr } = await sb.from("workout_sessions").delete().eq("id", session.id);
+      if (!delErr) {
+        div.remove();
+        loadConsistency();
+      }
     });
-    tbody.appendChild(tr);
+    list.appendChild(div);
   });
 }
 
-document.getElementById("apply-filters").addEventListener("click", () => loadHistory(true));
-document.getElementById("clear-filters").addEventListener("click", () => {
-  document.getElementById("f-from").value = "";
-  document.getElementById("f-to").value = "";
-  document.getElementById("f-category").value = "";
-  document.getElementById("f-exercise").value = "";
-  loadHistory(true);
-});
-document.getElementById("load-more-sessions").addEventListener("click", () => loadHistory(false));
-
-// -------------------------------------------------------------- progress --
-let bwChart, exerciseChart;
-
-async function loadProgress() {
-  const { data: bwData } = await sb.from("body_weight").select("*").order("log_date", { ascending: true });
-  const ctx = document.getElementById("bw-chart");
-  if (bwChart) bwChart.destroy();
-  bwChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: (bwData || []).map((r) => r.log_date),
-      datasets: [{
-        label: "Body weight (kg)",
-        data: (bwData || []).map((r) => r.weight_kg),
-        borderColor: "#5fa8ff",
-        backgroundColor: "#5fa8ff33",
-        tension: 0.25,
-        fill: true,
-      }],
-    },
-    options: { responsive: true, maintainAspectRatio: false },
-  });
-
-  await loadDistinctLists();
-  renderExerciseChart();
-}
-
-document.getElementById("progress-exercise").addEventListener("change", renderExerciseChart);
-document.getElementById("progress-metric").addEventListener("change", renderExerciseChart);
-
-async function renderExerciseChart() {
-  const exercise = document.getElementById("progress-exercise").value;
-  const metric = document.getElementById("progress-metric").value;
-  if (!exercise) return;
-
-  const { data, error } = await sb
-    .from("workout_sets")
-    .select("reps, weight_kg, workout_sessions(log_date)")
-    .eq("exercise", exercise);
-  if (error || !data) return;
-
-  const bySession = {};
-  data.forEach((r) => {
-    const d = r.workout_sessions?.log_date;
-    if (!d) return;
-    if (!bySession[d]) bySession[d] = [];
-    bySession[d].push(r);
-  });
-
-  const labels = Object.keys(bySession).sort();
-  const values = labels.map((d) => {
-    const sets = bySession[d];
-    if (metric === "max_weight") {
-      return Math.max(...sets.map((s) => s.weight_kg ?? 0));
-    }
-    if (metric === "max_reps") {
-      return Math.max(...sets.map((s) => s.reps ?? 0));
-    }
-    return sets.reduce((sum, s) => sum + (s.reps ?? 0) * (s.weight_kg ?? 0), 0);
-  });
-
-  const ctx = document.getElementById("exercise-chart");
-  if (exerciseChart) exerciseChart.destroy();
-  exerciseChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: `${exercise} — ${metric.replace("_", " ")}`,
-        data: values,
-        borderColor: "#7ee8b7",
-        backgroundColor: "#7ee8b733",
-        tension: 0.25,
-        fill: true,
-      }],
-    },
-    options: { responsive: true, maintainAspectRatio: false },
-  });
-}
-
-// -------------------------------------------------------------- init ------
-loadDistinctLists();
+// ============================================================ init --------
+loadConsistency();
+loadCatalog();
+loadRecent();

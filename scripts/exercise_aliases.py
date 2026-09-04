@@ -87,6 +87,50 @@ def canonicalize(raw):
     return None, None
 
 
+# The 5 workout-day categories used by the app's logging form.
+GROUPS = ["Back + Biceps", "Chest + Triceps", "Shoulder + Arms", "Legs", "Whole body"]
+
+# Maps a canonicalize()d exercise name to one of GROUPS (biceps go with back,
+# triceps go with chest, per how the user described their split).
+EXERCISE_TO_GROUP = {
+    "Pull-ups": "Back + Biceps",
+    "Neutral-Grip Pull-ups": "Back + Biceps",
+    "T-Bar Row": "Back + Biceps",
+    "Lat Pulldown": "Back + Biceps",
+    "Barbell Row": "Back + Biceps",
+    "Seated Cable Row": "Back + Biceps",
+    "Seated Row Machine": "Back + Biceps",
+    "Hammer Curls": "Back + Biceps",
+    "Preacher Curls": "Back + Biceps",
+    "Reverse Curls": "Back + Biceps",
+    "Barbell Curls": "Back + Biceps",
+    "Dumbbell Drag Curls": "Back + Biceps",
+
+    "Chest Press Machine": "Chest + Triceps",
+    "Incline Chest Press": "Chest + Triceps",
+    "Dumbbell Chest Press": "Chest + Triceps",
+    "Pec Deck Fly": "Chest + Triceps",
+    "Flat Bench Press (Smith Machine)": "Chest + Triceps",
+    "Tricep Pulldown": "Chest + Triceps",
+    "Overhead Tricep Pulldown": "Chest + Triceps",
+
+    "Overhead Press": "Shoulder + Arms",
+    "Lateral Raises": "Shoulder + Arms",
+
+    "Perfect Squats": "Legs",
+    "Smith Machine Squats": "Legs",
+    "Leg Press": "Legs",
+    "Leg Extensions": "Legs",
+    "Seated Leg Curls": "Legs",
+    "Hip Abduction": "Legs",
+    "Hip Adduction": "Legs",
+}
+
+
+def group_for(exercise):
+    return EXERCISE_TO_GROUP.get(exercise, "Whole body")
+
+
 JUNK_LABEL_RE = re.compile(r"^[A-Za-z]{1,10}/\d+(\s*\+\s*[A-Za-z]{1,10}/\d+)*$")
 
 

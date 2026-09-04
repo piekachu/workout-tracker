@@ -1,28 +1,28 @@
 # Workout Tracker
 
-A small personal workout-tracking site: log a day's workout session by
-category with a start/end time and per-exercise sets/reps/weight, browse
-history grouped by day, and see progress charts. Static frontend on GitHub
+A small, single-page personal workout tracker: open it and immediately see a
+consistency heatmap of the last ~18 weeks, then scroll down to log today's
+workout — pick a category, and its usual exercises appear pre-filled with a
+proposed goal (sets/reps/weight) from your history; fill in what you actually
+did per set, plus body weight and start/end time. Static frontend on GitHub
 Pages, data in Supabase.
 
 **Live site:** https://piekachu.github.io/workout-tracker/
 
 ## Stack
 
-- **Frontend:** plain HTML/CSS/JS (no build step), [`@supabase/supabase-js`](https://supabase.com/docs/reference/javascript) v2 and [Chart.js](https://www.chartjs.org/) via CDN.
-- **Backend:** Supabase (Postgres + auto-generated REST API), project `loandword-desk` (ref `xxcwyttfhqnhuelkkimu`), tables `workout_sessions`, `workout_sets`, `body_weight`.
+- **Frontend:** plain HTML/CSS/JS (no build step, no charting library — the heatmap is hand-built with CSS grid), [`@supabase/supabase-js`](https://supabase.com/docs/reference/javascript) v2 via CDN.
+- **Backend:** Supabase (Postgres + auto-generated REST API), project `loandword-desk` (ref `xxcwyttfhqnhuelkkimu`), tables `workout_sessions`, `workout_sets`, `body_weight`, `exercise_catalog`.
 - **Hosting:** GitHub Pages, deployed by `.github/workflows/pages.yml` on every push to `main`.
 
 ## Data model
 
-- **`workout_sessions`** — one row per day's workout: `log_date`, `category` (Back/Chest/Legs/...), `start_time`, `end_time`.
-- **`workout_sets`** — one row per set, referencing `session_id`: `exercise` (canonical name), `set_number`, `reps`, `weight_kg`, `rpe`, plus `exercise_raw`/`reps_raw`/`weight_raw` for traceability back to the original CSV text.
-- **`body_weight`** — `log_date`, `weight_kg`.
+- **`workout_sessions`** — one row per logged workout: `log_date`, `category` (one of the 5 fixed categories below), `start_time`, `end_time`.
+- **`workout_sets`** — one row per set, referencing `session_id`: `exercise`, `set_number`, `reps`, `weight_kg`, `notes` (comment, kept on each exercise's first set), plus `exercise_raw`/`reps_raw`/`weight_raw`/`rpe` left over from the historical CSV import for traceability (unused by the current UI).
+- **`body_weight`** — `log_date`, `weight_kg` (upserted from the same log form).
+- **`exercise_catalog`** — the exercises shown for each category, each with a proposed goal: `category`, `exercise`, `target_sets`, `target_reps`, `target_weight`, `sort_order`. Seeded once from history (`scripts/seed_catalog.py`); edit rows directly in the Supabase table editor to adjust the exercise list or goals per category.
 
-The Log tab creates one session at a time: pick date/category/start time, add
-one or more exercises (name + sets + reps + weight), set an end time, save —
-this expands into individual `workout_sets` rows (one per set) under that
-session. History groups everything back by session/day.
+**Categories** (fixed, in `assets/app.js`'s `GROUPS`): Back + Biceps, Chest + Triceps, Shoulder + Arms, Legs, Whole body.
 
 ## Project layout
 
@@ -33,6 +33,7 @@ data/                            original CSV exports
 scripts/exercise_aliases.py      canonicalizes ~150 raw exercise-name variants into ~30 real exercises
 scripts/parse_csv.py             best-effort parser: data/*.csv -> out/*.csv (sessions + sets)
 scripts/import_data.py           loads out/*.csv into Supabase (needs the service_role key, local use only)
+scripts/seed_catalog.py          computes proposed goals from history and seeds exercise_catalog
 out/                             parsed output, incl. needs_review.csv (rows the parser wasn't confident about)
 ```
 

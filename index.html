@@ -8,173 +8,100 @@
 </head>
 <body>
   <header>
-    <h1>🏋️ Workout Tracker</h1>
-    <p class="subtitle">Personal workout log &amp; progress, backed by Supabase.</p>
+    <h1>Workout Tracker</h1>
   </header>
 
-  <nav class="tabs">
-    <button data-tab="log" class="active">Log</button>
-    <button data-tab="history">History</button>
-    <button data-tab="progress">Progress</button>
-  </nav>
-
   <main>
+    <!-- CONSISTENCY -->
+    <section id="consistency">
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-num" id="stat-recent">–</div>
+          <div class="stat-label">sessions, last 4 weeks</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num" id="stat-streak">–</div>
+          <div class="stat-label">week streak</div>
+        </div>
+      </div>
+      <div class="heatmap-wrap">
+        <div id="heatmap" class="heatmap"></div>
+      </div>
+    </section>
+
+    <hr />
+
     <!-- LOG -->
-    <section id="panel-log" class="panel active">
-      <div class="card">
-        <h2>New session</h2>
-        <div class="grid">
-          <div>
+    <section id="log">
+      <h2>Log today's workout</h2>
+
+      <div class="category-picker" id="category-picker"></div>
+
+      <div id="log-form" hidden>
+        <div class="field-row">
+          <div class="field">
             <label>Date</label>
             <input type="date" id="s-date" />
           </div>
-          <div>
-            <label>Category</label>
-            <input list="categories" id="s-category" placeholder="Back / Chest / Legs..." />
-            <datalist id="categories"></datalist>
+          <div class="field">
+            <label>Body weight (kg)</label>
+            <input type="number" step="0.05" id="s-bodyweight" />
           </div>
-          <div>
+          <div class="field">
             <label>Start time</label>
             <input type="time" id="s-start" />
           </div>
-          <div>
+          <div class="field">
             <label>End time</label>
             <input type="time" id="s-end" />
           </div>
         </div>
 
-        <h2 style="margin-top:18px;">Exercises</h2>
-        <div id="exercise-rows"></div>
-        <button class="btn secondary small" id="add-exercise-row" style="margin-top:8px;">+ Add exercise</button>
+        <div id="exercise-list"></div>
+        <button class="link-btn" id="add-exercise">+ add another exercise</button>
 
-        <div style="margin-top:16px;">
-          <button class="btn" id="save-session">Save session</button>
-          <button class="btn secondary" id="reset-session">Reset</button>
-        </div>
-        <div class="status" id="session-status"></div>
-      </div>
-
-      <div class="card">
-        <h2>Log body weight</h2>
-        <div class="grid">
-          <div>
-            <label>Date</label>
-            <input type="date" id="bw-date" />
-          </div>
-          <div>
-            <label>Weight (kg)</label>
-            <input type="number" step="0.05" id="bw-weight" />
-          </div>
-        </div>
-        <button class="btn" id="save-bw">Save weight</button>
-        <div class="status" id="bw-status"></div>
-      </div>
-    </section>
-
-    <!-- HISTORY -->
-    <section id="panel-history" class="panel">
-      <div class="card">
-        <h2>Filters</h2>
-        <div class="filters">
-          <div>
-            <label>From</label>
-            <input type="date" id="f-from" />
-          </div>
-          <div>
-            <label>To</label>
-            <input type="date" id="f-to" />
-          </div>
-          <div>
-            <label>Category</label>
-            <input list="categories" id="f-category" />
-          </div>
-          <div>
-            <label>Exercise search</label>
-            <input type="text" id="f-exercise" placeholder="e.g. squat" />
-          </div>
-        </div>
-        <button class="btn secondary small" id="apply-filters">Apply</button>
-        <button class="btn secondary small" id="clear-filters">Clear</button>
-      </div>
-
-      <div id="sessions-list"></div>
-      <div class="empty" id="sessions-empty" style="display:none;">No sessions found.</div>
-      <button class="btn secondary small" id="load-more-sessions" style="margin:6px 0 20px;">Load more</button>
-
-      <div class="card">
-        <h2>Body weight</h2>
-        <div class="table-wrap">
-          <table id="bw-table">
-            <thead><tr><th>Date</th><th>Weight (kg)</th><th></th></tr></thead>
-            <tbody></tbody>
-          </table>
+        <div class="save-row">
+          <button class="btn" id="save-session">Save workout</button>
+          <span class="status" id="session-status"></span>
         </div>
       </div>
     </section>
 
-    <!-- PROGRESS -->
-    <section id="panel-progress" class="panel">
-      <div class="card">
-        <h2>Body weight over time</h2>
-        <div class="chart-wrap"><canvas id="bw-chart"></canvas></div>
-      </div>
+    <hr />
 
-      <div class="card">
-        <h2>Exercise progress</h2>
-        <div class="grid" style="margin-bottom: 10px;">
-          <div>
-            <label>Exercise</label>
-            <select id="progress-exercise"></select>
-          </div>
-          <div>
-            <label>Metric</label>
-            <select id="progress-metric">
-              <option value="max_weight">Max weight per session</option>
-              <option value="volume">Total volume (reps × weight)</option>
-              <option value="max_reps">Max reps per session</option>
-            </select>
-          </div>
-        </div>
-        <div class="chart-wrap"><canvas id="exercise-chart"></canvas></div>
-      </div>
+    <!-- RECENT -->
+    <section id="recent">
+      <h2>Recent</h2>
+      <div id="recent-list"></div>
     </section>
   </main>
 
-  <datalist id="exercises"></datalist>
-
-  <footer>
-    Data lives in Supabase; the anon key used here is public by design (RLS enforces access). Source: <a href="https://github.com/piekachu/workout-tracker" target="_blank" rel="noopener">GitHub</a>.
-  </footer>
-
   <template id="exercise-row-template">
-    <div class="exercise-row">
-      <div>
-        <label>Exercise</label>
-        <input list="exercises" class="ex-name" placeholder="Pull-ups" />
+    <div class="ex-row">
+      <div class="ex-head">
+        <input class="ex-name" list="exercise-options" placeholder="Exercise name" />
+        <span class="ex-goal"></span>
+        <button type="button" class="remove-btn" title="Remove">✕</button>
       </div>
-      <div>
-        <label>Sets</label>
-        <input type="number" class="ex-sets" min="1" value="3" />
-      </div>
-      <div>
-        <label>Reps</label>
-        <input type="number" class="ex-reps" min="0" />
-      </div>
-      <div>
-        <label>Weight (kg)</label>
-        <input type="number" step="0.5" class="ex-weight" />
-      </div>
-      <div>
-        <label>RPE</label>
-        <input type="text" class="ex-rpe" placeholder="8" />
-      </div>
-      <button type="button" class="btn danger small remove-exercise-row">✕</button>
+      <div class="ex-sets"></div>
+      <button type="button" class="link-btn small add-set">+ set</button>
+      <input type="text" class="ex-comment" placeholder="Comment (optional)" />
     </div>
   </template>
 
+  <template id="set-input-template">
+    <div class="set-input">
+      <span class="set-num"></span>
+      <input type="number" class="set-reps" placeholder="reps" />
+      <span class="x">×</span>
+      <input type="number" step="0.5" class="set-weight" placeholder="kg" />
+    </div>
+  </template>
+
+  <datalist id="exercise-options"></datalist>
+
   <script src="assets/config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>
