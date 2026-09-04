@@ -159,15 +159,28 @@ input, select {
   gap: 10px;
   margin-bottom: 8px;
 }
-.ex-name {
+.ex-select {
   font-weight: 600;
   font-size: 0.92rem;
+  font-family: inherit;
   border: none;
+  background: transparent;
+  color: var(--text);
   padding: 2px 0;
   flex: 0 1 auto;
   min-width: 60px;
 }
-.ex-name:focus { outline: none; border-bottom: 1px solid var(--accent); }
+.ex-select:focus { outline: none; }
+.ex-name-other {
+  font-weight: 600;
+  font-size: 0.92rem;
+  border: none;
+  border-bottom: 1px solid var(--accent);
+  padding: 2px 0;
+  flex: 0 1 auto;
+  min-width: 100px;
+}
+.ex-name-other:focus { outline: none; }
 .ex-goal {
   color: var(--text-dim);
   font-size: 0.78rem;

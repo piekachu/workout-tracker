@@ -70,7 +70,6 @@ function addDays(date, n) {
 
 // ============================================================ catalog ----
 let catalogByCategory = {};
-let allExerciseNames = [];
 
 async function loadCatalog() {
   const { data, error } = await sb.from("exercise_catalog").select("*").order("sort_order");
@@ -81,9 +80,6 @@ async function loadCatalog() {
     if (!catalogByCategory[row.category]) catalogByCategory[row.category] = [];
     catalogByCategory[row.category].push(row);
   });
-  allExerciseNames = [...new Set((data || []).map((r) => r.exercise))].sort();
-  document.getElementById("exercise-options").innerHTML =
-    allExerciseNames.map((e) => `<option value="${escapeHtml(e)}">`).join("");
 }
 
 function goalText(row) {
@@ -110,20 +106,15 @@ function selectCategory(category) {
   [...picker.children].forEach((b) => b.classList.toggle("active", b.dataset.category === category));
   document.getElementById("log-form").hidden = false;
 
-  const list = document.getElementById("exercise-list");
-  list.innerHTML = "";
-  const rows = catalogByCategory[category] || [];
-  if (rows.length === 0) {
-    addExerciseRow(); // Whole body / empty category: start with one blank row
-  } else {
-    rows.forEach((row) => addExerciseRow(row));
-  }
+  document.getElementById("exercise-list").innerHTML = ""; // no prefilled rows -- start empty
+  addExerciseRow();
 }
 
 // ============================================================ exercise rows
 const exerciseListEl = document.getElementById("exercise-list");
 const exerciseRowTemplate = document.getElementById("exercise-row-template");
 const setInputTemplate = document.getElementById("set-input-template");
+const OTHER_VALUE = "__other__";
 
 function addSetInput(setsContainer) {
   const node = setInputTemplate.content.cloneNode(true);
@@ -132,20 +123,48 @@ function addSetInput(setsContainer) {
   setsContainer.appendChild(node);
 }
 
-function addExerciseRow(catalogRow) {
+function setSetCount(setsContainer, n) {
+  setsContainer.innerHTML = "";
+  for (let i = 0; i < n; i++) addSetInput(setsContainer);
+}
+
+function addExerciseRow() {
   const node = exerciseRowTemplate.content.cloneNode(true);
   const row = node.querySelector(".ex-row");
-  const nameInput = row.querySelector(".ex-name");
+  const select = row.querySelector(".ex-select");
+  const otherInput = row.querySelector(".ex-name-other");
+  const goalEl = row.querySelector(".ex-goal");
   const setsContainer = row.querySelector(".ex-sets");
 
-  if (catalogRow) {
-    nameInput.value = catalogRow.exercise;
-    row.querySelector(".ex-goal").textContent = goalText(catalogRow);
-    row.dataset.targetWeight = catalogRow.target_weight ?? "";
-  }
+  // options limited to the selected category's catalog, plus a manual fallback
+  const options = catalogByCategory[selectedCategory] || [];
+  options.forEach((catalogRow) => {
+    const opt = document.createElement("option");
+    opt.value = catalogRow.exercise;
+    opt.textContent = catalogRow.exercise;
+    select.appendChild(opt);
+  });
+  const otherOpt = document.createElement("option");
+  otherOpt.value = OTHER_VALUE;
+  otherOpt.textContent = "Other…";
+  select.appendChild(otherOpt);
 
-  const nSets = catalogRow?.target_sets || 3;
-  for (let i = 0; i < nSets; i++) addSetInput(setsContainer);
+  setSetCount(setsContainer, 3);
+
+  select.addEventListener("change", () => {
+    if (select.value === OTHER_VALUE) {
+      otherInput.hidden = false;
+      otherInput.value = "";
+      otherInput.focus();
+      goalEl.textContent = "";
+      setSetCount(setsContainer, 3);
+      return;
+    }
+    otherInput.hidden = true;
+    const catalogRow = options.find((r) => r.exercise === select.value);
+    goalEl.textContent = goalText(catalogRow);
+    setSetCount(setsContainer, catalogRow?.target_sets || 3);
+  });
 
   row.querySelector(".add-set").addEventListener("click", () => addSetInput(setsContainer));
   row.querySelector(".remove-btn").addEventListener("click", () => row.remove());
@@ -186,7 +205,10 @@ document.getElementById("save-session").addEventListener("click", async () => {
   const exerciseRows = [...exerciseListEl.querySelectorAll(".ex-row")];
   const setRows = [];
   exerciseRows.forEach((row) => {
-    const exercise = row.querySelector(".ex-name").value.trim();
+    const select = row.querySelector(".ex-select");
+    const exercise = select.value === OTHER_VALUE
+      ? row.querySelector(".ex-name-other").value.trim()
+      : select.value.trim();
     if (!exercise) return;
     const comment = row.querySelector(".ex-comment").value.trim() || null;
     const sets = [...row.querySelectorAll(".set-input")];

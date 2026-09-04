@@ -2,10 +2,10 @@
 
 A small, single-page personal workout tracker: open it and immediately see a
 consistency heatmap of the last ~18 weeks, then scroll down to log today's
-workout — pick a category, and its usual exercises appear pre-filled with a
-proposed goal (sets/reps/weight) from your history; fill in what you actually
-did per set, plus body weight and start/end time. Static frontend on GitHub
-Pages, data in Supabase.
+workout — pick a category, then add exercises one at a time from a dropdown
+scoped to that category (each shows its proposed goal, sets/reps/weight, once
+picked); fill in what you actually did per set, plus body weight and
+start/end time. Static frontend on GitHub Pages, data in Supabase.
 
 **Live site:** https://piekachu.github.io/workout-tracker/
 
