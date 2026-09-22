@@ -19,6 +19,11 @@ function escapeHtml(s) {
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   }[c]));
 }
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
 
 // ============================================================ stepper -----
 // Big +/- buttons instead of a keyboard for entering numbers on mobile.
@@ -127,12 +132,6 @@ async function loadConsistency() {
   }
 }
 
-function addDays(date, n) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + n);
-  return d;
-}
-
 // ============================================================ catalog ----
 let catalogByCategory = {};
 
@@ -152,6 +151,35 @@ function goalText(row) {
   const parts = [row.target_sets ?? "?", row.target_reps ?? "?", row.target_weight != null ? row.target_weight : "?"];
   return `Goal: ${parts.join("/")}`;
 }
+
+// ============================================================ routines ---
+// Optional feature: reads from workout_routines, which may not exist yet
+// (it needs a migration the app can't apply itself -- see
+// supabase/migrations/0004_routines.sql). Fails quiet if the table's missing
+// so the rest of the log form works exactly the same either way.
+let routinesForCategory = [];
+async function loadRoutinesForCategory(category) {
+  const row = document.getElementById("routine-row");
+  const sel = document.getElementById("routine-select");
+  routinesForCategory = [];
+  if (!category) { row.hidden = true; return; }
+  const { data, error } = await sb.from("workout_routines").select("id, name, exercises").eq("category", category).order("sort_order");
+  if (error || !data || data.length === 0) { row.hidden = true; return; }
+  routinesForCategory = data;
+  sel.innerHTML = '<option value="">Pick one…</option>' + data
+    .map((r) => `<option value="${r.id}">${escapeHtml(r.name)} (${(r.exercises || []).length})</option>`)
+    .join("");
+  row.hidden = false;
+}
+document.getElementById("load-routine-btn").addEventListener("click", () => {
+  const sel = document.getElementById("routine-select");
+  const routine = routinesForCategory.find((r) => String(r.id) === sel.value);
+  if (!routine || !(routine.exercises || []).length) return;
+  exerciseListEl.innerHTML = "";
+  routine.exercises.forEach((ex) => addExerciseRow(ex.exercise, ex.target_sets || 1));
+  updateCarouselControls();
+  scrollToExercise(0);
+});
 
 // ============================================================ category picker
 const picker = document.getElementById("category-picker");
@@ -177,6 +205,8 @@ function selectCategory(category) {
 
   document.getElementById("exercise-list").innerHTML = ""; // no prefilled rows -- start empty
   addExerciseRow();
+  loadRoutinesForCategory(category);
+  refreshDateState();
 
   setTimeout(() => {
     document.getElementById("log-form").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -187,6 +217,48 @@ document.getElementById("change-category").addEventListener("click", () => {
   if (!confirm("Change today's category? This clears the exercises you've entered so far.")) return;
   resetLogForm();
 });
+
+// ============================================================ date/time: don't ask twice
+// Same date already has a session (any category, now that saving
+// consolidates by date alone -- see the save handler)? Skip the date/start/
+// end fields entirely and just say so; only body weight stays editable.
+async function checkExistingSessionForDate(date) {
+  if (!date) return null;
+  const { data } = await sb.from("workout_sessions").select("id, category, start_time, end_time").eq("log_date", date).limit(1);
+  return data && data.length ? data[0] : null;
+}
+async function refreshDateState() {
+  const date = document.getElementById("s-date").value;
+  const existing = await checkExistingSessionForDate(date);
+  const fieldsEl = document.getElementById("date-time-fields");
+  const noteEl = document.getElementById("continuing-note");
+  if (existing) {
+    fieldsEl.hidden = true;
+    noteEl.hidden = false;
+    document.getElementById("continuing-date").textContent = date;
+    const timeRange = [existing.start_time, existing.end_time].filter(Boolean).map((t) => t.slice(0, 5)).join(" – ");
+    document.getElementById("continuing-detail").textContent =
+      ` — ${existing.category}${timeRange ? " · " + timeRange : ""}. Adding more exercises to it.`;
+  } else {
+    fieldsEl.hidden = false;
+    noteEl.hidden = true;
+  }
+}
+document.getElementById("s-date").addEventListener("change", refreshDateState);
+document.getElementById("log-different-date").addEventListener("click", () => {
+  // Nudge off today so this doesn't just re-trigger the same continuing-note.
+  document.getElementById("s-date").value = localISO(addDays(new Date(), -1));
+  refreshDateState();
+});
+// Two bodyweight fields exist (one in each date-area state) so exactly one
+// is ever visible; keep them mirrored so the save handler only reads one.
+function syncBodyweightFields(fromId, toId) {
+  document.getElementById(fromId).addEventListener("input", (e) => {
+    document.getElementById(toId).value = e.target.value;
+  });
+}
+syncBodyweightFields("s-bodyweight", "s-bodyweight-2");
+syncBodyweightFields("s-bodyweight-2", "s-bodyweight");
 
 // ============================================================ exercise carousel
 // Exercises swipe horizontally (one per screen) instead of stacking
@@ -344,30 +416,28 @@ async function fetchPreviousInstances(exercise, excludeDate, limit = 5) {
   return out;
 }
 
-function addExerciseRow() {
+// presetExercise/presetSetCount: used when a routine is loaded, to land
+// directly on a given exercise with a given number of (empty) sets rather
+// than starting at "Select exercise…".
+function addExerciseRow(presetExercise, presetSetCount) {
   const node = exerciseRowTemplate.content.cloneNode(true);
   const row = node.querySelector(".ex-row");
-  const select = row.querySelector(".ex-select");
+  const pickerLabel = row.querySelector(".ex-picker-text");
+  const prevBtn = row.querySelector(".ex-prev");
+  const nextBtn = row.querySelector(".ex-next");
   const otherInput = row.querySelector(".ex-name-other");
   const goalEl = row.querySelector(".ex-goal");
   const setsContainer = row.querySelector(".ex-sets");
   const loadPrevBtn = row.querySelector(".load-prev-btn");
   const loadPrevSelect = row.querySelector(".load-prev-select");
 
-  // options limited to the selected category's catalog, plus a manual fallback
+  // choices: every exercise in this category's catalog, then a final
+  // "Other…" slot for typing a name that isn't in the catalog.
   const options = catalogByCategory[selectedCategory] || [];
-  options.forEach((catalogRow) => {
-    const opt = document.createElement("option");
-    opt.value = catalogRow.exercise;
-    opt.textContent = catalogRow.exercise;
-    select.appendChild(opt);
-  });
-  const otherOpt = document.createElement("option");
-  otherOpt.value = OTHER_VALUE;
-  otherOpt.textContent = "Other…";
-  select.appendChild(otherOpt);
+  const choices = options.map((o) => ({ label: o.exercise, value: o.exercise })).concat([{ label: "Other…", value: OTHER_VALUE }]);
+  let pickerIndex = -1; // -1 = nothing chosen yet ("Select exercise…")
 
-  setSetCount(setsContainer, 3);
+  setSetCount(setsContainer, presetSetCount || 1);
 
   let prevInstances = [];
   function applyPrevious(i) {
@@ -429,22 +499,38 @@ function addExerciseRow() {
   });
   loadPrevSelect.addEventListener("change", () => applyPrevious(Number(loadPrevSelect.value)));
 
-  select.addEventListener("change", () => {
-    if (select.value === OTHER_VALUE) {
+  function applyPickerSelection(keepSetCount) {
+    if (pickerIndex < 0) {
+      pickerLabel.textContent = "Select exercise…";
+      otherInput.hidden = true;
+      goalEl.textContent = "";
+      return;
+    }
+    const choice = choices[pickerIndex];
+    pickerLabel.textContent = choice.label;
+    if (choice.value === OTHER_VALUE) {
       otherInput.hidden = false;
       otherInput.value = "";
       otherInput.focus();
       goalEl.textContent = "";
-      setSetCount(setsContainer, 3);
+      if (!keepSetCount) setSetCount(setsContainer, 1);
       loadPrevBtn.hidden = true;
       loadPrevSelect.hidden = true;
       return;
     }
     otherInput.hidden = true;
-    const catalogRow = options.find((r) => r.exercise === select.value);
+    const catalogRow = options.find((r) => r.exercise === choice.value);
     goalEl.textContent = goalText(catalogRow);
-    setSetCount(setsContainer, catalogRow?.target_sets || 3);
-    refreshLoadPrevious(select.value);
+    if (!keepSetCount) setSetCount(setsContainer, catalogRow?.target_sets || 1);
+    refreshLoadPrevious(choice.value);
+  }
+  prevBtn.addEventListener("click", () => {
+    pickerIndex = pickerIndex <= 0 ? choices.length - 1 : pickerIndex - 1;
+    applyPickerSelection();
+  });
+  nextBtn.addEventListener("click", () => {
+    pickerIndex = pickerIndex >= choices.length - 1 ? 0 : pickerIndex + 1;
+    applyPickerSelection();
   });
   otherInput.addEventListener("blur", () => refreshLoadPrevious(otherInput.value.trim()));
 
@@ -457,6 +543,21 @@ function addExerciseRow() {
   exerciseListEl.appendChild(node);
   updateCarouselControls();
   scrollToExercise(exerciseListEl.querySelectorAll(".ex-row").length - 1);
+
+  // Land on a specific exercise (routine loading) instead of "Select exercise…".
+  if (presetExercise) {
+    const idx = choices.findIndex((c) => c.value === presetExercise);
+    if (idx >= 0) {
+      pickerIndex = idx;
+      applyPickerSelection(true); // true: keep the preset set count, don't reset to the catalog default
+    } else {
+      pickerIndex = choices.length - 1; // "Other…"
+      applyPickerSelection(true);
+      otherInput.value = presetExercise;
+      otherInput.hidden = false;
+      refreshLoadPrevious(presetExercise);
+    }
+  }
 }
 
 document.getElementById("add-exercise").addEventListener("click", () => addExerciseRow());
@@ -467,10 +568,14 @@ document.getElementById("s-date").value = todayISO();
 function resetLogForm() {
   document.getElementById("s-date").value = todayISO();
   document.getElementById("s-bodyweight").value = "";
+  document.getElementById("s-bodyweight-2").value = "";
   document.getElementById("s-start").value = "";
   document.getElementById("s-end").value = "";
   document.getElementById("log-form").classList.remove("open");
   document.getElementById("category-locked").hidden = true;
+  document.getElementById("routine-row").hidden = true;
+  document.getElementById("date-time-fields").hidden = false;
+  document.getElementById("continuing-note").hidden = true;
   picker.hidden = false;
   selectedCategory = null;
   document.getElementById("session-status").textContent = "";
@@ -480,6 +585,20 @@ function resetLogForm() {
 attachStepper(document.getElementById("bodyweight-stepper"), {
   input: document.getElementById("s-bodyweight"), step: 0.5, min: 0, max: 300, decimals: 1,
 });
+attachStepper(document.getElementById("bodyweight-stepper-2"), {
+  input: document.getElementById("s-bodyweight-2"), step: 0.5, min: 0, max: 300, decimals: 1,
+});
+
+// Merges two category labels for one date-consolidated session, e.g.
+// "Back + Biceps" + "Legs" -> "Back + Biceps + Legs" -- de-duplicated, so
+// picking the same category again doesn't repeat itself in the label.
+function mergeCategoryLabel(existing, incoming) {
+  if (!existing) return incoming;
+  if (!incoming || existing === incoming) return existing;
+  const parts = new Set(existing.split(" + ").map((s) => s.trim()).filter(Boolean));
+  incoming.split(" + ").forEach((p) => parts.add(p.trim()));
+  return [...parts].join(" + ");
+}
 
 document.getElementById("save-session").addEventListener("click", async () => {
   const statusEl = document.getElementById("session-status");
@@ -500,11 +619,10 @@ document.getElementById("save-session").addEventListener("click", async () => {
   const exerciseRows = [...exerciseListEl.querySelectorAll(".ex-row")];
   const setsByExercise = {};
   exerciseRows.forEach((row) => {
-    const select = row.querySelector(".ex-select");
-    const exercise = select.value === OTHER_VALUE
-      ? row.querySelector(".ex-name-other").value.trim()
-      : select.value.trim();
-    if (!exercise) return;
+    const otherInput = row.querySelector(".ex-name-other");
+    const pickerLabel = row.querySelector(".ex-picker-text").textContent;
+    const exercise = (!otherInput.hidden ? otherInput.value : pickerLabel).trim();
+    if (!exercise || exercise === "Select exercise…") return;
     const comment = row.querySelector(".ex-comment").value.trim() || null;
 
     const collected = [];
@@ -546,14 +664,14 @@ document.getElementById("save-session").addEventListener("click", async () => {
   statusEl.textContent = "";
 
   try {
-    // Consolidate into today's existing session for this category, if one's
-    // already been saved, instead of creating a second fragment -- so adding
-    // "two more exercises" later the same day appends rather than duplicates.
+    // Consolidate into today's existing session for this DATE -- regardless
+    // of category, so there's never more than one session per date. If the
+    // category differs from what's already there, the labels merge (see
+    // mergeCategoryLabel) rather than picking one arbitrarily.
     const { data: existingSessions, error: findErr } = await sb
       .from("workout_sessions")
-      .select("id, start_time, end_time")
+      .select("id, category, start_time, end_time")
       .eq("log_date", log_date)
-      .eq("category", selectedCategory)
       .limit(1);
     if (findErr) {
       statusEl.textContent = `Error: ${findErr.message}`;
@@ -570,6 +688,8 @@ document.getElementById("save-session").addEventListener("click", async () => {
       const existingEnd = existingSessions[0].end_time;
       if (start_time && (!existingStart || start_time < existingStart)) patch.start_time = start_time;
       if (end_time && (!existingEnd || end_time > existingEnd)) patch.end_time = end_time;
+      const mergedCategory = mergeCategoryLabel(existingSessions[0].category, selectedCategory);
+      if (mergedCategory !== existingSessions[0].category) patch.category = mergedCategory;
       if (Object.keys(patch).length) {
         const { error: updErr } = await sb.from("workout_sessions").update(patch).eq("id", sessionId);
         if (updErr) {
@@ -630,7 +750,6 @@ document.getElementById("save-session").addEventListener("click", async () => {
     setTimeout(() => {
       resetLogForm();
       loadConsistency();
-      loadRecent();
       loadProgressExerciseOptions();
     }, 700);
   } finally {
@@ -638,47 +757,6 @@ document.getElementById("save-session").addEventListener("click", async () => {
     saveBtn.textContent = "Save workout";
   }
 });
-
-// ============================================================ recent ------
-async function loadRecent() {
-  const { data, error } = await sb
-    .from("workout_sessions")
-    .select("*, workout_sets(*)")
-    .order("log_date", { ascending: false })
-    .order("id", { ascending: false })
-    .limit(8);
-  if (error) return;
-
-  const list = document.getElementById("recent-list");
-  list.innerHTML = "";
-  if (!data || data.length === 0) {
-    list.innerHTML = '<p class="empty">No workouts logged yet.</p>';
-    return;
-  }
-
-  data.forEach((session) => {
-    const exercises = [...new Set((session.workout_sets || []).map((s) => s.exercise))];
-    const div = document.createElement("div");
-    div.className = "recent-item";
-    const timeRange = [session.start_time, session.end_time].filter(Boolean).map((t) => t.slice(0, 5)).join(" – ");
-    div.innerHTML = `
-      <div class="recent-head">
-        <span><span class="date">${session.log_date}</span> · ${escapeHtml(session.category || "")}${timeRange ? " · " + timeRange : ""}</span>
-        <button class="remove-btn" title="Delete">✕</button>
-      </div>
-      <div class="recent-exercises">${exercises.map(escapeHtml).join(", ") || "—"}</div>
-    `;
-    div.querySelector(".remove-btn").addEventListener("click", async () => {
-      if (!confirm("Delete this workout?")) return;
-      const { error: delErr } = await sb.from("workout_sessions").delete().eq("id", session.id);
-      if (!delErr) {
-        div.remove();
-        loadConsistency();
-      }
-    });
-    list.appendChild(div);
-  });
-}
 
 // ============================================================ progress ----
 // Comparison chart: pick an exercise, see top weight (and reps at that
@@ -788,5 +866,4 @@ document.getElementById("progress-exercise").addEventListener("change", (e) => l
 // ============================================================ init --------
 loadConsistency();
 loadCatalog();
-loadRecent();
 loadProgressExerciseOptions();

@@ -1,0 +1,1451 @@
+[
+  {
+    "id": 6,
+    "session_id": 1,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 29,
+    "session_id": 2,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 52,
+    "session_id": 3,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 53,
+    "session_id": 3,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 54,
+    "session_id": 3,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 4,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 91,
+    "session_id": 5,
+    "exercise": "Lat Pulldown",
+    "set_number": 4,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 113,
+    "session_id": 6,
+    "exercise": "Preacher Curls",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 162,
+    "session_id": 9,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 163,
+    "session_id": 9,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 225,
+    "session_id": 12,
+    "exercise": "Seated Cable Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 228,
+    "session_id": 13,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 229,
+    "session_id": 13,
+    "exercise": "Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 230,
+    "session_id": 13,
+    "exercise": "Pull-ups",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 231,
+    "session_id": 13,
+    "exercise": "Barbell Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 232,
+    "session_id": 13,
+    "exercise": "Lat Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 235,
+    "session_id": 13,
+    "exercise": "Seated Cable Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 238,
+    "session_id": 13,
+    "exercise": "Reverse Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 241,
+    "session_id": 13,
+    "exercise": "Preacher Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 242,
+    "session_id": 13,
+    "exercise": "Preacher Curls",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 243,
+    "session_id": 14,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 244,
+    "session_id": 14,
+    "exercise": "Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 245,
+    "session_id": 14,
+    "exercise": "Pull-ups",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 246,
+    "session_id": 14,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 248,
+    "session_id": 14,
+    "exercise": "T-Bar Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 250,
+    "session_id": 14,
+    "exercise": "T-Bar Row",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 251,
+    "session_id": 14,
+    "exercise": "Lat Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 253,
+    "session_id": 14,
+    "exercise": "Seated Cable Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 256,
+    "session_id": 14,
+    "exercise": "Reverse Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 259,
+    "session_id": 14,
+    "exercise": "Barbell Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 260,
+    "session_id": 15,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 261,
+    "session_id": 15,
+    "exercise": "Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 262,
+    "session_id": 15,
+    "exercise": "Pull-ups",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 263,
+    "session_id": 15,
+    "exercise": "Neutral-Grip Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 265,
+    "session_id": 15,
+    "exercise": "Seated Row Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 267,
+    "session_id": 15,
+    "exercise": "Lat Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 268,
+    "session_id": 15,
+    "exercise": "Lat Pulldown",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 270,
+    "session_id": 15,
+    "exercise": "Seated Cable Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 273,
+    "session_id": 15,
+    "exercise": "Reverse Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 276,
+    "session_id": 15,
+    "exercise": "Barbell Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 278,
+    "session_id": 15,
+    "exercise": "Preacher Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 279,
+    "session_id": 16,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 281,
+    "session_id": 16,
+    "exercise": "Pull-ups",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 282,
+    "session_id": 16,
+    "exercise": "Seated Row Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 285,
+    "session_id": 16,
+    "exercise": "Lat Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 288,
+    "session_id": 16,
+    "exercise": "Seated Cable Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 289,
+    "session_id": 16,
+    "exercise": "Seated Cable Row",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 291,
+    "session_id": 16,
+    "exercise": "Hammer Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 294,
+    "session_id": 16,
+    "exercise": "Reverse Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 297,
+    "session_id": 16,
+    "exercise": "Preacher Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 298,
+    "session_id": 16,
+    "exercise": "Preacher Curls",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 299,
+    "session_id": 16,
+    "exercise": "Preacher Curls",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 300,
+    "session_id": 17,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 303,
+    "session_id": 17,
+    "exercise": "Seated Row Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 306,
+    "session_id": 17,
+    "exercise": "Lat Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 309,
+    "session_id": 17,
+    "exercise": "Seated Row Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 311,
+    "session_id": 17,
+    "exercise": "Seated Row Machine",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 312,
+    "session_id": 17,
+    "exercise": "Hammer Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 313,
+    "session_id": 17,
+    "exercise": "Hammer Curls",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 314,
+    "session_id": 17,
+    "exercise": "Hammer Curls",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 315,
+    "session_id": 17,
+    "exercise": "Reverse Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 318,
+    "session_id": 17,
+    "exercise": "Barbell Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 354,
+    "session_id": 19,
+    "exercise": "Chest Press Machine",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 366,
+    "session_id": 20,
+    "exercise": "Pec Deck Fly",
+    "set_number": 4,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 420,
+    "session_id": 23,
+    "exercise": "Pec Deck Fly",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 453,
+    "session_id": 24,
+    "exercise": "Overhead Tricep Pulldown",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 469,
+    "session_id": 26,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 3/9/45"
+  },
+  {
+    "id": 479,
+    "session_id": 26,
+    "exercise": "Chest Press Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 3/10/40"
+  },
+  {
+    "id": 493,
+    "session_id": 27,
+    "exercise": "Dumbbell Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 3/12/10ea"
+  },
+  {
+    "id": 507,
+    "session_id": 27,
+    "exercise": "Tricep Pulldown",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 545,
+    "session_id": 29,
+    "exercise": "Overhead Tricep Pulldown",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 550,
+    "session_id": 29,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 551,
+    "session_id": 29,
+    "exercise": "Chest Press Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 552,
+    "session_id": 29,
+    "exercise": "Pec Deck Fly",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 553,
+    "session_id": 29,
+    "exercise": "Dumbbell Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 554,
+    "session_id": 29,
+    "exercise": "Lateral Raises",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 555,
+    "session_id": 29,
+    "exercise": "Overhead Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 556,
+    "session_id": 29,
+    "exercise": "Overhead Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 557,
+    "session_id": 29,
+    "exercise": "Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 558,
+    "session_id": 30,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 559,
+    "session_id": 30,
+    "exercise": "Incline Chest Press",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 560,
+    "session_id": 30,
+    "exercise": "Incline Chest Press",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 561,
+    "session_id": 30,
+    "exercise": "Chest Press Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 564,
+    "session_id": 30,
+    "exercise": "Pec Deck Fly",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 565,
+    "session_id": 30,
+    "exercise": "Dumbbell Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 568,
+    "session_id": 30,
+    "exercise": "Lateral Raises",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 571,
+    "session_id": 30,
+    "exercise": "Overhead Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 574,
+    "session_id": 30,
+    "exercise": "Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 576,
+    "session_id": 31,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 580,
+    "session_id": 31,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 583,
+    "session_id": 31,
+    "exercise": "Pec Deck Fly",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 584,
+    "session_id": 31,
+    "exercise": "Pec Deck Fly",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 585,
+    "session_id": 31,
+    "exercise": "Pec Deck Fly",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 586,
+    "session_id": 31,
+    "exercise": "Overhead Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 589,
+    "session_id": 31,
+    "exercise": "Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 590,
+    "session_id": 32,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 591,
+    "session_id": 32,
+    "exercise": "Incline Chest Press",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 592,
+    "session_id": 32,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 595,
+    "session_id": 32,
+    "exercise": "Overhead Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 598,
+    "session_id": 32,
+    "exercise": "Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 601,
+    "session_id": 32,
+    "exercise": "Tricep Pulldown",
+    "set_number": 4,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 602,
+    "session_id": 32,
+    "exercise": "Pec Deck Fly",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 631,
+    "session_id": 34,
+    "exercise": "Leg Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 633,
+    "session_id": 34,
+    "exercise": "Leg Press",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 657,
+    "session_id": 35,
+    "exercise": "Seated Leg Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 720,
+    "session_id": 38,
+    "exercise": "Hammer Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 4/9ea/12"
+  },
+  {
+    "id": 721,
+    "session_id": 38,
+    "exercise": "Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 3/12/27.5"
+  },
+  {
+    "id": 722,
+    "session_id": 38,
+    "exercise": "Overhead Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 4/8/27.5"
+  },
+  {
+    "id": 733,
+    "session_id": 39,
+    "exercise": "Hip Abduction",
+    "set_number": 4,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 747,
+    "session_id": 41,
+    "exercise": "Perfect Squats",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 767,
+    "session_id": 43,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 769,
+    "session_id": 43,
+    "exercise": "Incline Chest Press",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 770,
+    "session_id": 43,
+    "exercise": "Chest Press Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 773,
+    "session_id": 43,
+    "exercise": "Pec Deck Fly",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 776,
+    "session_id": 43,
+    "exercise": "Dumbbell Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 778,
+    "session_id": 43,
+    "exercise": "Lateral Raises",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 780,
+    "session_id": 43,
+    "exercise": "Lateral Raises",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 781,
+    "session_id": 43,
+    "exercise": "Overhead Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 784,
+    "session_id": 44,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 788,
+    "session_id": 44,
+    "exercise": "Chest Press Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 791,
+    "session_id": 44,
+    "exercise": "Pec Deck Fly",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 792,
+    "session_id": 44,
+    "exercise": "Dumbbell Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 795,
+    "session_id": 44,
+    "exercise": "Lateral Raises",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 796,
+    "session_id": 44,
+    "exercise": "Overhead Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 797,
+    "session_id": 45,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 798,
+    "session_id": 45,
+    "exercise": "Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 799,
+    "session_id": 45,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 807,
+    "session_id": 45,
+    "exercise": "Chest Press Machine",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 813,
+    "session_id": 46,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 814,
+    "session_id": 46,
+    "exercise": "Pull-ups",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 815,
+    "session_id": 46,
+    "exercise": "Pull-ups",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 816,
+    "session_id": 46,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 819,
+    "session_id": 46,
+    "exercise": "T-Bar Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 820,
+    "session_id": 46,
+    "exercise": "T-Bar Row",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 823,
+    "session_id": 46,
+    "exercise": "Chest Press Machine",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 827,
+    "session_id": 46,
+    "exercise": "Lat Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 830,
+    "session_id": 46,
+    "exercise": "Dumbbell Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 841,
+    "session_id": 48,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 844,
+    "session_id": 48,
+    "exercise": "Incline Chest Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 852,
+    "session_id": 48,
+    "exercise": "Seated Cable Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 867,
+    "session_id": 49,
+    "exercise": "Overhead Tricep Pulldown",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 868,
+    "session_id": 49,
+    "exercise": "Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 2/12/27"
+  },
+  {
+    "id": 894,
+    "session_id": 51,
+    "exercise": "Overhead Tricep Pulldown",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 2/12/41"
+  },
+  {
+    "id": 895,
+    "session_id": 51,
+    "exercise": "Overhead Tricep Pulldown",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 903,
+    "session_id": 52,
+    "exercise": "Overhead Press",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 2/12/25"
+  },
+  {
+    "id": 904,
+    "session_id": 52,
+    "exercise": "Overhead Press",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 912,
+    "session_id": 53,
+    "exercise": "Pull-ups",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 928,
+    "session_id": 54,
+    "exercise": "Seated Row Machine",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 931,
+    "session_id": 54,
+    "exercise": "Seated Cable Row",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 2/12/45"
+  },
+  {
+    "id": 937,
+    "session_id": 54,
+    "exercise": "Preacher Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 2/10/40"
+  },
+  {
+    "id": 938,
+    "session_id": 54,
+    "exercise": "Preacher Curls",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 943,
+    "session_id": 55,
+    "exercise": "Seated Cable Row",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 957,
+    "session_id": 55,
+    "exercise": "Reverse Curls",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 969,
+    "session_id": 56,
+    "exercise": "T-Bar Row",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 972,
+    "session_id": 56,
+    "exercise": "Lat Pulldown",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 978,
+    "session_id": 56,
+    "exercise": "Preacher Curls",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 985,
+    "session_id": 57,
+    "exercise": "Pec Deck Fly",
+    "set_number": 1,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Plan: 2/f/25"
+  },
+  {
+    "id": 986,
+    "session_id": 57,
+    "exercise": "Pec Deck Fly",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": "Stick to 35"
+  },
+  {
+    "id": 993,
+    "session_id": 58,
+    "exercise": "Flat Bench Press (Smith Machine)",
+    "set_number": 3,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 1018,
+    "session_id": 59,
+    "exercise": "T-Bar Row",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 1021,
+    "session_id": 59,
+    "exercise": "Lat Pulldown",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  },
+  {
+    "id": 1027,
+    "session_id": 59,
+    "exercise": "Preacher Curls",
+    "set_number": 2,
+    "reps": null,
+    "weight_kg": null,
+    "notes": null
+  }
+]

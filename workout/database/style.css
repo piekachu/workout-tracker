@@ -1,0 +1,86 @@
+/* Database (calendar) page -- extends assets/style.css with the shared
+   tokens already loaded, same component classes (carousel-arrow, link-btn,
+   empty, etc.) reused for visual consistency with the rest of the site. */
+
+.cal-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.cal-month-label {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.05rem;
+}
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: default;
+  padding: 2px;
+}
+.cal-cell.out-of-month { opacity: 0.28; border-style: dashed; }
+.cal-cell.has-session {
+  cursor: pointer;
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transition: transform 0.1s ease;
+}
+.cal-cell.has-session:active { transform: scale(0.94); }
+.cal-cell.today { box-shadow: 0 0 0 2px var(--accent) inset; }
+.cal-cell.selected { background: var(--accent); }
+.cal-cell.selected .cal-daynum { color: #fff; }
+.cal-daynum { font-size: 0.72rem; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.cal-cell.has-session .cal-daynum { color: var(--text); font-weight: 600; }
+.cal-icons { display: flex; gap: 1px; color: var(--accent); }
+.cal-cell.selected .cal-icons { color: #fff; }
+
+.cal-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 16px;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+}
+.cal-legend .legend-item { display: flex; align-items: center; gap: 5px; }
+.cal-legend .cat-icons { color: var(--accent); }
+
+.day-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.day-detail-head h2 { margin: 0; }
+.link-btn.warn { color: var(--danger); }
+
+.day-ex {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.day-ex:first-child { border-top: none; }
+.day-ex-name { font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+.day-ex-sets { color: var(--text-dim); font-size: 0.88rem; }
+.day-ex-sets .drop { color: var(--gold); }

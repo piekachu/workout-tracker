@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manage Workout Data</title>
+  <link rel="stylesheet" href="../../shared/theme.css" />
+  <link rel="stylesheet" href="../assets/style.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav class="site-nav">
+      <a href="../../">Home</a>
+      <a href="../" class="active">Workout</a>
+      <a href="../../vocab/">Vocab</a>
+    </nav>
+    <h1>Workout Tracker</h1>
+    <nav class="sub-nav">
+      <a href="../">Log</a>
+      <a href="../database/">Database</a>
+      <a href="./" class="active">Manage</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="exercises">
+      <h2>Exercises</h2>
+      <p class="lede">The list offered when logging a workout, with each one's proposed goal (sets/reps/weight). Changes here show up next time you log.</p>
+      <div id="exercise-groups"></div>
+    </section>
+
+    <hr />
+
+    <section id="routines">
+      <h2>Routines</h2>
+      <p class="lede">Save a set of exercises as a named routine, then load the whole thing into the log form in one tap.</p>
+
+      <div id="routines-missing" class="migration-notice" hidden>
+        <p><strong>Routines need one more table.</strong> This app can't create it itself (that needs more than the public key it runs on) -- run this once in your Supabase project's SQL Editor:</p>
+        <pre id="migration-sql"></pre>
+        <button type="button" class="link-btn small" id="copy-migration-btn">Copy SQL</button>
+        <button type="button" class="link-btn small" id="retry-routines-btn">I ran it — check again</button>
+      </div>
+
+      <div id="routines-content">
+        <div id="routines-list"></div>
+        <button type="button" class="link-btn" id="new-routine-btn">+ new routine</button>
+
+        <div id="routine-editor" class="routine-editor" hidden>
+          <div class="field">
+            <label>Routine name</label>
+            <input type="text" id="re-name" placeholder="e.g. Push Day A" />
+          </div>
+          <div class="field">
+            <label>Category</label>
+            <select id="re-category"></select>
+          </div>
+          <div id="re-exercise-list"></div>
+          <div class="save-bar-inline">
+            <button type="button" class="btn" id="re-save-btn">Save routine</button>
+            <button type="button" class="link-btn" id="re-cancel-btn">Cancel</button>
+            <span class="status" id="re-status"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="../assets/config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

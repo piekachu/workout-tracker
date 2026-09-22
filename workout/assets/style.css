@@ -32,6 +32,28 @@ h1 {
   margin: 0;
 }
 
+/* ---- workout-section sub-nav (Log / Database / Manage) -- sits below the
+   site-wide nav+title, same pill language as .site-nav but visually a
+   second tier, so the top-level nav never has to change per page. ---- */
+.sub-nav {
+  display: flex;
+  gap: 4px;
+  margin: 14px 0 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.sub-nav a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.sub-nav a:hover { background: var(--tap-highlight); }
+.sub-nav a.active { background: var(--accent); color: #fff; }
+
 h2 {
   font-family: var(--font-display);
   font-weight: 500;
@@ -153,6 +175,10 @@ section { padding: 28px 0 4px; }
   margin-bottom: 26px;
   padding-top: 4px;
 }
+/* .field-row's own `display: grid` would otherwise beat the UA [hidden]
+   rule (equal specificity, author stylesheet wins) -- same fix already
+   used elsewhere in this file for hidden flex/grid containers. */
+#date-time-fields[hidden] { display: none; }
 .field label {
   display: block;
   font-size: 0.76rem;
@@ -242,20 +268,35 @@ input, select, textarea {
   margin-bottom: 10px;
   flex-wrap: wrap;
 }
-.ex-select {
+/* ---- exercise picker: prev/next carousel instead of a <select> dropdown,
+   same visual language as the exercise-swipe carousel arrows above. ---- */
+.ex-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 180px;
+}
+.ex-picker-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
   font-weight: 600;
   font-size: 16px;
-  font-family: inherit;
+  padding: 9px 4px;
   border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text);
-  padding: 9px 10px;
   border-radius: 8px;
-  flex: 1 1 auto;
-  min-width: 140px;
   min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.ex-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+.ex-picker-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ex-picker .carousel-arrow { width: 36px; height: 36px; font-size: 1.1rem; }
 .ex-name-other {
   font-weight: 600;
   font-size: 16px;
@@ -486,29 +527,35 @@ input, select, textarea {
 }
 .status.error { color: var(--danger); }
 
-/* ---- recent ---- */
-.recent-item {
-  padding: 14px 0;
-  border-top: 1px solid var(--border);
-  font-size: 0.88rem;
-}
-.recent-item:first-child { border-top: none; }
-.recent-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: var(--text-dim);
-  gap: 8px;
-}
-.recent-head .date { color: var(--text); font-weight: 600; }
-.recent-summary { flex: 1; min-width: 0; }
-.recent-exercises {
-  margin-top: 4px;
-  color: var(--text-dim);
-}
-.recent-item .remove-btn { font-size: 0.85rem; flex-shrink: 0; }
-
 .empty { color: var(--text-dim); font-size: 0.85rem; }
+
+/* ---- routines ---- */
+.routine-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: -8px 0 20px;
+}
+.routine-row[hidden] { display: none; }
+.routine-row-label { font-size: 0.82rem; color: var(--text-dim); }
+#routine-select { flex: 1 1 auto; min-width: 140px; font-size: 14px; padding: 8px 10px; min-height: 40px; }
+
+/* ---- continuing an already-logged day: replaces the date/time fields so
+   they're never re-entered for a day that already has a session. ---- */
+.continuing-note {
+  background: var(--accent-soft);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 26px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.continuing-note[hidden] { display: none; }
+.continuing-note strong { color: var(--accent); }
+.continuing-note #continuing-detail { color: var(--text-dim); }
+.continuing-note .bodyweight-only { margin: 12px 0 4px; max-width: 220px; }
+.continuing-note .bodyweight-only label { color: var(--text-dim); }
 
 /* ---- progress / comparison chart ---- */
 .progress-controls { margin-bottom: 16px; }

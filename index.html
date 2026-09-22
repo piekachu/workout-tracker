@@ -87,6 +87,20 @@
     }
     .app-card:hover .arrow { color: var(--accent); transform: translateX(2px); }
 
+    /* Last-14-weeks activity, compact: 14 columns x 7 rows, one dot per day. */
+    .app-card .mini-heat {
+      flex: 0 0 auto;
+      display: grid;
+      grid-template-rows: repeat(7, 4px);
+      grid-auto-flow: column;
+      grid-auto-columns: 4px;
+      gap: 2px;
+    }
+    .app-card .mini-heat .d { width: 4px; height: 4px; border-radius: 1px; background: var(--border-2); }
+    .app-card .mini-heat .d.on { background: var(--accent); }
+    .app-card .mini-heat.loading { opacity: 0.3; }
+    @media (max-width: 480px) { .app-card .mini-heat { display: none; } }
+
     footer {
       max-width: 640px;
       margin: 0 auto;
@@ -120,21 +134,84 @@
 
   <footer>Static site, no backend of its own — each tool below talks to Supabase directly.</footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
+    const sb = window.supabase.createClient(
+      "https://xxcwyttfhqnhuelkkimu.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4Y3d5dHRmaHFuaHVlbGtraW11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4ODc3NzIsImV4cCI6MjEwMzQ2Mzc3Mn0.t7EgPug7NaRkRBjLjtCc-opcRHd0MaIE-r3CsYexAsc"
+    );
+    // Same public anon key already embedded in workout/assets/config.js and
+    // vocab/index.html -- see the README's Security model section for why
+    // that's fine (access control is in RLS, not key secrecy).
+    const VOCAB_SLOT_ID = "56ba90d2a3a5add3cb";
+
+    function localISO(d) {
+      const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    // One function per activity source, each resolving to a Set of
+    // "YYYY-MM-DD" strings. Add a new one here (and reference its key from
+    // a PAGES entry's `activity`) for any future page that should show a
+    // 14-week strip too; a page can also omit `activity` entirely.
+    const ACTIVITY_SOURCES = {
+      async workout() {
+        const { data, error } = await sb.from("workout_sessions").select("log_date");
+        if (error || !data) return new Set();
+        return new Set(data.map((r) => r.log_date));
+      },
+      async vocab() {
+        const { data, error } = await sb.from("kv_store").select("data").eq("slot_id", VOCAB_SLOT_ID).single();
+        if (error || !data) return new Set();
+        const langs = (data.data && data.data.langs) || {};
+        const dates = new Set();
+        Object.values(langs).forEach((lang) => {
+          Object.keys((lang && lang.activity) || {}).forEach((d) => dates.add(d));
+        });
+        return dates;
+      },
+    };
+
+    function renderMiniHeat(el, dateSet) {
+      const WEEKS = 14;
+      const today = new Date();
+      const endOfGrid = new Date(today);
+      endOfGrid.setDate(today.getDate() + (6 - today.getDay())); // end of this week (Sat)
+      const start = new Date(endOfGrid);
+      start.setDate(endOfGrid.getDate() - (WEEKS * 7 - 1));
+
+      el.innerHTML = "";
+      el.classList.remove("loading");
+      for (let i = 0; i < WEEKS * 7; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        const iso = localISO(d);
+        const dot = document.createElement("div");
+        dot.className = "d" + (dateSet.has(iso) ? " on" : "");
+        if (d > today) dot.style.visibility = "hidden";
+        dot.title = iso;
+        el.appendChild(dot);
+      }
+    }
+
     // Adding a new tool to the site: add one entry here. Nothing else on
-    // this page needs to change.
+    // this page needs to change. `activity` is optional -- a key into
+    // ACTIVITY_SOURCES above, or omit it for a page with no day-based
+    // activity to show.
     const PAGES = [
       {
         name: "Workout Tracker",
         path: "workout/",
         monogram: "W",
         tagline: "Log sets, track a consistency streak, compare lifts across sessions.",
+        activity: "workout",
       },
       {
         name: "Vocab Desk",
         path: "vocab/",
         monogram: "V",
         tagline: "Spaced-repetition review for English and Japanese vocabulary.",
+        activity: "vocab",
       },
     ];
 
@@ -149,9 +226,16 @@
           <div class="name">${p.name}</div>
           <div class="tagline">${p.tagline}</div>
         </div>
+        ${p.activity ? '<div class="mini-heat loading"></div>' : ""}
         <div class="arrow">→</div>
       `;
       grid.appendChild(a);
+
+      if (p.activity && ACTIVITY_SOURCES[p.activity]) {
+        ACTIVITY_SOURCES[p.activity]()
+          .then((dateSet) => renderMiniHeat(a.querySelector(".mini-heat"), dateSet))
+          .catch(() => { a.querySelector(".mini-heat").remove(); });
+      }
     });
   </script>
 </body>

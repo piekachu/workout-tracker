@@ -15,6 +15,11 @@
       <a href="../vocab/">Vocab</a>
     </nav>
     <h1>Workout Tracker</h1>
+    <nav class="sub-nav">
+      <a href="./" class="active">Log</a>
+      <a href="database/">Database</a>
+      <a href="manage/">Manage</a>
+    </nav>
   </header>
 
   <main>
@@ -48,8 +53,15 @@
         <button type="button" class="link-btn small" id="change-category">Change</button>
       </div>
 
+      <div class="routine-row" id="routine-row" hidden>
+        <span class="routine-row-label">Start from a routine:</span>
+        <select id="routine-select"><option value="">Pick one…</option></select>
+        <button type="button" class="link-btn small" id="load-routine-btn">Load</button>
+      </div>
+
       <div id="log-form">
-        <div class="field-row">
+        <!-- Shown only when today's date has no session yet. -->
+        <div class="field-row" id="date-time-fields">
           <div class="field">
             <label>Date</label>
             <input type="date" id="s-date" />
@@ -71,6 +83,24 @@
             <input type="time" id="s-end" />
           </div>
         </div>
+        <!-- Shown instead, once a session already exists for the chosen date
+             -- no need to re-enter the date/time every time you add more
+             exercises to the same day. -->
+        <div class="continuing-note" id="continuing-note" hidden>
+          <div>
+            <strong>Continuing <span id="continuing-date"></span></strong>
+            <span id="continuing-detail"></span>
+          </div>
+          <div class="field bodyweight-only">
+            <label>Body weight (kg)</label>
+            <div class="stepper" id="bodyweight-stepper-2">
+              <button type="button" class="step-btn minus" aria-label="Decrease body weight">−</button>
+              <input type="number" class="num-display" id="s-bodyweight-2" readonly placeholder="0" />
+              <button type="button" class="step-btn plus" aria-label="Increase body weight">+</button>
+            </div>
+          </div>
+          <button type="button" class="link-btn small" id="log-different-date">Log a different date instead</button>
+        </div>
 
         <!-- Exercises swipe horizontally, one per screen, instead of stacking
              vertically -- keeps the page's scroll height capped regardless of
@@ -86,14 +116,6 @@
           <span class="status" id="session-status"></span>
         </div>
       </div>
-    </section>
-
-    <hr />
-
-    <!-- RECENT -->
-    <section id="recent">
-      <h2>Recent</h2>
-      <div id="recent-list"></div>
     </section>
 
     <hr />
@@ -119,9 +141,14 @@
   <template id="exercise-row-template">
     <div class="ex-row">
       <div class="ex-head">
-        <select class="ex-select">
-          <option value="">Select exercise…</option>
-        </select>
+        <!-- Carousel picker instead of a <select> dropdown: browse exercises
+             with the same prev/next language used for swiping between
+             exercises, rather than opening a native picker. -->
+        <div class="ex-picker">
+          <button type="button" class="carousel-arrow ex-prev" aria-label="Previous exercise choice">‹</button>
+          <div class="ex-picker-label"><span class="ex-picker-text">Select exercise…</span></div>
+          <button type="button" class="carousel-arrow ex-next" aria-label="Next exercise choice">›</button>
+        </div>
         <input class="ex-name-other" placeholder="Exercise name" hidden />
         <span class="ex-goal"></span>
         <button type="button" class="remove-btn" title="Remove">✕</button>
