@@ -8,6 +8,10 @@
 </head>
 <body>
   <header>
+    <nav class="site-nav">
+      <a href="./" class="active">Workout</a>
+      <a href="vocab/">Vocab</a>
+    </nav>
     <h1>Workout Tracker</h1>
   </header>
 
@@ -66,7 +70,13 @@
           </div>
         </div>
 
-        <div id="exercise-list"></div>
+        <!-- Exercises swipe horizontally, one per screen, instead of stacking
+             vertically -- keeps the page's scroll height capped regardless of
+             how many exercises are in today's workout. -->
+        <div class="exercise-carousel-wrap">
+          <div id="exercise-list"></div>
+          <div class="carousel-controls" id="carousel-controls" hidden></div>
+        </div>
         <button class="link-btn" id="add-exercise">+ add exercise</button>
 
         <div class="save-bar">
@@ -83,6 +93,25 @@
       <h2>Recent</h2>
       <div id="recent-list"></div>
     </section>
+
+    <hr />
+
+    <!-- PROGRESS -->
+    <section id="progress">
+      <h2>Progress</h2>
+      <div class="progress-controls">
+        <select id="progress-exercise">
+          <option value="">Select exercise…</option>
+        </select>
+      </div>
+      <p class="empty" id="progress-empty">Pick an exercise to compare it across days.</p>
+      <div id="progress-chart-wrap" hidden>
+        <div id="progress-delta" class="progress-delta"></div>
+        <div class="progress-chart-scroll">
+          <svg id="progress-chart" class="progress-chart" viewBox="0 0 600 220" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+    </section>
   </main>
 
   <template id="exercise-row-template">
@@ -95,6 +124,10 @@
         <span class="ex-goal"></span>
         <button type="button" class="remove-btn" title="Remove">✕</button>
       </div>
+      <div class="load-prev-row">
+        <button type="button" class="link-btn small load-prev-btn" hidden>↺ Load previous</button>
+        <select class="load-prev-select" hidden></select>
+      </div>
       <div class="ex-sets"></div>
       <button type="button" class="link-btn small add-set">+ set</button>
       <input type="text" class="ex-comment" placeholder="Comment (optional)" inputmode="text" />
@@ -103,19 +136,47 @@
 
   <template id="set-input-template">
     <div class="set-row">
-      <span class="set-num"></span>
-      <div class="stepper" data-kind="reps">
-        <button type="button" class="step-btn minus" aria-label="Decrease reps">−</button>
+      <div class="set-row-main">
+        <span class="set-num"></span>
+        <div class="stepper" data-kind="reps">
+          <button type="button" class="step-btn big-minus" aria-label="Decrease reps by a lot">«</button>
+          <button type="button" class="step-btn minus" aria-label="Decrease reps">−</button>
+          <input type="number" class="set-reps num-display" readonly placeholder="0" />
+          <button type="button" class="step-btn plus" aria-label="Increase reps">+</button>
+          <button type="button" class="step-btn big-plus" aria-label="Increase reps by a lot">»</button>
+          <span class="stepper-unit">reps</span>
+        </div>
+        <div class="stepper" data-kind="weight">
+          <button type="button" class="step-btn big-minus" aria-label="Decrease weight by a lot">«</button>
+          <button type="button" class="step-btn minus" aria-label="Decrease weight">−</button>
+          <input type="number" class="set-weight num-display" readonly placeholder="0" />
+          <button type="button" class="step-btn plus" aria-label="Increase weight">+</button>
+          <button type="button" class="step-btn big-plus" aria-label="Increase weight by a lot">»</button>
+          <span class="stepper-unit">kg</span>
+        </div>
+      </div>
+      <div class="set-drop-row">
+        <span class="drop-badge"></span>
+        <button type="button" class="link-btn small add-drop">+ drop set</button>
+      </div>
+      <div class="drop-sets"></div>
+    </div>
+  </template>
+
+  <template id="drop-set-template">
+    <div class="drop-row">
+      <span class="drop-num"></span>
+      <div class="stepper compact" data-kind="reps">
+        <button type="button" class="step-btn minus" aria-label="Decrease drop reps">−</button>
         <input type="number" class="set-reps num-display" readonly placeholder="0" />
-        <button type="button" class="step-btn plus" aria-label="Increase reps">+</button>
-        <span class="stepper-unit">reps</span>
+        <button type="button" class="step-btn plus" aria-label="Increase drop reps">+</button>
       </div>
-      <div class="stepper" data-kind="weight">
-        <button type="button" class="step-btn minus" aria-label="Decrease weight">−</button>
+      <div class="stepper compact" data-kind="weight">
+        <button type="button" class="step-btn minus" aria-label="Decrease drop weight">−</button>
         <input type="number" class="set-weight num-display" readonly placeholder="0" />
-        <button type="button" class="step-btn plus" aria-label="Increase weight">+</button>
-        <span class="stepper-unit">kg</span>
+        <button type="button" class="step-btn plus" aria-label="Increase drop weight">+</button>
       </div>
+      <button type="button" class="remove-btn remove-drop" title="Remove drop set">✕</button>
     </div>
   </template>
 

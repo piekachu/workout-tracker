@@ -1,24 +1,59 @@
 # Workout Tracker
 
-A small, single-page personal workout tracker: open it and immediately see a
-consistency heatmap of the last ~18 weeks, then scroll down to log today's
-workout — pick a category, then add exercises one at a time from a dropdown
-scoped to that category (each shows its proposed goal, sets/reps/weight, once
-picked); fill in what you actually did per set, plus body weight and
-start/end time. Static frontend on GitHub Pages, data in Supabase.
+A small personal site: open it and immediately see a consistency heatmap of
+the last ~18 weeks, then scroll down to log today's workout — pick a
+category, then add exercises one at a time from a dropdown scoped to that
+category (each shows its proposed goal, sets/reps/weight, once picked); fill
+in what you actually did per set, plus body weight and start/end time.
+Static frontend on GitHub Pages, data in Supabase. A `Vocab` tab in the same
+site (`vocab/`) is a separate vocabulary-review app (English + Japanese)
+that happens to live in this repo and share the same Supabase project, under
+its own tables — see `vocab/index.html`, which is otherwise self-contained.
 
 **Live site:** https://piekachu.github.io/workout-tracker/
 
 ## Stack
 
-- **Frontend:** plain HTML/CSS/JS (no build step, no charting library — the heatmap is hand-built with CSS grid), [`@supabase/supabase-js`](https://supabase.com/docs/reference/javascript) v2 via CDN.
-- **Backend:** Supabase (Postgres + auto-generated REST API), project `loandword-desk` (ref `xxcwyttfhqnhuelkkimu`), tables `workout_sessions`, `workout_sets`, `body_weight`, `exercise_catalog`.
+- **Frontend:** plain HTML/CSS/JS (no build step, no charting library — the heatmap and the progress-comparison chart are both hand-built, the latter as inline SVG), [`@supabase/supabase-js`](https://supabase.com/docs/reference/javascript) v2 via CDN.
+- **Backend:** Supabase (Postgres + auto-generated REST API), project `loandword-desk` (ref `xxcwyttfhqnhuelkkimu`), tables `workout_sessions`, `workout_sets`, `body_weight`, `exercise_catalog` (the `vocab/` app uses its own `kv_store` table in the same project).
 - **Hosting:** GitHub Pages, deployed by `.github/workflows/pages.yml` on every push to `main`.
+
+## Log form features
+
+- **Exercises swipe, not stack.** `#exercise-list` is a native CSS scroll-snap
+  carousel (one exercise per screen) with dot/arrow controls built in
+  `assets/app.js`; this is what keeps the page's scroll height capped at the
+  tallest single exercise instead of growing with every exercise you add.
+- **Same date + category consolidates.** Saving no longer always inserts a
+  new `workout_sessions` row — it looks for an existing session on
+  (`log_date`, `category`) first and appends into it (continuing each
+  exercise's `set_number` rather than restarting at 1) if one's already
+  there. Different categories on the same day still get separate sessions,
+  since the category is genuinely a property of the session.
+- **Load previous** pulls the most recent occurrence of the selected exercise
+  (scanning the last 60 sessions client-side) and pre-fills its reps/weight;
+  a dropdown of the next few occurrences appears after first use, for
+  loading further back than "last time."
+- **Drop sets** chain onto a set via `+ drop set` — a compact mini reps/weight
+  row, with a `🔻 N drops` badge on the parent set. Stored as ordinary extra
+  `workout_sets` rows (continuing that exercise's `set_number`), tagged via
+  `notes` starting with `[drop]` rather than a schema column — see Data model.
+- **Bigger steps.** Each reps/weight stepper has a second, wider-spaced pair
+  of buttons (`«` `»`) for jumping by more per tap (default +5 reps / +10kg)
+  alongside the normal ±1 / ±2.5kg buttons — for loading plates fast rather
+  than fine-tuning.
+
+## Progress section
+
+A comparison chart below Recent: pick an exercise, see its top weight (and
+reps at that weight) across your last several sessions as an inline SVG line
+chart, plus a plain-language delta between the two most recent sessions
+("Last time: 40kg × 8 → This time: 42.5kg × 6, +2.5kg −2 reps").
 
 ## Data model
 
 - **`workout_sessions`** — one row per logged workout: `log_date`, `category` (one of the 5 fixed categories below), `start_time`, `end_time`.
-- **`workout_sets`** — one row per set, referencing `session_id`: `exercise`, `set_number`, `reps`, `weight_kg`, `notes` (comment, kept on each exercise's first set), plus `exercise_raw`/`reps_raw`/`weight_raw`/`rpe` left over from the historical CSV import for traceability (unused by the current UI).
+- **`workout_sets`** — one row per set, referencing `session_id`: `exercise`, `set_number`, `reps`, `weight_kg`, `notes` (the exercise's comment on its first set; `[drop]`-prefixed on a drop-set row instead — see Log form features), plus `exercise_raw`/`reps_raw`/`weight_raw`/`rpe` left over from the historical CSV import for traceability (unused by the current UI).
 - **`body_weight`** — `log_date`, `weight_kg` (upserted from the same log form).
 - **`exercise_catalog`** — the exercises shown for each category, each with a proposed goal: `category`, `exercise`, `target_sets`, `target_reps`, `target_weight`, `sort_order`. Seeded once from history (`scripts/seed_catalog.py`); edit rows directly in the Supabase table editor to adjust the exercise list or goals per category.
 
@@ -27,7 +62,8 @@ start/end time. Static frontend on GitHub Pages, data in Supabase.
 ## Project layout
 
 ```
-index.html, assets/              the deployed site (assets/config.js holds the public Supabase URL + anon key)
+index.html, assets/              the deployed workout-tracker site (assets/config.js holds the public Supabase URL + anon key)
+vocab/index.html                 the Vocab tab -- a separate, self-contained vocab-review app (own Supabase table)
 supabase/migrations/             schema history (0001: initial flat table, 0002: sessions + sets rework)
 data/                            original CSV exports
 scripts/exercise_aliases.py      canonicalizes ~150 raw exercise-name variants into ~30 real exercises
@@ -48,6 +84,10 @@ and scope the RLS policies to `auth.uid()`.
 
 The `service_role` key (used only by `scripts/import_data.py`, run locally)
 bypasses RLS entirely and must never be committed or put in frontend code.
+
+`vocab/index.html` follows the same no-login model on its own `kv_store`
+table, and auto-connects to it (writing the anon key + a slot id into
+`localStorage`) the first time it's opened in a given browser.
 
 ## Data import notes
 

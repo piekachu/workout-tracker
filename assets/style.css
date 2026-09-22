@@ -44,8 +44,26 @@ button, [role="button"] { touch-action: manipulation; }
 header {
   max-width: 640px;
   margin: 0 auto;
-  padding: 32px 20px 0;
+  padding: 20px 20px 0;
 }
+
+/* ---- shared site nav (Workout / Vocab) ---- */
+.site-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.site-nav a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.site-nav a:hover { background: var(--tap-highlight); }
+.site-nav a.active { background: var(--accent-soft); color: var(--accent); }
 
 h1 {
   font-size: 1.3rem;
@@ -190,12 +208,70 @@ input, select, textarea {
 }
 .field input { width: 100%; }
 
+/* ---- exercise carousel: one exercise per screen, swipe between them ----
+   Native CSS scroll-snap instead of a JS gesture library -- #exercise-list
+   is the horizontal scroller, each .ex-row is a full-width snap child. This
+   is what keeps the page's total scroll height from growing with every
+   exercise added; only the tallest single exercise sets the height. */
+.exercise-carousel-wrap { position: relative; }
+#exercise-list {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  margin: 0 -20px;
+  padding: 0 20px;
+}
+#exercise-list::-webkit-scrollbar { display: none; }
+@media (max-width: 420px) {
+  #exercise-list { margin: 0 -16px; padding: 0 16px; }
+}
+
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 2px 0 16px;
+}
+.carousel-controls[hidden] { display: none; }
+.carousel-arrow {
+  background: var(--accent-soft);
+  border: none;
+  color: var(--text);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: transform 0.1s ease;
+}
+.carousel-arrow:active { transform: scale(0.88); }
+.carousel-arrow:disabled { opacity: 0.35; }
+.carousel-dots { display: flex; gap: 7px; }
+.carousel-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+.carousel-dot.active { background: var(--accent); transform: scale(1.35); }
+
 .ex-row {
   padding: 18px 0;
-  border-top: 1px solid var(--border);
+  flex: 0 0 100%;
+  min-width: 100%;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
   animation: rowIn 0.25s ease;
 }
-.ex-row:first-child { border-top: none; }
 .ex-head {
   display: flex;
   align-items: center;
@@ -248,21 +324,43 @@ input, select, textarea {
 }
 .remove-btn:active { background: var(--tap-highlight); color: var(--danger); }
 
+/* ---- load previous weight/reps ---- */
+.load-prev-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: -4px 0 10px;
+}
+.load-prev-select {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  padding: 6px 8px;
+  min-height: 36px;
+}
+.load-prev-select[hidden] { display: none; }
+
 .ex-sets {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 12px;
 }
 .set-row {
   display: flex;
-  align-items: center;
-  gap: 10px 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
   padding: 10px 12px;
   margin-bottom: 8px;
   border: 1px solid var(--border);
   border-radius: 12px;
+  width: 100%;
+}
+.set-row-main {
+  display: flex;
+  align-items: center;
+  gap: 10px 16px;
+  flex-wrap: wrap;
 }
 .set-num {
   font-size: 0.8rem;
@@ -271,6 +369,40 @@ input, select, textarea {
   flex: 0 0 auto;
 }
 .set-num::before { content: "Set "; font-weight: 400; }
+
+/* ---- drop sets ---- */
+.set-drop-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+.drop-badge {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+}
+.drop-sets { display: flex; flex-direction: column; gap: 6px; }
+.drop-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 6px 10px;
+  margin-left: 14px;
+  border-left: 2px solid var(--accent-soft);
+  border-radius: 0 8px 8px 0;
+  background: var(--accent-soft);
+}
+.drop-num {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+.drop-row .remove-drop { padding: 6px; margin: -6px; font-size: 0.8rem; }
+.stepper.compact .step-btn { width: 32px; height: 32px; font-size: 1.1rem; border-radius: 8px; }
+.stepper.compact .num-display { width: 36px; }
 
 /* ---- stepper (big +/- buttons instead of the keyboard) ---- */
 .stepper {
@@ -298,6 +430,16 @@ input, select, textarea {
   transition: background-color 0.12s ease, transform 0.08s ease;
 }
 .step-btn:active { transform: scale(0.9); background: var(--accent); color: #fff; }
+/* Bigger jump (e.g. +5/-5kg) for loading plates fast, flanking the ±1 buttons */
+.step-btn.big-minus, .step-btn.big-plus {
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
+  background: transparent;
+  color: var(--text-dim);
+  border-style: dashed;
+}
+.step-btn.big-minus:active, .step-btn.big-plus:active { background: var(--accent); color: #fff; border-style: solid; }
 .num-display {
   width: 44px;
   min-height: unset;
@@ -404,6 +546,32 @@ input, select, textarea {
 .recent-item .remove-btn { font-size: 0.85rem; flex-shrink: 0; }
 
 .empty { color: var(--text-dim); font-size: 0.85rem; }
+
+/* ---- progress / comparison chart ---- */
+.progress-controls { margin-bottom: 16px; }
+#progress-exercise { width: 100%; font-weight: 600; }
+.progress-delta {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.progress-delta strong { color: var(--text); }
+.progress-delta .delta {
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+}
+.progress-delta .delta.up { color: var(--heat-1); background: var(--accent-soft); }
+.progress-delta .delta.down { color: var(--danger); background: rgba(214, 69, 69, 0.12); }
+.progress-chart-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.progress-chart {
+  width: 100%;
+  min-width: 480px;
+  height: auto;
+  display: block;
+}
 
 @keyframes rowIn {
   from { opacity: 0; transform: translateY(-6px); }
