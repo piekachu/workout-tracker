@@ -29,7 +29,8 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html _site/
-          cp -r assets _site/
+          cp -r shared _site/
+          cp -r workout _site/
           cp -r vocab _site/
       - name: Upload site
         uses: actions/upload-pages-artifact@v3

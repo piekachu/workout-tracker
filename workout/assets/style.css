@@ -1,30 +1,7 @@
-:root {
-  --bg: #ffffff;
-  --text: #1a1d23;
-  --text-dim: #7a8087;
-  --border: #e8e9ec;
-  --accent: #2f6fed;
-  --accent-soft: #dce8ff;
-  --danger: #d64545;
-  --heat-0: #edeef1;
-  --heat-1: #2f6fed;
-  --tap-highlight: rgba(47, 111, 237, 0.12);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #14161a;
-    --text: #eceef1;
-    --text-dim: #8b9099;
-    --border: #262a31;
-    --accent: #6fa2ff;
-    --accent-soft: #1c2c4a;
-    --danger: #ff7a7a;
-    --heat-0: #1f232a;
-    --heat-1: #6fa2ff;
-    --tap-highlight: rgba(111, 162, 255, 0.18);
-  }
-}
+/* Design tokens (colors, fonts, the --site-nav bar) live in
+   /shared/theme.css, linked from this page's <head> -- every page on the
+   site shares one palette from there. This file only holds Workout
+   Tracker's own component rules. */
 
 * { box-sizing: border-box; }
 
@@ -34,7 +11,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
 }
@@ -47,33 +24,19 @@ header {
   padding: 20px 20px 0;
 }
 
-/* ---- shared site nav (Workout / Vocab) ---- */
-.site-nav {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 14px;
-}
-.site-nav a {
-  color: var(--text-dim);
-  text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 999px;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-.site-nav a:hover { background: var(--tap-highlight); }
-.site-nav a.active { background: var(--accent-soft); color: var(--accent); }
-
 h1 {
-  font-size: 1.3rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 
 h2 {
-  font-size: 1.05rem;
-  font-weight: 600;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.2rem;
+  letter-spacing: -0.005em;
   margin: 0 0 18px;
 }
 

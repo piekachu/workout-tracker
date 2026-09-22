@@ -3,73 +3,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..800,0..100&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Noto+Serif+JP:wght@300;400;500;600&family=Noto+Sans+JP:wght@400;500;600&display=swap">
+<!-- Site-wide tokens (colors, Fraunces, IBM Plex Mono) + the shared nav bar. -->
+<link rel="stylesheet" href="../shared/theme.css">
+<!-- Fonts this page needs beyond what shared/theme.css already loads. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Serif+JP:wght@300;400;500;600&family=Noto+Sans+JP:wght@400;500;600&display=swap">
 
 <style>
-  /* ---------- tokens: light is the base (English) ---------- */
+  /* Canonical tokens (--paper, --ink, --accent, --serif, ...) come from
+     /shared/theme.css as aliases to the site's shared palette -- see that
+     file's header comment. Only this page's own extras stay here: the
+     Japanese-script font stack, and the deliberate accent-color swap when
+     browsing the Japanese corpus (data-lang="jp"), which is a scoped,
+     intentional in-app touch, not a site-consistency gap. */
   :root {
-    --paper:      #F6F5F1;
-    --paper-2:    #EFEDE5;
-    --ink:        #1A1B1F;
-    --ink-2:      #34363C;
-    --muted:      #6B6C72;
-    --faint:      #9A9A9E;
-    --rule:       #D9D6CC;
-    --rule-2:     #E6E3D9;
-    --accent:     #2D5F3F;      /* dictionary-ink green */
-    --accent-2:   #EBEEE6;
-    --warn:       #C24D3E;      /* red-pencil correction */
-    --warn-2:     #F5E5E1;
-    --gold:       #A6873A;
-    --focus:      #2D5F3F;
-
-    --serif:    "Fraunces", "Iowan Old Style", "Charter", "Georgia", serif;
     --sans:     "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
-    --mono:     "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
     --jp-serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
     --jp-sans:  "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
-
-    --shadow-1: 0 1px 0 rgba(26,27,31,.04), 0 1px 3px rgba(26,27,31,.06);
-    --shadow-2: 0 2px 20px rgba(26,27,31,.08);
-    --radius:   6px;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) {
-      --paper:    #12151C;
-      --paper-2:  #181C24;
-      --ink:      #ECE8DE;
-      --ink-2:    #C9C4B7;
-      --muted:    #8E8C86;
-      --faint:    #62615C;
-      --rule:     #262A34;
-      --rule-2:   #1E222B;
-      --accent:   #86B098;
-      --accent-2: #1D2A24;
-      --warn:     #E28578;
-      --warn-2:   #2A1E1C;
-      --gold:     #C8A664;
-      --focus:    #86B098;
-      --shadow-1: 0 1px 0 rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
-      --shadow-2: 0 2px 24px rgba(0,0,0,.5);
-    }
-  }
-  :root[data-theme="dark"] {
-    --paper:    #12151C;
-    --paper-2:  #181C24;
-    --ink:      #ECE8DE;
-    --ink-2:    #C9C4B7;
-    --muted:    #8E8C86;
-    --faint:    #62615C;
-    --rule:     #262A34;
-    --rule-2:   #1E222B;
-    --accent:   #86B098;
-    --accent-2: #1D2A24;
-    --warn:     #E28578;
-    --warn-2:   #2A1E1C;
-    --gold:     #C8A664;
-    --focus:    #86B098;
-    --shadow-1: 0 1px 0 rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
-    --shadow-2: 0 2px 24px rgba(0,0,0,.5);
   }
 
   /* ---------- tokens: Japanese overrides — washi paper, ai-iro indigo, bengara red ---------- */
@@ -154,20 +103,16 @@
     padding: 24px 18px;
     display: flex; flex-direction: column; gap: 22px;
   }
-  .site-back-link {
-    align-self: flex-start;
-    margin: -22px 0 -14px;
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    text-decoration: none;
-    padding: 4px 8px;
-    margin-left: -8px;
-    border-radius: 4px;
-    transition: background-color .12s ease, color .12s ease;
+  /* The shared .site-nav (Home/Workout/Vocab pills, from shared/theme.css)
+     sits inside this narrow vertical rail rather than a horizontal header
+     here, so it stacks instead of running in a row. */
+  .rail .site-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    margin: -8px 0 6px -8px;
   }
-  .site-back-link:hover { background: var(--accent-2); color: var(--accent); }
+  .rail .site-nav a { padding: 5px 8px; font-size: 12px; }
   .brand {
     display: flex; flex-direction: column; gap: 2px; margin-bottom: 4px;
   }
@@ -1040,7 +985,11 @@
 
 <div class="app">
   <aside class="rail">
-    <a href="../" class="site-back-link">← Workout</a>
+    <nav class="site-nav">
+      <a href="../">Home</a>
+      <a href="../workout/">Workout</a>
+      <a href="./" class="active">Vocab</a>
+    </nav>
     <div class="brand">
       <div class="mark" id="brandMark">Loanword Desk</div>
       <div class="mark-jp" id="brandMarkJp">言葉デスク</div>
@@ -2935,6 +2884,37 @@ async function connectSync(url, anonKey, slotId) {
   render();
   startSyncPolling();
 }
+// Boot-time auto-connect: unlike connectSync (used by the manual "Connect"
+// button, where a confirm() dialog protects data the user might have just
+// typed into a brand-new setup), this fires automatically on a page visit
+// with nothing configured yet — there's no local data worth protecting in
+// that case, so it just loads whatever's in Supabase straight away, no
+// dialog. If the slot is genuinely empty (first-ever use of this slot),
+// it pushes the local/seed state up as the starting point instead.
+async function autoConnectSilent(url, anonKey, slotId) {
+  state.sync = state.sync || {};
+  state.sync.url = url.trim().replace(/\/+$/, "");
+  state.sync.anonKey = anonKey.trim();
+  state.sync.slotId = slotId.trim();
+  saveLocalOnly();
+
+  const remote = await pullFromSupabase({ silent: true });
+  if (remote && remote.data) {
+    const keepSync = state.sync;
+    state = remote.data;
+    state.sync = keepSync;
+    state.sync.status = "synced";
+    state.sync.remoteUpdatedAt = remote.updated_at;
+    state.sync.lastPushedAt = remote.updated_at;
+    ensureLangReady(state.currentLang);
+    saveLocalOnly();
+    render();
+  } else {
+    await pushToSupabase();
+    render();
+  }
+  startSyncPolling();
+}
 function disconnectSync() {
   state.sync = { url: "", anonKey: "", slotId: "", lastPushedAt: null, remoteUpdatedAt: null, status: "off" };
   saveLocalOnly();
@@ -3140,10 +3120,11 @@ document.addEventListener("keydown", (e) => {
 render();
 // Fully automatic two-way sync while the app is open:
 //  - push already happens on every edit (debounced 2.5s, see saveState/scheduleSync)
-//  - pull happens on boot, whenever the tab regains focus, and every 60s
-//    while it stays visible — silently, no button, no confirm dialog
+//  - pull happens right on boot (right after the instant local-cache paint
+//    above), whenever the tab regains focus, and every 60s while it stays
+//    visible — silently, no button, no confirm dialog
 //  - a pending push is flushed immediately when the tab is hidden or closed
-if (syncConfigured()) setTimeout(() => autoPullIfNewer({ quiet: true }), 900);
+if (syncConfigured()) autoPullIfNewer({ quiet: true });
 
 let _pollTimer = null;
 function startSyncPolling() {
@@ -3165,10 +3146,11 @@ document.addEventListener("visibilitychange", () => {
 window.addEventListener("pagehide", () => flushSyncNow({ keepalive: true }));
 window.addEventListener("beforeunload", () => flushSyncNow({ keepalive: true }));
 
-// One-time auto-connect: runs the very first time this file is opened in a
-// browser that hasn't configured sync yet, using the credentials the user
-// supplied when this copy was prepared. Only ever fires once per browser —
-// respects a later manual Disconnect (which does not reset this flag).
+// One-time auto-connect: runs the very first time this page is opened in a
+// browser that hasn't configured sync yet, using the credentials this copy
+// was deployed with -- silently loads whatever's already in Supabase (see
+// autoConnectSilent above). Only ever fires once per browser -- respects a
+// later manual Disconnect (which does not reset this flag).
 const AUTO_SYNC = {
   url:    "https://xxcwyttfhqnhuelkkimu.supabase.co",
   anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4Y3d5dHRmaHFuaHVlbGtraW11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4ODc3NzIsImV4cCI6MjEwMzQ2Mzc3Mn0.t7EgPug7NaRkRBjLjtCc-opcRHd0MaIE-r3CsYexAsc",
@@ -3178,7 +3160,7 @@ if (AUTO_SYNC.url && !syncConfigured() && !(state.sync && state.sync.autoConnect
   state.sync = state.sync || {};
   state.sync.autoConnectAttempted = true;
   saveLocalOnly();
-  setTimeout(() => connectSync(AUTO_SYNC.url, AUTO_SYNC.anonKey, AUTO_SYNC.slotId), 300);
+  autoConnectSilent(AUTO_SYNC.url, AUTO_SYNC.anonKey, AUTO_SYNC.slotId);
 }
 </script>
 

@@ -1,0 +1,147 @@
+/* =========================================================================
+   Shared design system for piekachu.github.io/workout-tracker/
+   =========================================================================
+   One token set + nav + page-header pattern, consumed by every page on the
+   site (the root hub, /workout/, /vocab/, and any page added later). New
+   pages: link this stylesheet, use these token names, done -- no separate
+   theme to invent.
+
+   Legacy alias tokens: /workout/assets/style.css and /vocab/index.html each
+   had their own token names before this file existed (--paper vs --bg,
+   --ink vs --text, etc.). Rather than rewrite every one of their existing
+   component rules, this file defines the canonical tokens once and aliases
+   each app's old names to them -- so both apps' whole existing CSS picks up
+   the unified palette automatically. Write NEW pages against the canonical
+   names directly; the aliases exist only for the two pre-existing apps.
+   ========================================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..800,0..100&family=IBM+Plex+Mono:wght@400;500&display=swap");
+
+:root {
+  /* ---- canonical tokens (light) ---- */
+  --bg:           #F6F5F1;
+  --bg-2:         #EFEDE5; /* recessed panel / sidebar */
+  --surface:      #FFFFFF; /* cards, inputs -- brighter than bg */
+  --text:         #1A1B1F;
+  --text-2:       #34363C; /* secondary, still-readable text */
+  --text-dim:     #6B6C72;
+  --text-faint:   #9A9A9E; /* placeholders, lowest emphasis */
+  --border:       #DEDBD2;
+  --border-2:     #EAE7DE; /* subtler divider */
+  --accent:       #3457D5;
+  --accent-soft:  #E4E9FB;
+  --danger:       #D64545;
+  --danger-soft:  #F5E0E0;
+  --gold:         #A6873A; /* secondary semantic accent (e.g. "hard", "in progress") */
+  --gold-soft:    #F1E9D6;
+  --radius:       10px;
+  --shadow-1:     0 1px 0 rgba(26,27,31,.04), 0 1px 3px rgba(26,27,31,.06);
+  --shadow-2:     0 2px 20px rgba(26,27,31,.08);
+  --tap-highlight: color-mix(in oklab, var(--accent) 12%, transparent);
+
+  --font-ui:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, "Iowan Old Style", serif;
+  --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* ---- /workout aliases (its CSS already uses these names) ---- */
+  --heat-0: var(--border-2);
+  --heat-1: var(--accent);
+
+  /* ---- /vocab aliases (its CSS already uses these names) ---- */
+  --paper:    var(--bg);
+  --paper-2:  var(--bg-2);
+  --ink:      var(--text);
+  --ink-2:    var(--text-2);
+  --muted:    var(--text-dim);
+  --faint:    var(--text-faint);
+  --rule:     var(--border);
+  --rule-2:   var(--border-2);
+  --accent-2: var(--accent-soft);
+  --warn:     var(--danger);
+  --warn-2:   var(--danger-soft);
+  --focus:    var(--accent);
+  --serif:    var(--font-display);
+  --sans:     var(--font-ui);
+  --mono:     var(--font-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:           #14151A;
+    --bg-2:         #1B1D23;
+    --surface:      #1B1D23;
+    --text:         #ECEDEF;
+    --text-2:       #C9CBCE;
+    --text-dim:     #8B8F97;
+    --text-faint:   #62646B;
+    --border:       #2A2C33;
+    --border-2:     #212328;
+    --accent:       #7C9CFF;
+    --accent-soft:  #202A4A;
+    --danger:       #FF7A7A;
+    --danger-soft:  #3A1F1F;
+    --gold:         #C8A664;
+    --gold-soft:    #332B1B;
+    --shadow-1:     0 1px 0 rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
+    --shadow-2:     0 2px 24px rgba(0,0,0,.5);
+  }
+}
+/* Manual override (only /vocab currently has a theme-toggle button that sets
+   this on <html>; harmless no-op on pages without one). */
+:root[data-theme="dark"] {
+  --bg:           #14151A;
+  --bg-2:         #1B1D23;
+  --surface:      #1B1D23;
+  --text:         #ECEDEF;
+  --text-2:       #C9CBCE;
+  --text-dim:     #8B8F97;
+  --text-faint:   #62646B;
+  --border:       #2A2C33;
+  --border-2:     #212328;
+  --accent:       #7C9CFF;
+  --accent-soft:  #202A4A;
+  --danger:       #FF7A7A;
+  --danger-soft:  #3A1F1F;
+  --gold:         #C8A664;
+  --gold-soft:    #332B1B;
+  --shadow-1:     0 1px 0 rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
+  --shadow-2:     0 2px 24px rgba(0,0,0,.5);
+}
+
+/* ---- shared nav bar (every page's <header> starts with this) ---- */
+.site-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.site-nav a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-family: var(--font-ui);
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.site-nav a:hover { background: var(--tap-highlight); }
+.site-nav a.active { background: var(--accent-soft); color: var(--accent); }
+
+/* ---- shared page-header pattern (eyebrow + title), for any new page ---- */
+.page-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.7rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+  color: var(--text);
+}
