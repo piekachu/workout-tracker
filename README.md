@@ -2,12 +2,13 @@
 
 A small multi-page personal site: the root (`/`) is a home page listing
 every tool on the site as a card; each tool is otherwise an independent app
-in its own folder. Today that's a workout tracker (`/workout/`) and a
-vocabulary-review app (`/vocab/`), sharing one Supabase project (separate
-tables) and one visual design system (`/shared/theme.css`). Static frontend
+in its own folder. Today that's a workout tracker (`/workout/`), a
+vocabulary-review app (`/vocab/`), a bookkeeping page (`/expenses/`) and a
+small-molecule "drug of the day" study page (`/drugs/`), sharing one Supabase
+project (separate tables) and one visual design system (`/shared/theme.css`). Static frontend
 on GitHub Pages throughout — no build step, no framework.
 
-**Live site:** https://piekachu.github.io/workout-tracker/ · [Workout](https://piekachu.github.io/workout-tracker/workout/) · [Vocab](https://piekachu.github.io/workout-tracker/vocab/)
+**Live site:** https://piekachu.github.io/workout-tracker/ · [Workout](https://piekachu.github.io/workout-tracker/workout/) · [Vocab](https://piekachu.github.io/workout-tracker/vocab/) · [Expenses](https://piekachu.github.io/workout-tracker/expenses/) · [Drugs](https://piekachu.github.io/workout-tracker/drugs/)
 
 ## Adding a new page
 
@@ -27,7 +28,7 @@ on GitHub Pages throughout — no build step, no framework.
    that's the only change needed for it to show up on the home page. If it
    has day-based activity worth showing as a 14-week strip, add an
    `activity` key too (see "14-week strip" below).
-5. `workout/`, `vocab/`, and `shared/` each get their own `cp -r` line in
+5. `workout/`, `vocab/`, `expenses/`, `drugs/` and `shared/` each get their own `cp -r` line in
    `.github/workflows/pages.yml`'s "Stage site files only" step. A page
    living entirely *inside* one of those (like `/workout/database/`) needs
    nothing extra there, since `cp -r workout` already copies it -- but a
@@ -183,9 +184,63 @@ manual "Connect" flow in Data & backup (for entering different credentials)
 still confirms before overwriting anything, since that's the one path where
 there could be real local data worth protecting.
 
+**Phone layout (≤ 820px).** The sidebar becomes a compact header that scrolls
+away, the Daily/Library/Data modes become a fixed bottom tab bar, Library rows
+become stacked cards instead of a sideways-scrolling table, form fields are
+16px (iOS zooms the page on focus for anything smaller), keyboard-shortcut
+hints are hidden, and the Library search only refills the list as you type
+(it used to append a duplicate copy of the whole page on every keystroke).
+
 Its own accent color shifts (green ↔ indigo) when you switch between the
 English and Japanese corpora — a deliberate in-app touch, kept as-is rather
 than folded into the site-wide palette below.
+
+## Expenses (`/expenses/`)
+
+Bookkeeping on one phone-sized screen: month switcher (‹ November 2026 ›),
+big total for the month, a per-category breakdown bar list, then an add/edit
+card (Expense/Income toggle, amount with quick-add chips, category chips,
+note, date) and the month's entries grouped by day. Tap an entry to edit or
+delete it. Income is optional — a Net line only appears once the month has
+some. Export CSV (this month / everything) from the bottom.
+
+- **Table:** `expenses` (`spent_on`, `amount`, `kind` = expense|income, `category`, `note`) — migration `0005`.
+- **Currency** is a display preference (₩ default; $, €, ¥), stored in the
+  browser's localStorage, not per row — the table is single-currency by design.
+- **Amounts** use a text field with `inputmode="decimal"` + quick-add chips
+  (+1,000 / +5,000 / +10,000 for KRW) rather than the workout page's +/- steppers —
+  real prices don't suit stepping.
+- **Privacy:** this is the one table where the "public anon key, open RLS"
+  model matters more — anyone with the key can read the rows. See the Security
+  model section; the page's footer says so too. If that's not acceptable,
+  the fix is Supabase Auth + an `auth.uid()` RLS policy on `expenses`.
+
+## Drug of the Day (`/drugs/`)
+
+One small-molecule drug per day, in a fixed order starting 2026-11-04
+(day N shows `DRUGS[(N-1) mod count]`; ‹ › step back through earlier days,
+and the list at the bottom opens any drug out of order).
+
+- **Study card:** 2D structure, name/brands/class, computed properties
+  (formula, MW, cLogP, HBD/HBA, TPSA, Rule-of-5), then target & mechanism,
+  uses, pharmacokinetics, adverse effects, and a pearl. *Recall mode* blurs
+  each section until tapped, for active recall.
+- **Quiz:** 5 multiple-choice questions generated from the data (structure →
+  name, target, class, use, plus a spaced-review question on an earlier drug).
+  Finishing **today's quiz on today's drug** writes a row to `drug_log`
+  (one per day, upserted), which drives the streak and the 14-day dots;
+  practice quizzes on other drugs don't count.
+- **Content lives in `scripts/drugs_source.py`**; run
+  `python3 scripts/build_drugs.py` (needs `pip install rdkit`) to regenerate
+  `drugs/data.js` and `drugs/svg/*.svg`. The build computes every number from
+  the SMILES and **fails** if a SMILES's molecular weight disagrees with the
+  published value recorded in `EXPECTED_MW` — that's what caught wrong
+  stereochemistry/typos while this was written. To add a drug: add an entry
+  (and its expected MW), rebuild. Appending keeps earlier days' picks stable.
+- **Accuracy:** pharmacology values are approximate and written from standard
+  references by hand — treat as study notes, not clinical guidance (the page
+  says so). Structures are RDKit drawings, monochrome so they follow the
+  light/dark theme.
 
 ## Shared design system (`/shared/theme.css`)
 
@@ -210,12 +265,17 @@ workout/index.html, assets/      the Log page (assets/config.js holds the public
 workout/database/                calendar view of past workouts, with per-day delete
 workout/manage/                  exercise catalog CRUD + routines CRUD
 vocab/index.html                 Vocab Desk -- self-contained (own Supabase table)
-supabase/migrations/             schema history (0001: initial flat table, 0002: sessions + sets rework, 0003: catalog, 0004: routines -- not yet applied, see Manage above)
+expenses/                        bookkeeping page (index.html, style.css, app.js)
+drugs/                           drug-of-the-day page; data.js + svg/ are GENERATED by scripts/build_drugs.py
+shared/supabase-config.js        public Supabase URL + anon key for pages without their own copy
+supabase/migrations/             schema history (0001: initial flat table, 0002: sessions + sets rework, 0003: catalog, 0004: routines, 0005: expenses + drug_log)
 data/                            original CSV exports
 scripts/exercise_aliases.py      canonicalizes ~150 raw exercise-name variants into ~30 real exercises
 scripts/parse_csv.py             best-effort parser: data/*.csv -> out/*.csv (sessions + sets)
 scripts/import_data.py           loads out/*.csv into Supabase (needs the service_role key, local use only)
 scripts/seed_catalog.py          computes proposed goals from history and seeds exercise_catalog
+scripts/drugs_source.py          the drug-of-the-day content (edit this)
+scripts/build_drugs.py           RDKit build: validates SMILES vs expected MW, writes drugs/data.js + svg/
 out/                             parsed output + one-off cleanup backups (see Data cleanup above)
 ```
 
@@ -262,6 +322,8 @@ python3 -m http.server 8934
 # home:    http://localhost:8934
 # workout: http://localhost:8934/workout/
 # vocab:   http://localhost:8934/vocab/
+# expenses: http://localhost:8934/expenses/
+# drugs:    http://localhost:8934/drugs/
 ```
 
 No build step — it's static files talking directly to Supabase's REST API.

@@ -32,6 +32,8 @@ jobs:
           cp -r shared _site/
           cp -r workout _site/
           cp -r vocab _site/
+          cp -r expenses _site/
+          cp -r drugs _site/
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:

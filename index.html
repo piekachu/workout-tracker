@@ -122,6 +122,8 @@
       <a href="./" class="active">Home</a>
       <a href="workout/">Workout</a>
       <a href="vocab/">Vocab</a>
+      <a href="expenses/">Expenses</a>
+      <a href="drugs/">Drugs</a>
     </nav>
     <div class="page-eyebrow">piekachu.github.io/workout-tracker</div>
     <h1 class="page-title">Home</h1>
@@ -159,6 +161,16 @@
         const { data, error } = await sb.from("workout_sessions").select("log_date");
         if (error || !data) return new Set();
         return new Set(data.map((r) => r.log_date));
+      },
+      async expenses() {
+        const { data, error } = await sb.from("expenses").select("spent_on");
+        if (error || !data) return new Set();
+        return new Set(data.map((r) => r.spent_on));
+      },
+      async drugs() {
+        const { data, error } = await sb.from("drug_log").select("studied_on");
+        if (error || !data) return new Set();
+        return new Set(data.map((r) => r.studied_on));
       },
       async vocab() {
         const { data, error } = await sb.from("kv_store").select("data").eq("slot_id", VOCAB_SLOT_ID).single();
@@ -212,6 +224,20 @@
         monogram: "V",
         tagline: "Spaced-repetition review for English and Japanese vocabulary.",
         activity: "vocab",
+      },
+      {
+        name: "Expenses",
+        path: "expenses/",
+        monogram: "E",
+        tagline: "Bookkeeping: log spending and income, see the month by category.",
+        activity: "expenses",
+      },
+      {
+        name: "Drug of the Day",
+        path: "drugs/",
+        monogram: "D",
+        tagline: "One small-molecule drug a day: structure, mechanism, PK, quiz.",
+        activity: "drugs",
       },
     ];
 
