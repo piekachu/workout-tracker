@@ -12,10 +12,9 @@
     body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui);
       -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
     button, input { font-family: inherit; touch-action: manipulation; }
-    header, main, footer { max-width: 1400px; margin: 0 auto; }
-    header { padding: 24px 28px 0; }
-    main { padding: 6px 28px calc(48px + env(safe-area-inset-bottom)); }
-    @media (max-width: 640px) { header, main, footer { padding-left: 16px !important; padding-right: 16px !important; } }
+    header, main, footer { max-width: var(--page-max); margin: 0 auto; }
+    header { padding: 20px var(--page-pad) 0; }
+    main { padding: 6px var(--page-pad) calc(48px + env(safe-area-inset-bottom)); }
 
     /* phone: one column. desktop: tasks + habits on the left, insights on the right, full width. */
     .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px 32px; align-items: start; }
@@ -23,23 +22,19 @@
       .layout { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
       .col-side { position: sticky; top: 16px; }
     }
-    @media (min-width: 1500px) { header, main, footer { max-width: 1600px; } }
     .col-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px 12px; min-width: 0; }
-    .panel h2 { margin: 0 0 2px; font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
-    .panel .cap { margin: 0 0 8px; font-size: .8rem; color: var(--text-dim); }
-    .rings { display: flex; justify-content: space-around; gap: 12px; flex-wrap: wrap; padding: 6px 0 4px; }
+    .rings { display: flex; justify-content: space-around; gap: 12px; flex-wrap: wrap; }
     .ring-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .82rem; color: var(--text-dim); }
     .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-    .chip { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
+    .chip { display: inline-flex; align-items: baseline; gap: 6px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 3px;
       background: var(--bg-2); font-size: .85rem; color: var(--text-2); }
-    .chip b { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; color: var(--text); }
+    .chip b { font-family: var(--font-mono); font-weight: 500; font-size: 1.05rem; color: var(--text); }
     .span-all { grid-column: 1 / -1; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* ---- heading: date, what's left, progress ---- */
     .hero { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 6px; }
-    .hero h1 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 2rem; letter-spacing: -.01em; line-height: 1.1; }
+    .hero h1 { margin: 0; font-family: var(--font-display); font-weight: 600; font-size: 2rem; letter-spacing: -.02em; line-height: 1.1; }
     .hero .date { color: var(--text-dim); font-size: .92rem; margin-top: 3px; }
     .hero .sub { color: var(--text-2); font-size: .95rem; margin-top: 8px; }
     #hero-ring { flex: 0 0 auto; }
@@ -54,7 +49,7 @@
       color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
 
     /* ---- the list ---- */
-    .sect { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint); margin: 18px 0 8px; }
+    .sect { font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin: 18px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--border-2); }
     .sect:first-child { margin-top: 0; }
     .item { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 8px 12px; margin-bottom: 8px; width: 100%;
       background: var(--surface); border: 1px solid var(--border); border-left-width: 4px; border-radius: var(--radius);
@@ -68,7 +63,7 @@
       display: flex; align-items: center; justify-content: center; font-size: 15px; }
     .item .body { flex: 1 1 auto; min-width: 0; }
     .item .name { font-size: 1rem; line-height: 1.3; overflow-wrap: anywhere; }
-    .item.core .name { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
+    .item.core .name { font-weight: 600; font-size: 1rem; }
     .item.done .name { color: var(--text-dim); text-decoration: line-through; }
     .item.done.core .name { text-decoration: none; }
     .item .sub { font-size: .8rem; color: var(--text-dim); margin-top: 1px; }
@@ -78,7 +73,7 @@
     a.item:active, .item[role=button]:active { transform: scale(.99); }
     .quiet { color: var(--text-dim); font-size: .9rem; padding: 6px 0; }
     .allgood { padding: 22px 16px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-    .allgood b { display: block; font-family: var(--font-display); font-weight: 500; font-size: 1.2rem; margin-bottom: 2px; }
+    .allgood b { display: block; font-weight: 600; font-size: 1.1rem; margin-bottom: 2px; }
     .allgood span { color: var(--text-dim); font-size: .9rem; }
 
     details.done-box { margin-top: 16px; }
@@ -102,26 +97,20 @@
     .tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 76px; padding: 10px 6px;
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); text-decoration: none; font-size: .85rem; }
     .tool:active { transform: scale(.98); }
-    .tool .m { width: 32px; height: 32px; border-radius: 9px; background: var(--accent-soft); color: var(--accent);
-      display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 600; }
+    .tool .m { width: 32px; height: 32px; border-radius: 4px; background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 600; }
     .tool.primary { border-color: var(--accent); }
 
     .toast-err { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%);
       background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 13px; z-index: 50; }
-    footer { max-width: 640px; margin: 0 auto; padding: 0 20px 36px; color: var(--text-faint); font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; }
+    footer { padding: 0 var(--page-pad) 36px; color: var(--text-faint); font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; }
   </style>
 </head>
 <body>
+<nav class="site-nav" id="site-nav" data-root="./" aria-label="Main"></nav>
+<script src="./shared/nav.js"></script>
+  <div class="ticker" id="ticker" aria-label="Key figures"><div class="ticker-track" id="ticker-track"></div></div>
   <header>
-    <nav class="site-nav">
-      <a href="./" class="active">Home</a>
-      <a href="tasks/">Tasks</a>
-      <a href="progress/">Progress</a>
-      <a href="workout/">Workout</a>
-      <a href="vocab/">Vocab</a>
-      <a href="expenses/">Expenses</a>
-      <a href="drugs/">Drugs</a>
-    </nav>
     <div class="hero hero-wrap">
       <div>
         <h1>Today</h1>
@@ -154,32 +143,29 @@
 
     <aside class="col-side" aria-label="Insights">
       <div class="panel">
-        <h2>Today at a glance</h2>
-        <p class="cap">Share finished so far</p>
-        <div class="rings">
+        <div class="panel-h"><span>Today at a glance</span><span class="meta">share finished</span></div>
+        <div class="panel-b rings">
           <div class="ring-cell"><div id="ring-habits" class="ring-host"></div>Habits</div>
           <div class="ring-cell"><div id="ring-all" class="ring-host"></div>Everything</div>
-          <div class="ring-cell"><div id="ring-week" class="ring-host"></div>This week</div>
+          <div class="ring-cell"><div id="ring-week" class="ring-host"></div>7-day avg</div>
         </div>
       </div>
       <div class="panel">
-        <h2>Habits, last 7 days</h2>
-        <p class="cap" id="cap-habits">Share of daily habits done each day</p>
-        <div class="chart" id="ch-habits"></div>
+        <div class="panel-h"><span>Habits · 7 days</span><span class="meta" id="cap-habits"></span></div>
+        <div class="panel-b"><div class="chart" id="ch-habits"></div></div>
       </div>
       <div class="panel">
-        <h2>Tasks completed, last 7 days</h2>
-        <p class="cap" id="cap-tasks">Finished per day</p>
-        <div class="chart" id="ch-tasks"></div>
+        <div class="panel-h"><span>Tasks done · 7 days</span><span class="meta" id="cap-tasks"></span></div>
+        <div class="panel-b"><div class="chart" id="ch-tasks"></div></div>
       </div>
       <div class="panel">
-        <h2>Streaks</h2>
-        <div class="chips" id="chips"></div>
+        <div class="panel-h"><span>Streaks</span></div>
+        <div class="panel-b"><div class="chips" id="chips"></div></div>
       </div>
     </aside>
 
     <section class="span-all">
-    <div class="sect" style="margin-top:10px">Open</div>
+    <div class="sect" style="margin-top:10px">Go to</div>
     <div class="tools">
       <a class="tool primary" href="progress/"><span class="m">↗</span>Progress</a>
       <a class="tool" href="tasks/"><span class="m">T</span>Tasks</a>
@@ -243,6 +229,11 @@
         if (longer.error) throw longer.error;
         return [...(days.data || []), ...(longer.data || [])];
       }),
+      // 14 days of expenses: this week vs the one before, for the ticker
+      spend14: once(async () => {
+        const { data, error } = await sb.from("expenses").select("spent_on, amount, kind").gte("spent_on", addDaysISO(TODAY, -13));
+        if (error) throw error; return data || [];
+      }),
       tasksRecent: once(async () => {
         const since = new Date(); since.setHours(0, 0, 0, 0); since.setDate(since.getDate() - 6);
         const { data, error } = await sb.from("tasks").select("done_at").gte("done_at", since.toISOString());
@@ -276,7 +267,7 @@
       { key: "drugs",   name: "Drug of the day", href: "drugs/",   cta: "Study" },
       { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
     ];
-    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, drugSet: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0 };   // core[key] = { done, sub, streak }
+    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, drugSet: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 } };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
     const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
@@ -325,7 +316,7 @@
       Charts.ring($("hero-ring"), { value: taskTotal ? doneTasks.length : 1, total: taskTotal || 1, size,
         big: ready ? String(taskLeft) : "…", small: taskLeft === 1 ? "task left" : "tasks left", aria: `${taskLeft} tasks left` });
       $("hero-sub").textContent = !ready ? "" : habitTotal - habitDone ? `${habitTotal - habitDone} habit${habitTotal - habitDone === 1 ? "" : "s"} left` : "All habits done";
-      if (ready) renderInsights({ doneN, total, habitDone, habitTotal });
+      if (ready) renderInsights({ doneN, total, habitDone, habitTotal, taskLeft });
 
       const list = $("list"); list.innerHTML = "";
       if (ready && !pendingTasks.length && !pendingCore.length && !pendingHabits.length) {
@@ -371,7 +362,30 @@
       let custom = 0; logged.forEach((id) => { if (ids.has(id)) custom++; });
       return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + (state.drugSet.has(d) ? 1 : 0) + custom) / (2 + state.custom.length) * 100);
     }
-    function renderInsights({ doneN, total, habitDone, habitTotal }) {
+    // up/down arrow + colour; `goodUp` says whether a rise is good news (spending: no)
+    function deltaOf(now, prev, goodUp = true, unit = "", fmtNum = (v) => Math.round(v * 10) / 10) {
+      const d = now - prev;
+      if (!d) return { cls: "", text: "— 0" + unit };
+      return { cls: (d > 0) === goodUp ? "up" : "down", text: `${d > 0 ? "▲" : "▼"} ${fmtNum(Math.abs(d)).toLocaleString()}${unit}` };
+    }
+    function renderTicker({ habitDone, habitTotal, taskLeft }) {
+      const y = addDaysISO(TODAY, -1);
+      const money = (v) => (v >= 10000 ? Math.round(v / 1000).toLocaleString() + "K" : Math.round(v).toLocaleString());
+      const quotes = [
+        { l: "Tasks left", v: String(taskLeft), href: "tasks/" },
+        { l: "Tasks done", v: String(state.doneByDay[TODAY] || 0), d: deltaOf(state.doneByDay[TODAY] || 0, state.doneByDay[y] || 0), href: "tasks/" },
+        { l: "Habits", v: `${habitDone}/${habitTotal}`, d: deltaOf(habitPct(TODAY), habitPct(y), true, "%"), href: "progress/" },
+        { l: "Vocab", v: String(state.vocabAct[TODAY] || 0), d: deltaOf(state.vocabAct[TODAY] || 0, state.vocabAct[y] || 0), href: "vocab/" },
+        { l: "Vocab streak", v: `${state.core.vocab ? state.core.vocab.streak : 0}d`, href: "vocab/" },
+        { l: "Drug streak", v: `${state.core.drugs ? state.core.drugs.streak : 0}d`, href: "drugs/" },
+        { l: "Workouts 7d", v: String(state.sessions7), d: deltaOf(state.sessions7, state.sessionsPrev), href: "workout/" },
+        { l: "Spend 7d", v: money(state.spend.now), d: deltaOf(state.spend.now, state.spend.prev, false, "", money), href: "expenses/" },
+      ];
+      const html = quotes.map((q) => `<a class="ticker-item" href="${q.href}"><span class="t-label">${q.l}</span><span class="t-value">${q.v}</span>${q.d ? `<span class="delta ${q.d.cls}">${q.d.text}</span>` : ""}</a>`).join("");
+      $("ticker-track").innerHTML = html + html;   // twice, so the loop is seamless
+    }
+    function renderInsights({ doneN, total, habitDone, habitTotal, taskLeft }) {
+      renderTicker({ habitDone, habitTotal, taskLeft });
       const days = lastDays(7);
       const pcts = days.map(habitPct), tdone = days.map((d) => state.doneByDay[d] || 0);
       const avg = Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length);
@@ -383,11 +397,11 @@
       const xTick = (i) => new Date(days[i] + "T00:00").toLocaleDateString(undefined, { weekday: "short" });
       Charts.bar($("ch-habits"), { values: pcts, xTick, max: 100, highlight: 6, height: 150, fmtTick: (v) => v + "%", fmtLabel: (v) => v + "%",
         emptyText: "Nothing logged in the last 7 days yet", tipTitle: (i) => long(days[i]), tipValue: (i) => `${pcts[i]}% of habits` });
-      $("cap-habits").textContent = `Average ${avg}% — share of daily habits done each day`;
+      $("cap-habits").textContent = `avg ${avg}%`;
       const tTotal = tdone.reduce((a, b) => a + b, 0);
       Charts.bar($("ch-tasks"), { values: tdone, xTick, highlight: 6, height: 130, emptyText: "No tasks completed in the last 7 days yet",
         tipTitle: (i) => long(days[i]), tipValue: (i) => `${tdone[i]} completed` });
-      $("cap-tasks").textContent = `${tTotal} finished this week`;
+      $("cap-tasks").textContent = `${tTotal} total`;
 
       const chips = $("chips"); chips.innerHTML = "";
       const chip = (n, label) => chips.append(el("span", { class: "chip" }, el("b", {}, String(n)), label));
@@ -483,6 +497,7 @@
         const thisWeek = rows.filter((r) => r.log_date >= weekAgo).length;
         const done = days.has(TODAY), todays = rows.find((r) => r.log_date === TODAY);
         state.sessions7 = thisWeek;
+        state.sessionsPrev = rows.filter((r) => r.log_date >= addDaysISO(TODAY, -13) && r.log_date < weekAgo).length;
         const last = rows[0], idx = last ? WORKOUT_GROUPS.indexOf(last.category) : -1;
         const next = WORKOUT_GROUPS[(idx + 1) % WORKOUT_GROUPS.length];
         state.core.workout = { done, streak: 0,
@@ -499,6 +514,13 @@
         });
       }).catch(() => { state.custom = []; });
     }
+    function loadSpend() {
+      return SRC.spend14().then((rows) => {
+        const cut = addDaysISO(TODAY, -6), sp = { now: 0, prev: 0 };
+        rows.filter((r) => r.kind === "expense").forEach((r) => { (r.spent_on >= cut ? (sp.now += Number(r.amount)) : (sp.prev += Number(r.amount))); });
+        state.spend = sp;
+      }).catch(() => {});
+    }
     function loadRecent() {
       return SRC.tasksRecent().then((rows) => {
         state.doneByDay = {};
@@ -508,7 +530,7 @@
     function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }); }
 
     render();
-    [loadTasks, loadRecent, loadVocab, loadDrugs, loadWorkout, loadCustom].forEach((f) => f().then(render));
+    [loadTasks, loadRecent, loadVocab, loadDrugs, loadWorkout, loadCustom, loadSpend].forEach((f) => f().then(render));
     window.addEventListener("resize", (() => { let w = innerWidth; return () => { if ((innerWidth < 640) !== (w < 640)) { w = innerWidth; render(); } }; })());
 
     // A tab left open past midnight should roll over to the new day.

@@ -4,25 +4,24 @@ html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 button { touch-action: manipulation; font-family: inherit; }
-header, main { max-width: 1500px; margin: 0 auto; }
-header { padding: 20px 28px 0; }
-main { padding: 8px 28px calc(110px + env(safe-area-inset-bottom)); }
-@media (max-width: 640px) { header, main { padding-left: 16px; padding-right: 16px; } }
+header, main { max-width: var(--page-max); margin: 0 auto; }
+header { padding: 20px var(--page-pad) 0; }
+main { padding: 8px var(--page-pad) calc(48px + env(safe-area-inset-bottom)); }
 h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0 0 12px; }
 
 input, select, textarea { font: inherit; font-size: 16px; background: var(--surface); color: var(--text);
-  border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-height: 46px; width: 100%; }
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 46px; width: 100%; }
 textarea { resize: vertical; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.seg { display: flex; background: var(--bg-2); border: 1px solid var(--border); border-radius: 12px; padding: 3px; margin-top: 6px; }
-.seg button { flex: 1; min-height: 42px; background: none; border: 0; border-radius: 9px; color: var(--text-dim);
+.seg { display: flex; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 3px; margin-top: 6px; }
+.seg button { flex: 1; min-height: 42px; background: none; border: 0; border-radius: var(--radius); color: var(--text-dim);
   font-size: .95rem; font-weight: 600; cursor: pointer; }
 .seg button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
 
 .period-bar { display: flex; align-items: center; gap: 6px; margin: 14px 0 6px; }
 .period-btn { width: 46px; height: 46px; flex: 0 0 auto; font-size: 1.5rem; line-height: 1; background: var(--surface);
-  color: var(--text); border: 1px solid var(--border); border-radius: 12px; cursor: pointer; }
+  color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; }
 .period-btn:active { background: var(--accent-soft); }
 .period-label { flex: 1; min-height: 46px; background: none; border: 0; color: var(--text);
   font-family: var(--font-display); font-size: 1.25rem; font-weight: 500; cursor: pointer; }
@@ -53,7 +52,7 @@ textarea { resize: vertical; }
 .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 6px; }
 .cal .dow { text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); padding: 2px 0; }
 .cal .cell { aspect-ratio: 1; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 3px; background: var(--surface); border: 1px solid var(--border-2); border-radius: 10px; color: var(--text);
+  gap: 3px; background: var(--surface); border: 1px solid var(--border-2); border-radius: var(--radius); color: var(--text);
   font-size: .9rem; cursor: pointer; padding: 0; }
 .cal .cell.blank { visibility: hidden; }
 .cal .cell.today { border-color: var(--accent); color: var(--accent); font-weight: 700; }
@@ -61,30 +60,28 @@ textarea { resize: vertical; }
 .cal .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
 .cal .dots i.all-done { background: var(--text-faint); }
 
-/* add bar */
-.add-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; gap: 8px; justify-content: center;
-  padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: color-mix(in oklab, var(--bg) 92%, transparent);
-  backdrop-filter: blur(10px); border-top: 1px solid var(--border); }
-.add-bar input { max-width: 760px; min-height: 50px; }
-.add-bar button { flex: 0 0 auto; min-height: 50px; padding: 0 20px; border: 0; border-radius: 10px; background: var(--accent);
+/* add row: sits with the content, not pinned to the bottom (the site has one bar, at the top) */
+.add-row { display: flex; gap: 8px; margin-top: 10px; max-width: 760px; }
+.add-row input { flex: 1 1 auto; min-width: 0; min-height: 50px; }
+.add-row button { flex: 0 0 auto; min-height: 50px; padding: 0 20px; border: 0; border-radius: var(--radius); background: var(--accent);
   color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
 
 /* edit sheet */
 .sheet-backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(0,0,0,.45); display: flex; align-items: flex-end; justify-content: center; }
 .sheet-backdrop[hidden] { display: none; }
-.sheet { width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; background: var(--bg); border-radius: 18px 18px 0 0;
+.sheet { width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; background: var(--bg); border-radius: 8px 8px 0 0;
   padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
 .sheet label { display: flex; flex-direction: column; gap: 5px; font-size: .78rem; color: var(--text-dim); font-weight: 600; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .row2[hidden] { display: none; }
 .sheet-actions { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
 .sheet-actions .spacer { flex: 1; }
-.sheet-actions button { min-height: 48px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
+.sheet-actions button { min-height: 48px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface);
   color: var(--text); font-size: 15px; font-weight: 600; cursor: pointer; }
 .sheet-actions .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .sheet-actions .danger { color: var(--danger); }
 
-.toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px);
   background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 13px; opacity: 0;
   pointer-events: none; transition: opacity .2s, transform .2s; z-index: 60; }
 .toast.show { opacity: 1; transform: translateX(-50%); }

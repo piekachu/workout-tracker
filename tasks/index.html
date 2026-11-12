@@ -9,16 +9,9 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+<nav class="site-nav" id="site-nav" data-root="../" aria-label="Main"></nav>
+<script src="../shared/nav.js"></script>
   <header>
-    <nav class="site-nav">
-      <a href="../">Home</a>
-      <a href="./" class="active">Tasks</a>
-      <a href="../progress/">Progress</a>
-      <a href="../workout/">Workout</a>
-      <a href="../vocab/">Vocab</a>
-      <a href="../expenses/">Expenses</a>
-      <a href="../drugs/">Drugs</a>
-    </nav>
     <h1 class="page-title">Tasks</h1>
   </header>
 
@@ -33,6 +26,10 @@
       <button type="button" class="period-label" id="period-label" aria-label="Jump to today"></button>
       <button type="button" class="period-btn" id="next" aria-label="Next">›</button>
     </div>
+    <form class="add-row" id="add-form" autocomplete="off">
+    <input id="add-title" type="text" maxlength="200" enterkeyhint="done" aria-label="New task">
+    <button type="submit">Add</button>
+  </form>
     <div class="rings-row" id="rings" aria-label="Completion">
       <div class="ring-cell"><div id="r-today" class="ring-host"></div><span>Today</span></div>
       <div class="ring-cell"><div id="r-week" class="ring-host"></div><span>This week</span></div>
@@ -41,10 +38,6 @@
     <div id="content"></div>
   </main>
 
-  <form class="add-bar" id="add-form" autocomplete="off">
-    <input id="add-title" type="text" maxlength="200" enterkeyhint="done" aria-label="New task">
-    <button type="submit">Add</button>
-  </form>
 
   <div class="sheet-backdrop" id="sheet" hidden>
     <form class="sheet" id="edit-form" autocomplete="off">

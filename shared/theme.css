@@ -1,63 +1,72 @@
 /* =========================================================================
    Shared design system for piekachu.github.io/workout-tracker/
    =========================================================================
-   One token set + nav + page-header pattern, consumed by every page on the
-   site (the root hub, /workout/, /vocab/, and any page added later). New
-   pages: link this stylesheet, use these token names, done -- no separate
-   theme to invent.
+   "Data board" look: near-black panels, hairline borders, square corners,
+   monospaced tabular numerals, green/red deltas, uppercase mono labels.
+   One token set, one top bar (see shared/nav.js) and a few board components
+   (.panel, .quote, .delta, .ticker) used by every page.
 
-   Legacy alias tokens: /workout/assets/style.css and /vocab/index.html each
-   had their own token names before this file existed (--paper vs --bg,
-   --ink vs --text, etc.). Rather than rewrite every one of their existing
-   component rules, this file defines the canonical tokens once and aliases
-   each app's old names to them -- so both apps' whole existing CSS picks up
-   the unified palette automatically. Write NEW pages against the canonical
-   names directly; the aliases exist only for the two pre-existing apps.
+   Dark is the default on every device, like a market terminal. A light
+   variant exists for the one page with a theme toggle (:root[data-theme=light]).
+
+   Legacy alias tokens: /workout/assets/style.css and /vocab/index.html had
+   their own token names before this file existed (--paper vs --bg, --ink vs
+   --text, ...). Both are aliased below so their existing CSS follows the board
+   palette automatically. Write NEW pages against the canonical names.
    ========================================================================= */
 
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..800,0..100&family=IBM+Plex+Mono:wght@400;500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
 
 :root {
-  /* ---- canonical tokens (light) ---- */
-  --bg:           #F6F5F1;
-  --bg-2:         #EFEDE5; /* recessed panel / sidebar */
-  --surface:      #FFFFFF; /* cards, inputs -- brighter than bg */
-  --text:         #1A1B1F;
-  --text-2:       #34363C; /* secondary, still-readable text */
-  --text-dim:     #6B6C72;
-  --text-faint:   #9A9A9E; /* placeholders, lowest emphasis */
-  --border:       #DEDBD2;
-  --border-2:     #EAE7DE; /* subtler divider */
-  --accent:       #3457D5;
-  --accent-soft:  #E4E9FB;
-  --danger:       #D64545;
-  --danger-soft:  #F5E0E0;
-  --gold:         #A6873A; /* secondary semantic accent (e.g. "hard", "in progress") */
-  --gold-soft:    #F1E9D6;
-  --radius:       10px;
-  --shadow-1:     0 1px 0 rgba(26,27,31,.04), 0 1px 3px rgba(26,27,31,.06);
-  --shadow-2:     0 2px 20px rgba(26,27,31,.08);
-  /* chart palette: validated categorical slots 1-2 (light steps); dark steps below */
-  --chart-1:      #2a78d6;
-  --chart-2:      #eb6834;
-  --chart-3:      #1baf7a;
-  --chart-4:      #eda100;
-  --chart-5:      #e87ba4;
-  --chart-6:      #008300;
-  --chart-7:      #6250d6;
-  --chart-8:      #e34948;
-  --chart-grid:   var(--border-2);
-  --tap-highlight: color-mix(in oklab, var(--accent) 12%, transparent);
+  /* ---- canonical tokens (dark board) ---- */
+  --bg:           #0A0D10;
+  --bg-2:         #0F1419;  /* recessed: nav bar, rail, inputs on panels */
+  --surface:      #131920;  /* panels, cards */
+  --text:         #E6EDF3;
+  --text-2:       #C3CCD5;
+  --text-dim:     #8493A1;
+  --text-faint:   #5A6877;
+  --border:       #242E38;
+  --border-2:     #1A222B;
+  --accent:       #4DA8FF;
+  --accent-soft:  #12314D;
+  --danger:       #FF5D5D;
+  --danger-soft:  #3A1618;
+  --gold:         #E0B341;
+  --gold-soft:    #33290F;
+  --up:           #2FD17C;  /* gain */
+  --up-soft:      #0F3322;
+  --down:         #FF5D5D;  /* loss */
+  --down-soft:    #3A1618;
+  --radius:       4px;
+  --shadow-1:     none;
+  --shadow-2:     0 8px 30px rgba(0,0,0,.55);
+  --tap-highlight: color-mix(in oklab, var(--accent) 14%, transparent);
 
-  --font-ui:      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-display: "Fraunces", Georgia, "Iowan Old Style", serif;
+  --font-ui:      "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono:    "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  /* ---- /workout aliases (its CSS already uses these names) ---- */
+  --nav-h:        48px;     /* the top bar: same height and position on every page */
+  --page-max:     1500px;
+  --page-pad:     28px;
+
+  /* chart palette: validated categorical slots 1-8 (dark-surface steps) */
+  --chart-1:      #3987e5;
+  --chart-2:      #d95926;
+  --chart-3:      #199e70;
+  --chart-4:      #c98500;
+  --chart-5:      #d55181;
+  --chart-6:      #008300;
+  --chart-7:      #9085e9;
+  --chart-8:      #e66767;
+  --chart-grid:   var(--border-2);
+
+  /* ---- /workout aliases ---- */
   --heat-0: var(--border-2);
   --heat-1: var(--accent);
 
-  /* ---- /vocab aliases (its CSS already uses these names) ---- */
+  /* ---- /vocab aliases ---- */
   --paper:    var(--bg);
   --paper-2:  var(--bg-2);
   --ink:      var(--text);
@@ -73,101 +82,123 @@
   --serif:    var(--font-display);
   --sans:     var(--font-ui);
   --mono:     var(--font-mono);
-}
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg:           #14151A;
-    --bg-2:         #1B1D23;
-    --surface:      #1B1D23;
-    --text:         #ECEDEF;
-    --text-2:       #C9CBCE;
-    --text-dim:     #8B8F97;
-    --text-faint:   #62646B;
-    --border:       #2A2C33;
-    --border-2:     #212328;
-    --accent:       #7C9CFF;
-    --accent-soft:  #202A4A;
-    --danger:       #FF7A7A;
-    --danger-soft:  #3A1F1F;
-    --gold:         #C8A664;
-    --gold-soft:    #332B1B;
-    --shadow-1:     0 1px 0 rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
-    --shadow-2:     0 2px 24px rgba(0,0,0,.5);
-    --chart-1:      #3987e5;
-    --chart-2:      #d95926;
-    --chart-3:      #199e70;
-    --chart-4:      #c98500;
-    --chart-5:      #d55181;
-    --chart-6:      #008300;
-    --chart-7:      #9085e9;
-    --chart-8:      #e66767;
-  }
+  color-scheme: dark;
 }
-/* Manual override (only /vocab currently has a theme-toggle button that sets
-   this on <html>; harmless no-op on pages without one). */
-:root[data-theme="dark"] {
-  --bg:           #14151A;
-  --bg-2:         #1B1D23;
-  --surface:      #1B1D23;
-  --text:         #ECEDEF;
-  --text-2:       #C9CBCE;
-  --text-dim:     #8B8F97;
-  --text-faint:   #62646B;
-  --border:       #2A2C33;
-  --border-2:     #212328;
-  --accent:       #7C9CFF;
-  --accent-soft:  #202A4A;
-  --danger:       #FF7A7A;
-  --danger-soft:  #3A1F1F;
-  --gold:         #C8A664;
-  --gold-soft:    #332B1B;
-  --shadow-1:     0 1px 0 rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.6);
-  --shadow-2:     0 2px 24px rgba(0,0,0,.5);
-  --chart-1:      #3987e5;
-  --chart-2:      #d95926;
-  --chart-3:      #199e70;
-  --chart-4:      #c98500;
-  --chart-5:      #d55181;
+@media (max-width: 640px) { :root { --page-pad: 16px; } }
+
+:root[data-theme="light"] {
+  --bg:           #EEF1F4;
+  --bg-2:         #E5E9ED;
+  --surface:      #FFFFFF;
+  --text:         #11171D;
+  --text-2:       #2C3640;
+  --text-dim:     #5E6B78;
+  --text-faint:   #93A0AC;
+  --border:       #CFD6DD;
+  --border-2:     #E1E6EB;
+  --accent:       #0B6FD6;
+  --accent-soft:  #DCEBFB;
+  --danger:       #D1342F;
+  --danger-soft:  #FBE3E2;
+  --gold:         #9A7512;
+  --gold-soft:    #F3EAD0;
+  --up:           #0E8A4B;
+  --up-soft:      #D9F2E4;
+  --down:         #D1342F;
+  --down-soft:    #FBE3E2;
+  --shadow-2:     0 8px 30px rgba(17,23,29,.12);
+  --chart-1:      #2a78d6;
+  --chart-2:      #eb6834;
+  --chart-3:      #1baf7a;
+  --chart-4:      #eda100;
+  --chart-5:      #e87ba4;
   --chart-6:      #008300;
-  --chart-7:      #9085e9;
-  --chart-8:      #e66767;
+  --chart-7:      #6250d6;
+  --chart-8:      #e34948;
+  color-scheme: light;
 }
 
-/* ---- shared nav bar (every page's <header> starts with this) ---- */
+/* every number lines up in columns */
+body { font-variant-numeric: tabular-nums; }
+
+/* =========================================================================
+   Top bar -- identical on every page. shared/nav.js fills it in:
+   <nav class="site-nav" id="site-nav" data-root="../"></nav> as the first
+   child of <body>. Full-bleed bar, content centred to --page-max with the same
+   side padding as the pages, so links start at the same x everywhere.
+   ========================================================================= */
 .site-nav {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
+  position: sticky; top: 0; z-index: 1000;
+  height: var(--nav-h); min-height: var(--nav-h);
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--border);
+  margin: 0;
 }
+.site-nav-in {
+  max-width: var(--page-max); height: 100%; margin: 0 auto;
+  padding: 0 var(--page-pad);
+  display: flex; align-items: stretch; gap: 2px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.site-nav-in::-webkit-scrollbar { display: none; }
 .site-nav a {
-  color: var(--text-dim);
-  text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 600;
-  font-family: var(--font-ui);
-  padding: 6px 12px;
-  border-radius: 999px;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  flex: 0 0 auto; display: flex; align-items: center;
+  padding: 0 12px; color: var(--text-dim); text-decoration: none;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase;
+  border-bottom: 2px solid transparent; transition: color .12s ease, background-color .12s ease;
 }
-.site-nav a:hover { background: var(--tap-highlight); }
-.site-nav a.active { background: var(--accent-soft); color: var(--accent); }
+.site-nav a:hover { color: var(--text); background: var(--tap-highlight); }
+.site-nav a.active { color: var(--text); border-bottom-color: var(--accent); }
+.site-nav .nav-gap { flex: 1 1 auto; min-width: 8px; }
+.site-nav .nav-clock { flex: 0 0 auto; align-self: center; font-family: var(--font-mono); font-size: 11px; color: var(--text-faint);
+  letter-spacing: .06em; white-space: nowrap; padding: 0 10px; }
+.site-nav .auth-signout { flex: 0 0 auto; align-self: center; margin: 0 0 0 4px; }
+@media (max-width: 760px) { .site-nav .nav-clock { display: none; } .site-nav a { padding: 0 11px; } }
 
-/* ---- shared page-header pattern (eyebrow + title), for any new page ---- */
+/* ---- page-header pattern (eyebrow + title) ---- */
 .page-eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-  margin-bottom: 6px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 6px;
 }
 .page-title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: 1.7rem;
-  letter-spacing: -0.01em;
-  margin: 0 0 6px;
-  color: var(--text);
+  font-family: var(--font-display); font-weight: 600; font-size: 1.6rem; letter-spacing: -0.01em;
+  margin: 0 0 6px; color: var(--text);
+}
+
+/* =========================================================================
+   Board components
+   ========================================================================= */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); min-width: 0; }
+.panel-h {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 8px 12px; border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim);
+}
+.panel-h .meta { color: var(--text-faint); letter-spacing: .04em; text-transform: none; }
+.panel-b { padding: 12px; }
+
+/* up / down deltas: arrow + colour, never colour alone */
+.delta { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--text-dim); }
+.delta.up   { color: var(--up); }
+.delta.down { color: var(--down); }
+
+/* quote: label / big value / delta, the unit of the board */
+.quote { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.quote .q-label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); }
+.quote .q-value { font-family: var(--font-mono); font-size: 1.7rem; font-weight: 500; line-height: 1.15; letter-spacing: -.02em; color: var(--text); }
+.quote .q-sub { font-size: 12px; color: var(--text-dim); }
+
+/* scrolling ticker strip (pauses on hover; static + scrollable for reduced motion) */
+.ticker { background: var(--bg); border-bottom: 1px solid var(--border); overflow: hidden; white-space: nowrap; position: relative; }
+.ticker-track { display: inline-flex; gap: 0; animation: tick 60s linear infinite; will-change: transform; }
+.ticker:hover .ticker-track { animation-play-state: paused; }
+.ticker-item { display: inline-flex; align-items: baseline; gap: 8px; padding: 9px 22px; border-right: 1px solid var(--border-2);
+  font-family: var(--font-mono); font-size: 12px; text-decoration: none; color: inherit; }
+.ticker-item .t-label { color: var(--text-dim); letter-spacing: .08em; text-transform: uppercase; font-size: 11px; }
+.ticker-item .t-value { color: var(--text); font-weight: 500; }
+@keyframes tick { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .ticker { overflow-x: auto; }
+  .ticker-track { animation: none; }
 }

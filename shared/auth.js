@@ -117,7 +117,7 @@
 
   // ---- sign-out button, dropped into the shared nav where one exists ----
   function addSignOut() {
-    const nav = document.querySelector(".site-nav");
+    const nav = document.querySelector(".site-nav-in") || document.querySelector(".site-nav");
     if (!nav || nav.querySelector(".auth-signout")) return;
     const b = document.createElement("button");
     b.type = "button"; b.className = "auth-signout"; b.textContent = "Sign out";

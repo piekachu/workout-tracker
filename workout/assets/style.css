@@ -19,9 +19,9 @@ body {
 button, [role="button"] { touch-action: manipulation; }
 
 header {
-  max-width: 1400px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 20px 28px 0;
+  padding: 20px var(--page-pad) 0;
 }
 
 h1 {
@@ -63,9 +63,9 @@ h2 {
 }
 
 main {
-  max-width: 1400px;
+  max-width: var(--page-max);
   margin: 0 auto;
-  padding: 0 28px 60px;
+  padding: 0 var(--page-pad) 60px;
 }
 
 hr {
@@ -125,7 +125,7 @@ section { padding: 28px 0 4px; }
   background: none;
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: 14px 10px;
   font-size: 0.92rem;
   font-family: inherit;
@@ -150,7 +150,7 @@ section { padding: 28px 0 4px; }
   padding: 14px 16px;
   margin-bottom: 24px;
   background: var(--accent-soft);
-  border-radius: 12px;
+  border-radius: var(--radius);
 }
 .category-locked[hidden] { display: none; }
 .category-locked-label { font-size: 0.92rem; }
@@ -191,7 +191,7 @@ input, select, textarea {
   background: transparent;
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 10px 11px;
   min-height: 44px;
 }
@@ -285,7 +285,7 @@ input, select, textarea {
   font-size: 16px;
   padding: 9px 4px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
   min-height: 44px;
   display: flex;
   align-items: center;
@@ -301,7 +301,7 @@ input, select, textarea {
   font-weight: 600;
   font-size: 16px;
   border: 1px solid var(--accent);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 9px 10px;
   flex: 1 1 auto;
   min-width: 140px;
@@ -322,7 +322,7 @@ input, select, textarea {
   padding: 10px;
   margin: -10px;
   line-height: 1;
-  border-radius: 8px;
+  border-radius: var(--radius);
   flex: 0 0 auto;
   transition: color 0.15s ease, background-color 0.15s ease;
 }
@@ -357,7 +357,7 @@ input, select, textarea {
   padding: 10px 12px;
   margin-bottom: 8px;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius);
   width: 100%;
 }
 .set-row-main {
@@ -405,7 +405,7 @@ input, select, textarea {
   flex: 0 0 auto;
 }
 .drop-row .remove-drop { padding: 6px; margin: -6px; font-size: 0.8rem; }
-.stepper.compact .step-btn { width: 32px; height: 32px; font-size: 1.1rem; border-radius: 8px; }
+.stepper.compact .step-btn { width: 32px; height: 32px; font-size: 1.1rem; border-radius: var(--radius); }
 .stepper.compact .num-display { width: 36px; }
 
 /* ---- stepper (big +/- buttons instead of the keyboard) ---- */
@@ -418,7 +418,7 @@ input, select, textarea {
   width: 40px;
   height: 40px;
   flex: 0 0 auto;
-  border-radius: 10px;
+  border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--accent-soft);
   color: var(--text);
@@ -487,7 +487,7 @@ input, select, textarea {
   padding: 10px 8px;
   margin: 0 -8px;
   min-height: 44px;
-  border-radius: 8px;
+  border-radius: var(--radius);
   transition: background-color 0.15s ease;
 }
 .link-btn:active { background: var(--tap-highlight); }
@@ -508,7 +508,7 @@ input, select, textarea {
   background: var(--accent);
   color: #fff;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius);
   padding: 13px 24px;
   font-size: 16px;
   font-family: inherit;
@@ -545,7 +545,7 @@ input, select, textarea {
    they're never re-entered for a day that already has a session. ---- */
 .continuing-note {
   background: var(--accent-soft);
-  border-radius: 12px;
+  border-radius: var(--radius);
   padding: 14px 16px;
   margin-bottom: 26px;
   font-size: 0.88rem;
@@ -596,16 +596,14 @@ input, select, textarea {
 
 /* desktop: consistency + exercise progress on the left, the log form on the right, using the full width */
 @media (min-width: 1000px) {
-  body.page-log main, main.log-grid { display: grid; grid-template-columns: minmax(340px, 5fr) minmax(0, 7fr); gap: 0 36px; align-items: start; padding: 0 28px 60px; }
+  body.page-log main, main.log-grid { display: grid; grid-template-columns: minmax(340px, 5fr) minmax(0, 7fr); gap: 0 36px; align-items: start; padding: 0 var(--page-pad) 60px; }
   main.log-grid #consistency { grid-column: 1; grid-row: 1; }
   main.log-grid #progress { grid-column: 1; grid-row: 2; }
   main.log-grid #log { grid-column: 2; grid-row: 1 / span 2; }
 }
 @media (min-width: 1000px) {
-  main.wide { max-width: 1400px; padding-left: 28px; padding-right: 28px; }
 }
 
-@media (max-width: 640px) { header, main { padding-left: 20px; padding-right: 20px; } }
 
 /* database + manage pages: two columns on desktop instead of one narrow strip */
 @media (min-width: 1000px) {

@@ -232,7 +232,7 @@ window.Charts = (function () {
       { fill: "none", stroke: o.color || "var(--chart-1)", transition: "stroke-dashoffset .6s ease", display: frac > 0 ? "" : "none" });
     root.append(arc);
     const big = svg("text", { x: S / 2, y: S / 2 + (o.small ? 0 : S * 0.09), "text-anchor": "middle", "font-size": S * (o.small ? 0.26 : 0.28) },
-      { fill: "var(--text)", fontFamily: "var(--font-display)", fontWeight: 500 });
+      { fill: "var(--text)", fontFamily: "var(--font-mono)", fontWeight: 500 });
     big.textContent = o.big; root.append(big);
     let sm = null;
     if (o.small) {
@@ -267,7 +267,7 @@ window.Charts = (function () {
       root.append(arc); cum += len;
     });
     const big = svg("text", { x: S / 2, y: S / 2 + (o.small ? 0 : S * 0.08), "text-anchor": "middle", "font-size": S * (o.small ? 0.17 : 0.2) },
-      { fill: "var(--text)", fontFamily: "var(--font-display)", fontWeight: 500 });
+      { fill: "var(--text)", fontFamily: "var(--font-mono)", fontWeight: 500 });
     big.textContent = total > 0 ? o.big : "—"; root.append(big);
     if (o.small) {
       const sm = svg("text", { x: S / 2, y: S / 2 + S * 0.12, "text-anchor": "middle", "font-size": Math.max(10, S * 0.075) }, { fill: "var(--text-dim)" });

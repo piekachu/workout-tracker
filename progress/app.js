@@ -114,16 +114,17 @@ function metrics(days) {
 }
 
 // ---------- rendering ----------
-function delta(now, before, label, unit = "") {
-  if (!now && !before) return "";
-  if (!before) return `new vs ${label}`;
+// {cls, text}: arrow + colour. `goodUp` says whether a rise is good news (spending: no).
+function delta(now, before, label, unit = "", goodUp = true) {
+  if (!now && !before) return null;
+  if (!before) return { cls: "", text: `new vs ${label}` };
   const diff = now - before;
-  if (!diff) return `same as ${label}`;
+  if (!diff) return { cls: "", text: `— flat vs ${label}` };
   const p = unit === "pp" ? `${Math.round(Math.abs(diff))} pt${Math.round(Math.abs(diff)) === 1 ? "" : "s"}` : `${Math.round(Math.abs(diff) / before * 100)}%`;
-  return `${diff > 0 ? "▲" : "▼"} ${p} vs ${label}`;
+  return { cls: (diff > 0) === goodUp ? "up" : "down", text: `${diff > 0 ? "▲" : "▼"} ${p} vs ${label}` };
 }
 function tile(k, v, s, d, ring) {
-  const txt = el("div", { class: "txt" }, el("div", { class: "k" }, k), el("div", { class: "v" }, v), el("div", { class: "s" }, s), d ? el("div", { class: "d" }, d) : null);
+  const txt = el("div", { class: "txt" }, el("div", { class: "k" }, k), el("div", { class: "v" }, v), el("div", { class: "s" }, s), d ? el("div", { class: "d delta " + d.cls }, d.text) : null);
   if (!ring) return el("div", { class: "tile" }, txt);
   const host = el("div", { class: "ring-host" });
   const t = el("div", { class: "tile has-ring" }, txt, host);
@@ -140,7 +141,7 @@ function renderTiles(m, p, r) {
     tile("Workouts", String(m.sessions), `${m.volume.toLocaleString()} kg lifted`, delta(m.sessions, p.sessions, r.prevLabel)),
     tile("Vocab reviews", m.vocab.toLocaleString(), `${m.vocabDays} active day${m.vocabDays === 1 ? "" : "s"}`, delta(m.vocab, p.vocab, r.prevLabel)),
     tile("Drugs studied", String(m.drugDays), m.quizN ? `${pct(m.quiz)} average quiz` : "no quizzes yet", delta(m.drugDays, p.drugDays, r.prevLabel)),
-    tile("Spent", money(m.spent), "expenses only", delta(m.spent, p.spent, r.prevLabel)));
+    tile("Spent", money(m.spent), "expenses only", delta(m.spent, p.spent, r.prevLabel, "", false)));
 }
 
 function renderDetail(d) {
