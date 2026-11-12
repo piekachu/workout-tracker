@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Tasks</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav class="site-nav">
+      <a href="../">Home</a>
+      <a href="./" class="active">Tasks</a>
+      <a href="../workout/">Workout</a>
+      <a href="../vocab/">Vocab</a>
+      <a href="../expenses/">Expenses</a>
+      <a href="../drugs/">Drugs</a>
+    </nav>
+    <h1 class="page-title">Tasks</h1>
+  </header>
+
+  <main>
+    <div class="seg" id="view-seg" role="tablist" aria-label="Task horizon">
+      <button type="button" role="tab" data-view="day">Day</button>
+      <button type="button" role="tab" data-view="week">Week</button>
+      <button type="button" role="tab" data-view="month">Month</button>
+    </div>
+    <div class="period-bar">
+      <button type="button" class="period-btn" id="prev" aria-label="Previous">‹</button>
+      <button type="button" class="period-label" id="period-label" aria-label="Jump to today"></button>
+      <button type="button" class="period-btn" id="next" aria-label="Next">›</button>
+    </div>
+    <div id="content"></div>
+  </main>
+
+  <form class="add-bar" id="add-form" autocomplete="off">
+    <input id="add-title" type="text" maxlength="200" enterkeyhint="done" aria-label="New task">
+    <button type="submit">Add</button>
+  </form>
+
+  <div class="sheet-backdrop" id="sheet" hidden>
+    <form class="sheet" id="edit-form" autocomplete="off">
+      <h2>Edit task</h2>
+      <label>Title<input id="f-title" type="text" maxlength="200" required></label>
+      <label>Notes<textarea id="f-notes" rows="3"></textarea></label>
+      <div class="row2">
+        <label>Scope
+          <select id="f-horizon"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select>
+        </label>
+        <label>Date<input id="f-date" type="date" required></label>
+      </div>
+      <div class="row2" id="f-time-row">
+        <label>Start<input id="f-start" type="time"></label>
+        <label>End<input id="f-end" type="time"></label>
+      </div>
+      <div class="row2">
+        <label>Priority
+          <select id="f-priority"><option value="0">Normal</option><option value="1">Medium</option><option value="2">High</option></select>
+        </label>
+        <label>Repeat
+          <select id="f-recur"><option value="">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+        </label>
+      </div>
+      <div class="sheet-actions">
+        <button type="button" class="danger" id="f-delete">Delete</button>
+        <span class="spacer"></span>
+        <button type="button" id="f-cancel">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../shared/auth.js"></script>
+  <script src="../shared/tasks-core.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

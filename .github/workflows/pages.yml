@@ -34,6 +34,7 @@ jobs:
           cp -r vocab _site/
           cp -r expenses _site/
           cp -r drugs _site/
+          cp -r tasks _site/
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
