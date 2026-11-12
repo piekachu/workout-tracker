@@ -238,17 +238,20 @@ light/dark steps). The page fills the screen: tiles in one row and charts in a
 ## Tasks (`/tasks/`)
 
 Day / Week / Month task lists. A task has a **scope**: a day task belongs to one
-date, a week task to a Monday-start week, a month task to a calendar month
-(`tasks.horizon` + `period_start`, which is the date / that Monday / the 1st).
+date, a week task to a Sunday-start week, a month task to a calendar month
+(`tasks.horizon` + `period_start`, which is the date / that week's Sunday / the 1st).
 
 - **Day view:** that day's tasks, plus open week and month tasks for the period
   it falls in. On today, anything still open from earlier days shows as
   *Overdue* with a one-tap "→ Today".
-- **Week view:** week-level tasks, then each day Mon–Sun. **Month view:** a
+- **Week view:** week-level tasks, then each day Sun–Sat. **Month view:** a
   Notion-Calendar-style grid — week rows with an ISO week number, week tasks as
   purple bars across their row, day tasks as tinted chips (blue / amber / red by
   priority, time shown when set, dimmed when done), "N more" on busy days, a red
-  circle on today; click a chip to edit or a date to open that day. On phones the
+  circle on today; click a chip to edit or a date to open that day. **Drag and drop:** drag a day
+  chip onto another day to change its date, or a week bar onto another week's row to
+  change its week (it updates immediately and rolls back if saving fails). Drag works
+  with a mouse; on phones, and from the keyboard, use the edit sheet to change the date. On phones the
   chips become coloured dots. The toolbar (Day / Week / Month, Today, ▲ ▼) is the
   same for all three views.
 - **Add** from the bar at the bottom (lands in whatever period you're viewing);

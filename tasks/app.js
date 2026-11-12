@@ -3,14 +3,14 @@ const sb = Auth.client;
 // ---------- dates: local-time strings only ----------
 // toISOString()/new Date("YYYY-MM-DD") are UTC-based and land a day off in
 // Asia/Seoul around midnight, so every date here is built from local parts.
-const { pad, localISO, parse, addDays, firstOf, addMonths, mondayOf, periodStart } = TasksCore;
+const { pad, localISO, parse, addDays, firstOf, addMonths, weekStart, periodStart } = TasksCore;
 const TODAY = localISO(new Date());
 
 const fmt = (iso, opts) => parse(iso).toLocaleDateString(undefined, opts);
 function periodLabel(view, anchor) {
   if (view === "day") return fmt(anchor, { weekday: "short", month: "short", day: "numeric" }) + (anchor === TODAY ? " · Today" : "");
   if (view === "week") {
-    const mon = mondayOf(anchor), sun = addDays(mon, 6);
+    const mon = weekStart(anchor), sun = addDays(mon, 6);
     const sameMonth = mon.slice(0, 7) === sun.slice(0, 7);
     return `${fmt(mon, { month: "short", day: "numeric" })} – ${fmt(sun, sameMonth ? { day: "numeric" } : { month: "short", day: "numeric" })}`;
   }
@@ -86,13 +86,13 @@ function render() {
   if (view === "day") renderDay(c); else if (view === "week") renderWeek(c); else renderMonth(c);
 }
 
-// done / total for tasks anchored in a period (day tasks by date, week tasks by Monday, month tasks by the 1st)
+// done / total for tasks anchored in a period (day tasks by date, week tasks by the week's Sunday, month tasks by the 1st)
 function periodStats(from, to) {
   const t = tasks.filter((x) => x.period_start >= from && x.period_start <= to);
   return { done: t.filter((x) => x.done_at).length, total: t.length };
 }
 function renderRings() {
-  const mon = mondayOf(TODAY), first = firstOf(TODAY);
+  const mon = weekStart(TODAY), first = firstOf(TODAY);
   const sets = [["r-today", periodStats(TODAY, TODAY), "today"], ["r-week", periodStats(mon, addDays(mon, 6)), "this week"],
     ["r-month", periodStats(first, addDays(addMonths(first, 1), -1)), "this month"]];
   for (const [id, s, label] of sets) {
@@ -106,13 +106,13 @@ function renderDay(c) {
     if (overdue.length) c.append(group("Overdue", overdue.map((t) => taskRow(t, { moveToToday: true })), {}));
   }
   c.append(group("Day", inPeriod("day", anchor).map((t) => taskRow(t)), { today: anchor === TODAY, empty: "Nothing planned — add something below." }));
-  const wk = inPeriod("week", mondayOf(anchor)), mo = inPeriod("month", firstOf(anchor));
+  const wk = inPeriod("week", weekStart(anchor)), mo = inPeriod("month", firstOf(anchor));
   if (wk.length) c.append(group("This week", wk.map((t) => taskRow(t))));
   if (mo.length) c.append(group("This month", mo.map((t) => taskRow(t))));
 }
 
 function renderWeek(c) {
-  const mon = mondayOf(anchor);
+  const mon = weekStart(anchor);
   c.append(group("This week", inPeriod("week", mon).map((t) => taskRow(t)), { empty: "No week-level tasks." }));
   for (let i = 0; i < 7; i++) {
     const day = addDays(mon, i);
@@ -122,7 +122,40 @@ function renderWeek(c) {
   }
 }
 
-// ISO week number of the week containing `iso`
+// ---------- drag and drop in the month grid ----------
+// A day chip dropped on another day changes its date; a week bar dropped anywhere in
+// another week's row changes its week. The edit sheet stays the keyboard/phone route.
+let drag = null;   // { id, kind } while something is being dragged
+function dragAttrs(t, kind) {
+  return { draggable: "true",
+    ondragstart: (e) => { drag = { id: t.id, kind }; e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(t.id)); e.currentTarget.classList.add("dragging"); },
+    ondragend: () => { drag = null; clearDrop(); } };
+}
+function clearDrop() { document.querySelectorAll(".drop, .drop-week, .dragging").forEach((n) => n.classList.remove("drop", "drop-week", "dragging")); }
+function acceptDrops(nodes, iso, row, weekOnly = false) {
+  const mark = () => { clearDrop(); if (drag.kind === "week") row.classList.add("drop-week"); else nodes.forEach((n) => n.classList.add("drop")); };
+  for (const n of nodes) {
+    n.addEventListener("dragover", (e) => {
+      if (!drag || (weekOnly && drag.kind !== "week")) return;     // the bar area only takes week bars
+      e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "move"; mark();
+    });
+    n.addEventListener("drop", (e) => {
+      if (!drag || (weekOnly && drag.kind !== "week")) return;
+      e.preventDefault(); e.stopPropagation(); const d = drag; drag = null; clearDrop(); moveTask(d, iso);
+    });
+  }
+}
+async function moveTask(d, iso) {
+  const t = tasks.find((x) => x.id === d.id); if (!t) return;
+  const target = d.kind === "week" ? weekStart(iso) : iso;
+  if (target === t.period_start) return;
+  const prev = t.period_start; t.period_start = target; render();
+  const { error } = await sb.from("tasks").update({ period_start: target }).eq("id", t.id);
+  if (error) { t.period_start = prev; render(); toast("Couldn't move it"); return; }
+  toast(d.kind === "week" ? `Moved to the week of ${fmt(target, { month: "short", day: "numeric" })}` : `Moved to ${fmt(target, { weekday: "short", month: "short", day: "numeric" })}`);
+}
+
+// ISO week number of the week containing `iso`. A Sunday-start week gets the number of its Monday, as Notion Calendar does.
 function isoWeek(iso) {
   const d = parse(iso); d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
   const w1 = new Date(d.getFullYear(), 0, 4);
@@ -134,31 +167,36 @@ function isoWeek(iso) {
 function renderMonth(c) {
   const first = firstOf(anchor), last = addDays(addMonths(first, 1), -1), month = first.slice(0, 7);
   const taskLabel = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
-  const bar = (t, extra) => el("button", { type: "button", class: "mbar" + (extra ? " " + extra : "") + (t.done_at ? " done" : ""),
-    title: t.title, onclick: () => openSheet(t) }, t.title);
-  const chip = (t) => el("button", { type: "button", class: `mchip c${t.priority}${t.done_at ? " done" : ""}`, title: t.title, onclick: () => openSheet(t) },
+  // divs, not buttons: Firefox won't start a drag from a <button>
+  const press = (t) => ({ role: "button", tabindex: "0", title: t.title, onclick: () => openSheet(t),
+    onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSheet(t); } } });
+  const bar = (t, extra) => el("div", { ...press(t), class: "mbar" + (extra ? " " + extra : "") + (t.done_at ? " done" : ""),
+    ...(t.horizon === "week" ? dragAttrs(t, "week") : {}) }, t.title);
+  const chip = (t) => el("div", { ...press(t), class: `mchip c${t.priority}${t.done_at ? " done" : ""}`, ...dragAttrs(t, "day") },
     taskLabel(t) ? el("span", { class: "tm" }, taskLabel(t)) : el("span", { class: "ic" }, t.done_at ? "✓" : "◌"), el("span", { class: "tt" }, t.title));
   const goDay = (iso) => { view = "day"; anchor = iso; render(); };
 
   const monthTasks = inPeriod("month", first);
   if (monthTasks.length) c.append(el("div", { class: "mcal-month" }, ...monthTasks.map((t) => bar(t, "mo"))));
 
-  const names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const todayIdx = (parse(TODAY).getDay() + 6) % 7;
+  const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const todayIdx = parse(TODAY).getDay();
   const head = el("div", { class: "mcal-head" }, el("span", { class: "w" }, "W"),
     el("div", { class: "days" }, ...names.map((n, i) => el("span", { class: view === "month" && TODAY.slice(0, 7) === month && i === todayIdx ? "today-col" : "" }, n))));
   const grid = el("div", { class: "mcal" }, head);
 
-  for (let m = mondayOf(first); m <= last; m = addDays(m, 7)) {
+  for (let m = weekStart(first); m <= last; m = addDays(m, 7)) {
     const wkTasks = inPeriod("week", m);
-    const dates = el("div", { class: "mcal-dates" }), chips = el("div", { class: "mcal-chips" });
+    const dates = el("div", { class: "mcal-dates" }), chips = el("div", { class: "mcal-chips" }), dayTargets = [];
     const maxChips = Math.max(2, 4 - Math.min(wkTasks.length, 2));
     for (let i = 0; i < 7; i++) {
       const iso = addDays(m, i), inMonth = iso.slice(0, 7) === month, list = inPeriod("day", iso);
       const showMonth = iso.slice(8) === "01";
-      dates.append(el("button", { type: "button", class: (iso === TODAY ? "today " : "") + (inMonth ? "" : "out"), "aria-label": iso, onclick: () => goDay(iso) },
-        showMonth ? el("span", { class: "m" }, fmt(iso, { month: "short" })) : null, el("span", { class: "d" }, String(parse(iso).getDate()))));
+      const dateBtn = el("button", { type: "button", class: (iso === TODAY ? "today " : "") + (inMonth ? "" : "out"), "aria-label": iso, onclick: () => goDay(iso) },
+        showMonth ? el("span", { class: "m" }, fmt(iso, { month: "short" })) : null, el("span", { class: "d" }, String(parse(iso).getDate())));
+      dates.append(dateBtn);
       const col = el("div", { class: "mcal-col" });
+      dayTargets.push([[dateBtn, col], iso]);
       const visible = list.length > maxChips ? maxChips - 1 : list.length;
       list.slice(0, visible).forEach((t) => col.append(chip(t)));
       if (list.length > visible) col.append(el("button", { type: "button", class: "mmore", onclick: () => goDay(iso) }, `${list.length - visible} more`));
@@ -168,7 +206,10 @@ function renderMonth(c) {
       chips.append(col);
     }
     const body = el("div", { class: "mcal-body" }, dates, ...wkTasks.map((t) => bar(t)), chips);
-    grid.append(el("div", { class: "mcal-week" }, el("div", { class: "wk" }, String(isoWeek(m))), body));
+    const weekRow = el("div", { class: "mcal-week" }, el("div", { class: "wk" }, String(isoWeek(addDays(m, 1)))), body);
+    dayTargets.forEach(([nodes, iso]) => acceptDrops(nodes, iso, weekRow));
+    acceptDrops([body], m, weekRow, true);   // a week bar can also be dropped on the bar area itself
+    grid.append(weekRow);
   }
   c.append(grid);
 }

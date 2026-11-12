@@ -188,7 +188,7 @@
     const sb = Auth.client;
     const VOCAB_SLOT_ID = "56ba90d2a3a5add3cb";
     const WORKOUT_GROUPS = ["Back + Biceps", "Chest + Triceps", "Shoulder + Arms", "Legs", "Whole body"];
-    const { localISO, addDays: addDaysISO, mondayOf, firstOf } = TasksCore;   // local-date maths, never UTC
+    const { localISO, addDays: addDaysISO, weekStart, firstOf } = TasksCore;   // local-date maths, never UTC
     const TODAY = localISO(new Date());
 
     // Consecutive days up to today; a day not yet done doesn't break a streak that was alive yesterday.
@@ -220,7 +220,7 @@
       })),
       // today's day tasks, anything open from the last 60 days, and this week's / month's open ones
       tasks: once(async () => {
-        const mon = mondayOf(TODAY), first = firstOf(TODAY);
+        const mon = weekStart(TODAY), first = firstOf(TODAY);
         const [days, longer] = await Promise.all([
           sb.from("tasks").select("*").eq("horizon", "day").lte("period_start", TODAY).gte("period_start", addDaysISO(TODAY, -60)),
           sb.from("tasks").select("*").in("horizon", ["week", "month"]).in("period_start", [mon, first]),

@@ -8,8 +8,8 @@ window.TasksCore = (function () {
   const addDays = (iso, n) => { const d = parse(iso); d.setDate(d.getDate() + n); return localISO(d); };
   const firstOf = (iso) => iso.slice(0, 8) + "01";
   const addMonths = (iso, n) => { const d = parse(iso); return localISO(new Date(d.getFullYear(), d.getMonth() + n, 1)); };
-  const mondayOf = (iso) => addDays(iso, -((parse(iso).getDay() + 6) % 7));
-  const periodStart = (horizon, iso) => (horizon === "week" ? mondayOf(iso) : horizon === "month" ? firstOf(iso) : iso);
+  const weekStart = (iso) => addDays(iso, -parse(iso).getDay());   // weeks run Sunday to Saturday
+  const periodStart = (horizon, iso) => (horizon === "week" ? weekStart(iso) : horizon === "month" ? firstOf(iso) : iso);
 
   // Where a repeating task lands next, anchored to its own horizon.
   function nextPeriod(t) {
@@ -38,5 +38,5 @@ window.TasksCore = (function () {
     return error ? null : data;
   }
 
-  return { pad, localISO, parse, addDays, firstOf, addMonths, mondayOf, periodStart, nextPeriod, spawnNext };
+  return { pad, localISO, parse, addDays, firstOf, addMonths, weekStart, periodStart, nextPeriod, spawnNext };
 })();

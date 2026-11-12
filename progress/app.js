@@ -1,5 +1,5 @@
 const sb = Auth.client;
-const { localISO, parse, addDays, firstOf, addMonths, mondayOf } = TasksCore;
+const { localISO, parse, addDays, firstOf, addMonths, weekStart } = TasksCore;
 const TODAY = localISO(new Date());
 const VOCAB_SLOT_ID = "56ba90d2a3a5add3cb";
 
@@ -73,14 +73,14 @@ async function loadAll() {
 function daysBetween(a, b) { const out = []; for (let d = a; d <= b; d = addDays(d, 1)) out.push(d); return out; }
 function rangeFor(v, a) {
   if (v === "day") return { days: [a], prev: [addDays(a, -1)], prevLabel: "yesterday" };
-  if (v === "week") { const m = mondayOf(a); return { days: daysBetween(m, addDays(m, 6)), prev: daysBetween(addDays(m, -7), addDays(m, -1)), prevLabel: "last week" }; }
+  if (v === "week") { const m = weekStart(a); return { days: daysBetween(m, addDays(m, 6)), prev: daysBetween(addDays(m, -7), addDays(m, -1)), prevLabel: "last week" }; }
   const f = firstOf(a), nf = addMonths(f, 1), pf = addMonths(f, -1);
   return { days: daysBetween(f, addDays(nf, -1)), prev: daysBetween(pf, addDays(f, -1)), prevLabel: "last month" };
 }
 function periodLabel() {
   if (view === "day") return fmt(anchor, { weekday: "short", month: "short", day: "numeric" }) + (anchor === TODAY ? " · Today" : "");
   if (view === "week") {
-    const m = mondayOf(anchor), s = addDays(m, 6);
+    const m = weekStart(anchor), s = addDays(m, 6);
     return `${fmt(m, { month: "short", day: "numeric" })} – ${fmt(s, m.slice(0, 7) === s.slice(0, 7) ? { day: "numeric" } : { month: "short", day: "numeric" })}`;
   }
   return fmt(anchor, { month: "long", year: "numeric" });
