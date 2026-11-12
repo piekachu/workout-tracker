@@ -244,8 +244,13 @@ date, a week task to a Monday-start week, a month task to a calendar month
 - **Day view:** that day's tasks, plus open week and month tasks for the period
   it falls in. On today, anything still open from earlier days shows as
   *Overdue* with a one-tap "→ Today".
-- **Week view:** week-level tasks, then each day Mon–Sun. **Month view:** a grid
-  with a dot per open task (tap a day to open it), month tasks, and week tasks.
+- **Week view:** week-level tasks, then each day Mon–Sun. **Month view:** a
+  Notion-Calendar-style grid — week rows with an ISO week number, week tasks as
+  purple bars across their row, day tasks as tinted chips (blue / amber / red by
+  priority, time shown when set, dimmed when done), "N more" on busy days, a red
+  circle on today; click a chip to edit or a date to open that day. On phones the
+  chips become coloured dots. The toolbar (Day / Week / Month, Today, ▲ ▼) is the
+  same for all three views.
 - **Add** from the bar at the bottom (lands in whatever period you're viewing);
   **tap a task** for notes, scope, date, start/end time (day tasks), priority
   (Normal / Medium / High — coloured edge) and repeat (daily / weekly /

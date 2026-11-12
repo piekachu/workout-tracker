@@ -78,7 +78,7 @@ function group(title, rows, opts = {}) {
 }
 
 function render() {
-  document.querySelectorAll("#view-seg button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === view)));
+  $("view-select").value = view;
   $("period-label").textContent = periodLabel(view, anchor);
   $("add-title").placeholder = `Add a task for ${view === "day" ? (anchor === TODAY ? "today" : "this day") : "this " + view}`;
   renderRings();
@@ -96,7 +96,7 @@ function renderRings() {
   const sets = [["r-today", periodStats(TODAY, TODAY), "today"], ["r-week", periodStats(mon, addDays(mon, 6)), "this week"],
     ["r-month", periodStats(first, addDays(addMonths(first, 1), -1)), "this month"]];
   for (const [id, s, label] of sets) {
-    Charts.ring($(id), { size: 84, value: s.done, total: s.total || 1, big: s.total ? `${s.done}/${s.total}` : "–", aria: `${s.done} of ${s.total} tasks done ${label}` });
+    Charts.ring($(id), { size: 56, value: s.done, total: s.total || 1, big: s.total ? `${s.done}/${s.total}` : "–", aria: `${s.done} of ${s.total} tasks done ${label}` });
   }
 }
 
@@ -122,33 +122,55 @@ function renderWeek(c) {
   }
 }
 
+// ISO week number of the week containing `iso`
+function isoWeek(iso) {
+  const d = parse(iso); d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+  const w1 = new Date(d.getFullYear(), 0, 4);
+  return 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7);
+}
+
+// Notion-Calendar-style month: week rows with a week number, date numbers on top,
+// week tasks as bars across the row, day tasks as tinted chips, "N more" when it overflows.
 function renderMonth(c) {
-  const first = firstOf(anchor), dim = new Date(parse(first).getFullYear(), parse(first).getMonth() + 1, 0).getDate();
-  c.append(group("This month", inPeriod("month", first).map((t) => taskRow(t)), { empty: "No month-level tasks." }));
+  const first = firstOf(anchor), last = addDays(addMonths(first, 1), -1), month = first.slice(0, 7);
+  const taskLabel = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
+  const bar = (t, extra) => el("button", { type: "button", class: "mbar" + (extra ? " " + extra : "") + (t.done_at ? " done" : ""),
+    title: t.title, onclick: () => openSheet(t) }, t.title);
+  const chip = (t) => el("button", { type: "button", class: `mchip c${t.priority}${t.done_at ? " done" : ""}`, title: t.title, onclick: () => openSheet(t) },
+    taskLabel(t) ? el("span", { class: "tm" }, taskLabel(t)) : el("span", { class: "ic" }, t.done_at ? "✓" : "◌"), el("span", { class: "tt" }, t.title));
+  const goDay = (iso) => { view = "day"; anchor = iso; render(); };
 
-  const cal = el("div", { class: "cal" });
-  ["M", "T", "W", "T", "F", "S", "S"].forEach((d) => cal.append(el("div", { class: "dow" }, d)));
-  for (let i = 0; i < (parse(first).getDay() + 6) % 7; i++) cal.append(el("div", { class: "cell blank" }));
-  for (let n = 1; n <= dim; n++) {
-    const iso = `${first.slice(0, 8)}${pad(n)}`;
-    const day = tasks.filter((t) => t.horizon === "day" && t.period_start === iso);
-    const open = day.filter((t) => !t.done_at).length;
-    const dots = el("span", { class: "dots" });
-    if (open) for (let i = 0; i < Math.min(open, 3); i++) dots.append(el("i"));
-    else if (day.length) dots.append(el("i", { class: "all-done" }));
-    cal.append(el("button", { type: "button", class: "cell" + (iso === TODAY ? " today" : ""),
-      "aria-label": `${iso}: ${open} open`, onclick: () => { view = "day"; anchor = iso; render(); } }, String(n), dots));
-  }
-  c.append(el("section", { class: "group group-cal" }, el("div", { class: "group-title" }, el("span", {}, "Days")), cal));
+  const monthTasks = inPeriod("month", first);
+  if (monthTasks.length) c.append(el("div", { class: "mcal-month" }, ...monthTasks.map((t) => bar(t, "mo"))));
 
-  // week-level tasks for each week that touches this month
-  const weeks = [];
-  for (let m = mondayOf(first); m <= `${first.slice(0, 8)}${pad(dim)}`; m = addDays(m, 7)) weeks.push(m);
-  for (const m of weeks) {
-    const rows = inPeriod("week", m);
-    if (rows.length) c.append(group(`Week of ${fmt(m, { month: "short", day: "numeric" })}`, rows.map((t) => taskRow(t)),
-      { action: { label: "Open ›", fn: () => { view = "week"; anchor = m; render(); } } }));
+  const names = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const todayIdx = (parse(TODAY).getDay() + 6) % 7;
+  const head = el("div", { class: "mcal-head" }, el("span", { class: "w" }, "W"),
+    el("div", { class: "days" }, ...names.map((n, i) => el("span", { class: view === "month" && TODAY.slice(0, 7) === month && i === todayIdx ? "today-col" : "" }, n))));
+  const grid = el("div", { class: "mcal" }, head);
+
+  for (let m = mondayOf(first); m <= last; m = addDays(m, 7)) {
+    const wkTasks = inPeriod("week", m);
+    const dates = el("div", { class: "mcal-dates" }), chips = el("div", { class: "mcal-chips" });
+    const maxChips = Math.max(2, 4 - Math.min(wkTasks.length, 2));
+    for (let i = 0; i < 7; i++) {
+      const iso = addDays(m, i), inMonth = iso.slice(0, 7) === month, list = inPeriod("day", iso);
+      const showMonth = iso.slice(8) === "01";
+      dates.append(el("button", { type: "button", class: (iso === TODAY ? "today " : "") + (inMonth ? "" : "out"), "aria-label": iso, onclick: () => goDay(iso) },
+        showMonth ? el("span", { class: "m" }, fmt(iso, { month: "short" })) : null, el("span", { class: "d" }, String(parse(iso).getDate()))));
+      const col = el("div", { class: "mcal-col" });
+      const visible = list.length > maxChips ? maxChips - 1 : list.length;
+      list.slice(0, visible).forEach((t) => col.append(chip(t)));
+      if (list.length > visible) col.append(el("button", { type: "button", class: "mmore", onclick: () => goDay(iso) }, `${list.length - visible} more`));
+      const dots = el("div", { class: "mdots", onclick: () => goDay(iso) });
+      list.slice(0, 6).forEach((t) => dots.append(el("i", { class: `c${t.priority}${t.done_at ? " done" : ""}` })));
+      col.append(dots);
+      chips.append(col);
+    }
+    const body = el("div", { class: "mcal-body" }, dates, ...wkTasks.map((t) => bar(t)), chips);
+    grid.append(el("div", { class: "mcal-week" }, el("div", { class: "wk" }, String(isoWeek(m))), body));
   }
+  c.append(grid);
 }
 
 // ---------- mutations ----------
@@ -230,12 +252,12 @@ function step(dir) {
 }
 $("prev").addEventListener("click", () => step(-1));
 $("next").addEventListener("click", () => step(1));
-$("period-label").addEventListener("click", () => { anchor = TODAY; render(); });
-document.querySelectorAll("#view-seg button").forEach((b) => b.addEventListener("click", () => {
-  view = b.dataset.view;
+$("today-btn").addEventListener("click", () => { anchor = TODAY; render(); });
+$("view-select").addEventListener("change", (e) => {
+  view = e.target.value;
   try { localStorage.setItem("tasks:view", view); } catch {}
   render();
-}));
+});
 
 render();
 load();

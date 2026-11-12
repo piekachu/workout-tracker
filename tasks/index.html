@@ -16,16 +16,20 @@
   </header>
 
   <main>
-    <div class="seg" id="view-seg" role="tablist" aria-label="Task horizon">
-      <button type="button" role="tab" data-view="day">Day</button>
-      <button type="button" role="tab" data-view="week">Week</button>
-      <button type="button" role="tab" data-view="month">Month</button>
+    <div class="cal-toolbar">
+      <h2 class="cal-title" id="period-label"></h2>
+      <div class="cal-tools">
+        <select id="view-select" aria-label="View">
+          <option value="day">Day</option>
+          <option value="week">Week</option>
+          <option value="month">Month</option>
+        </select>
+        <button type="button" class="tb-btn" id="today-btn">Today</button>
+        <button type="button" class="tb-icon" id="prev" aria-label="Previous"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button type="button" class="tb-icon" id="next" aria-label="Next"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 6l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
     </div>
-    <div class="period-bar">
-      <button type="button" class="period-btn" id="prev" aria-label="Previous">‹</button>
-      <button type="button" class="period-label" id="period-label" aria-label="Jump to today"></button>
-      <button type="button" class="period-btn" id="next" aria-label="Next">›</button>
-    </div>
+    <div class="top-strip">
     <form class="add-row" id="add-form" autocomplete="off">
     <input id="add-title" type="text" maxlength="200" enterkeyhint="done" aria-label="New task">
     <button type="submit">Add</button>
@@ -34,6 +38,7 @@
       <div class="ring-cell"><div id="r-today" class="ring-host"></div><span>Today</span></div>
       <div class="ring-cell"><div id="r-week" class="ring-host"></div><span>This week</span></div>
       <div class="ring-cell"><div id="r-month" class="ring-host"></div><span>This month</span></div>
+    </div>
     </div>
     <div id="content"></div>
   </main>

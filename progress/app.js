@@ -278,7 +278,7 @@ function renderCharts(r) {
     const { host, c } = card("Where the money went", total ? `${money(total)} across ${cats.length} categor${cats.length === 1 ? "y" : "ies"} · ${scope}` : `Spending by category · ${scope}`);
     host.className = "donut-wrap";
     if (!total) { Charts.hbar(host, [], money); } else {
-      const segs = cats.map((x) => ({ ...x, color: catColor(x.label, EXP_SLOTS) }));
+      const segs = cats.map((x) => ({ ...x, color: catColor(x.label, EXPENSE_SLOTS) }));
       const dh = el("div", { class: "ring-host" }); host.append(dh);
       Charts.donut(dh, { segments: segs, size: 170, big: Charts.compact(total), small: cur.sym, tipValue: (sg, sh) => `${money(sg.value)} · ${Math.round(sh * 100)}%` });
       host.append(Charts.legend(segs.map((x) => ({ label: x.label, color: x.color, text: `${money(x.value)} · ${Math.round((x.value / total) * 100)}%` }))));
