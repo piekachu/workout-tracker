@@ -69,6 +69,9 @@
     .item .sub { font-size: .8rem; color: var(--text-dim); margin-top: 1px; }
     .item .tag { flex: 0 0 auto; font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); white-space: nowrap; }
     .item .tag.alert { color: var(--danger); }
+    .item .del { flex: 0 0 auto; width: 36px; height: 36px; margin: -4px -6px -4px 0; padding: 0; background: none; border: 0; border-radius: 4px;
+      color: var(--text-faint); font-size: 14px; cursor: pointer; }
+    .item .del:hover, .item .del:focus-visible { color: var(--danger); background: var(--danger-soft); }
     .item .cta { flex: 0 0 auto; color: var(--accent); font-size: .85rem; font-weight: 600; white-space: nowrap; }
     a.item:active, .item[role=button]:active { transform: scale(.99); }
     .quiet { color: var(--text-dim); font-size: .9rem; padding: 6px 0; }
@@ -277,7 +280,8 @@
       return el("div", { class: `item p${t.priority}${t.done_at ? " done" : ""}` },
         el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
         el("div", { class: "body" }, el("div", { class: "name" }, t.title)),
-        tag || timeOf(t) ? el("span", { class: "tag" + (tag === "overdue" ? " alert" : "") }, tag || timeOf(t)) : "");
+        tag || timeOf(t) ? el("span", { class: "tag" + (tag === "overdue" ? " alert" : "") }, tag || timeOf(t)) : "",
+        el("button", { class: "del", type: "button", "aria-label": `Delete "${t.title}"`, title: "Delete task", onclick: () => deleteTask(t) }, "✕"));
     }
     function coreItem(c) {
       const st = state.core[c.key];
@@ -421,6 +425,19 @@
       if (next && t.recur) {
         const row = await TasksCore.spawnNext(sb, t, state.tasks);
         if (row && row.period_start <= TODAY) { state.tasks.push(row); render(); }
+      }
+    }
+    async function deleteTask(t) {
+      if (!confirm(`Delete "${t.title}"? This can't be undone.`)) return;
+      const idx = state.tasks.indexOf(t), wasDoneToday = t.done_at && localISO(new Date(t.done_at)) === TODAY;
+      state.tasks.splice(idx, 1);
+      if (wasDoneToday) state.doneByDay[TODAY] = Math.max(0, (state.doneByDay[TODAY] || 0) - 1);
+      render();
+      const { error } = await sb.from("tasks").delete().eq("id", t.id);
+      if (error) {
+        state.tasks.splice(idx, 0, t);
+        if (wasDoneToday) state.doneByDay[TODAY] = (state.doneByDay[TODAY] || 0) + 1;
+        render(); toast("Couldn't delete it — check your connection");
       }
     }
     async function toggleHabit(h) {

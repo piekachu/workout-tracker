@@ -259,7 +259,11 @@ date, a week task to a Sunday-start week, a month task to a calendar month
   (Normal / Medium / High — coloured edge) and repeat (daily / weekly /
   monthly). Completing a repeating task creates its next occurrence
   (`shared/tasks-core.js`, used by this page and the Today screen).
-- Today's tasks also appear on the home screen with tick boxes.
+- Today's tasks also appear on the home screen with tick boxes and a ✕ to delete one
+  (asks first; it can't be undone).
+- **Completing:** every task has a round check — in the day/week lists, on each month-grid
+  chip and bar, and as a "Completed" box in the edit sheet. Completing a repeating task
+  schedules its next occurrence.
 - **Table:** `tasks` — migration `0008`. It already carries `notion_page_id`,
   `gcal_event_id` and `synced_at` for the Notion / Google Calendar copies, which
   are not wired up yet.

@@ -170,10 +170,13 @@ function renderMonth(c) {
   // divs, not buttons: Firefox won't start a drag from a <button>
   const press = (t) => ({ role: "button", tabindex: "0", title: t.title, onclick: () => openSheet(t),
     onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSheet(t); } } });
+  // the round check marks a task done without opening it
+  const check = (t) => el("button", { type: "button", class: "mck", "aria-label": t.done_at ? "Mark not done" : "Mark done", "aria-pressed": String(!!t.done_at),
+    onclick: (e) => { e.stopPropagation(); toggle(t); }, onkeydown: (e) => e.stopPropagation() }, "✓");
   const bar = (t, extra) => el("div", { ...press(t), class: "mbar" + (extra ? " " + extra : "") + (t.done_at ? " done" : ""),
-    ...(t.horizon === "week" ? dragAttrs(t, "week") : {}) }, t.title);
+    ...(t.horizon === "week" ? dragAttrs(t, "week") : {}) }, check(t), el("span", { class: "tt" }, t.title));
   const chip = (t) => el("div", { ...press(t), class: `mchip c${t.priority}${t.done_at ? " done" : ""}`, ...dragAttrs(t, "day") },
-    taskLabel(t) ? el("span", { class: "tm" }, taskLabel(t)) : el("span", { class: "ic" }, t.done_at ? "✓" : "◌"), el("span", { class: "tt" }, t.title));
+    check(t), taskLabel(t) ? el("span", { class: "tm" }, taskLabel(t)) : null, el("span", { class: "tt" }, t.title));
   const goDay = (iso) => { view = "day"; anchor = iso; render(); };
 
   const monthTasks = inPeriod("month", first);
@@ -255,7 +258,7 @@ function openSheet(t) {
   $("f-title").value = t.title; $("f-notes").value = t.notes || "";
   $("f-horizon").value = t.horizon; $("f-date").value = t.period_start;
   $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
-  $("f-priority").value = String(t.priority); $("f-recur").value = t.recur || "";
+  $("f-priority").value = String(t.priority); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
   syncTimeRow(); $("sheet").hidden = false;
 }
 const closeSheet = () => { $("sheet").hidden = true; editing = null; };
@@ -275,9 +278,12 @@ $("edit-form").addEventListener("submit", async (e) => {
     period_start: periodStart(horizon, $("f-date").value), start_time: start, end_time: end,
     priority: Number($("f-priority").value), recur: $("f-recur").value || null };
   if (!patch.title) return;
+  const wantDone = $("f-done").checked, becameDone = wantDone && !t.done_at;
+  if (wantDone !== !!t.done_at) patch.done_at = wantDone ? new Date().toISOString() : null;
   const { data, error } = await sb.from("tasks").update(patch).eq("id", t.id).select().single();
   if (error) { toast("Couldn't save"); return; }
   Object.assign(t, data); closeSheet(); render();
+  if (becameDone && t.recur) await spawnNext(t);
 });
 $("f-delete").addEventListener("click", async () => {
   const t = editing; if (!t || !confirm(`Delete "${t.title}"?`)) return;
