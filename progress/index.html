@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Progress</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <nav class="site-nav">
+      <a href="../">Home</a>
+      <a href="../tasks/">Tasks</a>
+      <a href="./" class="active">Progress</a>
+      <a href="../workout/">Workout</a>
+      <a href="../vocab/">Vocab</a>
+      <a href="../expenses/">Expenses</a>
+      <a href="../drugs/">Drugs</a>
+    </nav>
+    <h1 class="page-title">Progress</h1>
+  </header>
+
+  <main>
+    <div class="seg" id="view-seg" role="tablist" aria-label="Period">
+      <button type="button" role="tab" data-view="day">Day</button>
+      <button type="button" role="tab" data-view="week">Week</button>
+      <button type="button" role="tab" data-view="month">Month</button>
+    </div>
+    <div class="period-bar">
+      <button type="button" class="period-btn" id="prev" aria-label="Previous">‹</button>
+      <button type="button" class="period-label" id="period-label" aria-label="Jump to today"></button>
+      <button type="button" class="period-btn" id="next" aria-label="Next">›</button>
+    </div>
+    <div id="loading" class="note">Loading your history…</div>
+    <div id="detail"></div>
+    <div class="tiles" id="tiles"></div>
+    <div id="charts"></div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../shared/auth.js"></script>
+  <script src="../shared/tasks-core.js"></script>
+  <script src="../shared/charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

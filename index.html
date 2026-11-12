@@ -8,172 +8,86 @@
   <style>
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font-ui);
-      -webkit-font-smoothing: antialiased;
-      -webkit-tap-highlight-color: transparent;
-    }
+    body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui);
+      -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+    button, input { font-family: inherit; touch-action: manipulation; }
     header, main { max-width: 640px; margin: 0 auto; }
-    header { padding: 32px 20px 0; }
-    main { padding: 28px 20px 60px; }
+    header { padding: 24px 20px 0; }
+    main { padding: 6px 20px calc(48px + env(safe-area-inset-bottom)); }
+    @media (max-width: 420px) { header, main { padding-left: 16px; padding-right: 16px; } }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-    h1.page-title { font-size: 1.9rem; }
-    .lede {
-      color: var(--text-dim);
-      margin: 0 0 32px;
-      max-width: 46ch;
-      line-height: 1.5;
-    }
+    /* ---- heading: date, what's left, progress ---- */
+    .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 4px 0 10px; }
+    .hero h1 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 2rem; letter-spacing: -.01em; line-height: 1.1; }
+    .hero .date { color: var(--text-dim); font-size: .92rem; margin-top: 3px; }
+    .hero .left { text-align: right; font-family: var(--font-display); font-size: 2.6rem; font-weight: 500; line-height: 1; }
+    .hero .left small { display: block; margin-top: 4px; font-family: var(--font-ui); font-size: .78rem; font-weight: 400; color: var(--text-dim); }
+    .bar { height: 5px; border-radius: 3px; background: var(--border-2); overflow: hidden; margin-bottom: 16px; }
+    .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
 
-    /* One card per page on the site. New pages: add one object to the
-       PAGES array in the script below -- nothing else changes. */
-    .app-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .app-card {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 18px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      text-decoration: none;
-      color: inherit;
-      transition: border-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
-    }
-    .app-card:hover {
-      border-color: var(--accent);
-      box-shadow: var(--shadow-1);
-    }
-    .app-card:active { transform: scale(0.99); }
-    .app-card .monogram {
-      flex: 0 0 auto;
-      width: 44px;
-      height: 44px;
-      border-radius: calc(var(--radius) - 2px);
-      background: var(--accent-soft);
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 1.15rem;
-    }
-    .app-card .body { flex: 1 1 auto; min-width: 0; }
-    .app-card .name {
-      font-family: var(--font-display);
-      font-weight: 500;
-      font-size: 1.1rem;
-      color: var(--text);
-      margin-bottom: 2px;
-    }
-    .app-card .tagline {
-      font-size: 0.85rem;
-      color: var(--text-dim);
-      line-height: 1.4;
-    }
-    .app-card .arrow {
-      flex: 0 0 auto;
-      color: var(--text-faint);
-      font-size: 1.2rem;
-      transition: transform 0.15s ease, color 0.15s ease;
-    }
-    .app-card:hover .arrow { color: var(--accent); transform: translateX(2px); }
+    /* ---- quick add ---- */
+    .quick { display: flex; gap: 8px; margin-bottom: 18px; }
+    .quick input { flex: 1 1 auto; min-width: 0; height: 50px; padding: 0 14px; font-size: 16px; color: var(--text);
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .quick button { flex: 0 0 auto; height: 50px; padding: 0 18px; border: 0; border-radius: var(--radius); background: var(--accent);
+      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; }
 
-    /* Last-14-weeks activity, compact: 14 columns x 7 rows, one dot per day. */
-    .app-card .mini-heat {
-      flex: 0 0 auto;
-      display: grid;
-      grid-template-rows: repeat(7, 4px);
-      grid-auto-flow: column;
-      grid-auto-columns: 4px;
-      gap: 2px;
-    }
-    .app-card .mini-heat .d { width: 4px; height: 4px; border-radius: 1px; background: var(--border-2); }
-    .app-card .mini-heat .d.on { background: var(--accent); }
-    .app-card .mini-heat.loading { opacity: 0.3; }
-    @media (max-width: 480px) { .app-card .mini-heat { display: none; } }
+    /* ---- the list ---- */
+    .sect { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-faint); margin: 18px 0 8px; }
+    .sect:first-child { margin-top: 0; }
+    .item { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 8px 12px; margin-bottom: 8px; width: 100%;
+      background: var(--surface); border: 1px solid var(--border); border-left-width: 4px; border-radius: var(--radius);
+      color: inherit; text-decoration: none; text-align: left; font: inherit; }
+    .item.p1 { border-left-color: var(--gold); } .item.p2 { border-left-color: var(--danger); }
+    .item .tick { flex: 0 0 auto; width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 2px solid var(--border); background: none;
+      color: transparent; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .15s, border-color .15s; }
+    .item.done .tick { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .item .go-dot { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; border: 2px dashed var(--border); color: var(--accent);
+      display: flex; align-items: center; justify-content: center; font-size: 15px; }
+    .item .body { flex: 1 1 auto; min-width: 0; }
+    .item .name { font-size: 1rem; line-height: 1.3; overflow-wrap: anywhere; }
+    .item.core .name { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
+    .item.done .name { color: var(--text-dim); text-decoration: line-through; }
+    .item.done.core .name { text-decoration: none; }
+    .item .sub { font-size: .8rem; color: var(--text-dim); margin-top: 1px; }
+    .item .tag { flex: 0 0 auto; font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); white-space: nowrap; }
+    .item .tag.alert { color: var(--danger); }
+    .item .cta { flex: 0 0 auto; color: var(--accent); font-size: .85rem; font-weight: 600; white-space: nowrap; }
+    a.item:active, .item[role=button]:active { transform: scale(.99); }
+    .quiet { color: var(--text-dim); font-size: .9rem; padding: 6px 0; }
+    .allgood { padding: 22px 16px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .allgood b { display: block; font-family: var(--font-display); font-weight: 500; font-size: 1.2rem; margin-bottom: 2px; }
+    .allgood span { color: var(--text-dim); font-size: .9rem; }
 
+    details.done-box { margin-top: 16px; }
+    details.done-box > summary, details.manage > summary { cursor: pointer; list-style: none; color: var(--text-dim); font-size: .88rem;
+      min-height: 44px; display: flex; align-items: center; gap: 6px; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before { content: "▸"; font-size: .8rem; transition: transform .15s; }
+    details[open] > summary::before { transform: rotate(90deg); }
 
-    /* ---- Today: the habit checklist ---- */
-    .today-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0 0 14px; }
-    .today-date { color: var(--text-dim); font-size: 0.95rem; }
-    .today-count { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); letter-spacing: 0.04em; }
-    .today-bar { height: 4px; border-radius: 2px; background: var(--border-2); overflow: hidden; margin: 0 0 18px; }
-    .today-bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width 0.3s ease; }
+    .manage { margin-top: 8px; }
+    .manage form { display: flex; gap: 8px; margin: 6px 0 10px; }
+    .manage input { flex: 1 1 auto; min-width: 0; height: 46px; padding: 0 12px; font-size: 16px; color: var(--text);
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+    .manage form button { height: 46px; padding: 0 16px; border: 0; border-radius: var(--radius); background: var(--accent); color: #fff; font-weight: 600; font-size: 15px; cursor: pointer; }
+    .mrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; font-size: .92rem; border-top: 1px solid var(--border-2); }
+    .mrow button { background: none; border: 0; color: var(--danger); font-size: .85rem; min-height: 44px; padding: 0 4px; cursor: pointer; }
 
-    .habits { display: flex; flex-direction: column; gap: 10px; }
-    .habit {
-      display: flex; align-items: center; gap: 14px; min-height: 68px;
-      padding: 12px 16px; background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); color: inherit; text-decoration: none; font: inherit; text-align: left;
-      width: 100%; cursor: pointer; transition: border-color 0.15s ease, transform 0.1s ease;
-    }
-    .habit:active { transform: scale(0.99); }
-    .habit.next { border-color: var(--accent); box-shadow: var(--shadow-1); }
-    .habit .tick {
-      flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%;
-      border: 2px solid var(--border); display: flex; align-items: center; justify-content: center;
-      color: transparent; font-size: 17px; line-height: 1; transition: background 0.15s ease, border-color 0.15s ease;
-    }
-    .habit.done .tick { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .habit .body { flex: 1 1 auto; min-width: 0; }
-    .habit .name { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; color: var(--text); }
-    .habit.done .name { color: var(--text-dim); }
-    .habit .sub { font-size: 0.82rem; color: var(--text-dim); line-height: 1.35; margin-top: 1px; }
-    .habit .go { flex: 0 0 auto; color: var(--accent); font-size: 0.85rem; font-weight: 600; white-space: nowrap; }
-    .habit.done .go { display: none; }
-    .habit .x { flex: 0 0 auto; width: 44px; height: 44px; margin: -6px -8px -6px 0; border: 0; background: none;
-      color: var(--danger); font-size: 20px; cursor: pointer; display: none; }
-    .editing .habit .x { display: block; }
-    .skeleton .sub { color: var(--text-faint); }
+    /* ---- tools ---- */
+    .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+    .tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 76px; padding: 10px 6px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); text-decoration: none; font-size: .85rem; }
+    .tool:active { transform: scale(.98); }
+    .tool .m { width: 32px; height: 32px; border-radius: 9px; background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 600; }
+    .tool.primary { border-color: var(--accent); }
 
-    .habit-add { display: flex; gap: 8px; margin-top: 12px; }
-    .habit-add input { flex: 1 1 auto; min-width: 0; height: 48px; padding: 0 14px; font-size: 16px; font-family: inherit;
-      color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
-    .habit-add button, .link-btn { height: 48px; padding: 0 16px; font-size: 15px; font-weight: 600; font-family: inherit;
-      border-radius: var(--radius); cursor: pointer; }
-    .habit-add button { border: 0; background: var(--accent); color: #fff; }
-    .link-btn { height: 44px; border: 0; background: none; color: var(--text-dim); font-weight: 500; font-size: 13px; padding: 0 4px; }
-    .habit-tools { display: flex; justify-content: flex-end; margin-top: 4px; }
-    .trow { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 6px 12px; margin-bottom: 8px;
-      background: var(--surface); border: 1px solid var(--border); border-left-width: 4px; border-radius: var(--radius); }
-    .trow.p1 { border-left-color: var(--gold); } .trow.p2 { border-left-color: var(--danger); }
-    .trow .tick { flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); background: none;
-      color: transparent; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; }
-    .trow.done .tick { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .trow .tt { flex: 1 1 auto; min-width: 0; line-height: 1.3; overflow-wrap: anywhere; }
-    .trow.done .tt { color: var(--text-dim); text-decoration: line-through; }
-    .trow .tm { flex: 0 0 auto; font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); }
-    .tasks-sub { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
-      color: var(--text-faint); margin: 14px 0 8px; }
-    .tasks-more { display: inline-block; margin-top: 2px; color: var(--accent); font-size: .9rem; text-decoration: none;
-      font-weight: 600; padding: 10px 0; }
-    .section-title { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--text-faint); margin: 36px 0 12px; }
     .toast-err { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%);
       background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 13px; z-index: 50; }
-
-    footer {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 0 20px 40px;
-      color: var(--text-faint);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.04em;
-    }
-
-    @media (max-width: 420px) {
-      header, main, footer { padding-left: 16px; padding-right: 16px; }
-    }
+    footer { max-width: 640px; margin: 0 auto; padding: 0 20px 36px; color: var(--text-faint); font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; }
   </style>
 </head>
 <body>
@@ -181,37 +95,48 @@
     <nav class="site-nav">
       <a href="./" class="active">Home</a>
       <a href="tasks/">Tasks</a>
+      <a href="progress/">Progress</a>
       <a href="workout/">Workout</a>
       <a href="vocab/">Vocab</a>
       <a href="expenses/">Expenses</a>
       <a href="drugs/">Drugs</a>
     </nav>
-    <div class="page-eyebrow">piekachu.github.io/workout-tracker</div>
-    <h1 class="page-title">Today</h1>
+    <div class="hero">
+      <div>
+        <h1>Today</h1>
+        <div class="date" id="today-date"></div>
+      </div>
+      <div class="left" id="left" aria-live="polite"></div>
+    </div>
+    <div class="bar"><i id="bar"></i></div>
   </header>
 
   <main>
-    <div class="today-meta">
-      <span class="today-date" id="today-date"></span>
-      <span class="today-count" id="today-count"></span>
-    </div>
-    <div class="today-bar"><i id="today-bar"></i></div>
+    <form class="quick" id="quick" autocomplete="off">
+      <input id="quick-title" type="text" maxlength="200" placeholder="Add a task for today" enterkeyhint="done" aria-label="New task for today">
+      <button type="submit">Add</button>
+    </form>
 
-    <div id="habits-wrap">
-      <div class="habits" id="habits"></div>
-      <form class="habit-add" id="habit-add" autocomplete="off">
-        <input id="habit-name" type="text" placeholder="Add a habit (water, reading, sleep…)" maxlength="60" enterkeyhint="done">
+    <div id="list"></div>
+
+    <details class="manage" id="manage">
+      <summary>Manage habits</summary>
+      <form id="habit-add">
+        <input id="habit-name" type="text" maxlength="60" placeholder="New habit (water, reading, sleep…)" enterkeyhint="done">
         <button type="submit">Add</button>
       </form>
-      <div class="habit-tools"><button class="link-btn" id="habit-edit" type="button">Remove habits</button></div>
+      <div id="habit-rows"></div>
+    </details>
+
+    <div class="sect" style="margin-top:28px">Open</div>
+    <div class="tools">
+      <a class="tool primary" href="progress/"><span class="m">↗</span>Progress</a>
+      <a class="tool" href="tasks/"><span class="m">T</span>Tasks</a>
+      <a class="tool" href="workout/"><span class="m">W</span>Workout</a>
+      <a class="tool" href="vocab/"><span class="m">V</span>Vocab</a>
+      <a class="tool" href="expenses/"><span class="m">E</span>Expenses</a>
+      <a class="tool" href="drugs/"><span class="m">D</span>Drugs</a>
     </div>
-
-    <div class="section-title">Tasks</div>
-    <div id="tasks-today"></div>
-    <a class="tasks-more" href="tasks/">Open all tasks →</a>
-
-    <div class="section-title">Tools</div>
-    <div class="app-grid" id="app-grid"></div>
   </main>
 
   <footer>Private — your data is visible only when signed in.</footer>
@@ -223,18 +148,10 @@
     const sb = Auth.client;
     const VOCAB_SLOT_ID = "56ba90d2a3a5add3cb";
     const WORKOUT_GROUPS = ["Back + Biceps", "Chest + Triceps", "Shoulder + Arms", "Legs", "Whole body"];
-
-    // Local-date strings only (never toISOString: it is UTC and reports
-    // yesterday for the first hours of the day in Asia/Seoul).
-    function localISO(d) {
-      const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    }
-    const addDaysISO = (iso, n) => { const [y, m, d] = iso.split("-").map(Number); return localISO(new Date(y, m - 1, d + n)); };
+    const { localISO, addDays: addDaysISO, mondayOf, firstOf } = TasksCore;   // local-date maths, never UTC
     const TODAY = localISO(new Date());
 
-    // Consecutive days up to today (a day not yet done doesn't break a streak
-    // that was alive yesterday).
+    // Consecutive days up to today; a day not yet done doesn't break a streak that was alive yesterday.
     function streakOf(dates) {
       let day = dates.has(TODAY) ? TODAY : addDaysISO(TODAY, -1), n = 0;
       while (dates.has(day)) { n++; day = addDaysISO(day, -1); }
@@ -242,8 +159,6 @@
     }
     const withStreak = (text, n) => (n >= 2 ? `${text} · ${n}-day streak` : text);
 
-    // Each data source is fetched once and shared by the checklist and the
-    // 14-week strips below it.
     function once(fn) { let p; return () => (p = p || fn()); }
     const SRC = {
       sessions: once(async () => {
@@ -254,22 +169,18 @@
         const { data, error } = await sb.from("drug_log").select("studied_on");
         if (error) throw error; return data || [];
       }),
-      expenses: once(async () => {
-        const { data, error } = await sb.from("expenses").select("spent_on");
-        if (error) throw error; return data || [];
-      }),
       vocab: once(async () => {
         const { data, error } = await sb.from("kv_store").select("data").eq("slot_id", VOCAB_SLOT_ID).maybeSingle();
         if (error) throw error; return (data && data.data) || {};
       }),
       drugs: once(() => new Promise((resolve, reject) => {
-        const el = document.createElement("script");
-        el.src = "drugs/data.js"; el.onload = () => resolve(window.DRUGS || []); el.onerror = reject;
-        document.head.appendChild(el);
+        const s = document.createElement("script");
+        s.src = "drugs/data.js"; s.onload = () => resolve(window.DRUGS || []); s.onerror = reject;
+        document.head.appendChild(s);
       })),
       // today's day tasks, anything open from the last 60 days, and this week's / month's open ones
       tasks: once(async () => {
-        const mon = TasksCore.mondayOf(TODAY), first = TasksCore.firstOf(TODAY);
+        const mon = mondayOf(TODAY), first = firstOf(TODAY);
         const [days, longer] = await Promise.all([
           sb.from("tasks").select("*").eq("horizon", "day").lte("period_start", TODAY).gte("period_start", addDaysISO(TODAY, -60)),
           sb.from("tasks").select("*").in("horizon", ["week", "month"]).in("period_start", [mon, first]),
@@ -288,63 +199,120 @@
       }),
     };
 
-    // ---------------- the checklist ----------------
     const $ = (id) => document.getElementById(id);
     function el(tag, attrs = {}, ...kids) {
       const e = document.createElement(tag);
       for (const [k, v] of Object.entries(attrs)) {
-        if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
-        else e.setAttribute(k, v);
+        if (k === "class") e.className = v; else if (k.startsWith("on")) e.addEventListener(k.slice(2), v); else e.setAttribute(k, v);
       }
-      kids.flat().forEach((c) => e.append(c));
+      kids.flat().forEach((c) => c != null && c !== "" && e.append(c));
       return e;
     }
+    function toast(msg) { const t = el("div", { class: "toast-err", role: "status" }, msg); document.body.appendChild(t); setTimeout(() => t.remove(), 2800); }
     $("today-date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
-    const state = { core: {}, custom: [], editing: false };   // core[key] = { done, sub, streak }
+    // ---------------- state ----------------
     const CORE = [
-      { key: "vocab",   name: "Vocab",           href: "vocab/",   go: "Review" },
-      { key: "drugs",   name: "Drug of the day", href: "drugs/",   go: "Study" },
-      { key: "workout", name: "Workout",         href: "workout/", go: "Log" },
+      { key: "vocab",   name: "Vocab",           href: "vocab/",   cta: "Review" },
+      { key: "drugs",   name: "Drug of the day", href: "drugs/",   cta: "Study" },
+      { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
     ];
+    const state = { core: {}, tasks: null, custom: [] };   // core[key] = { done, sub, streak }
+    const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
+    const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
+    let doneOpen = false;   // keep the "Done today" drawer open across re-renders
 
-    function toast(msg) {
-      const t = el("div", { class: "toast-err", role: "status" }, msg); document.body.appendChild(t);
-      setTimeout(() => t.remove(), 2800);
+    // ---------------- rendering ----------------
+    function taskItem(t, tag) {
+      return el("div", { class: `item p${t.priority}${t.done_at ? " done" : ""}` },
+        el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
+        el("div", { class: "body" }, el("div", { class: "name" }, t.title)),
+        tag || timeOf(t) ? el("span", { class: "tag" + (tag === "overdue" ? " alert" : "") }, tag || timeOf(t)) : "");
+    }
+    function coreItem(c) {
+      const st = state.core[c.key];
+      return el("a", { class: "item core" + (st && st.done ? " done" : ""), href: c.href },
+        st && st.done ? el("span", { class: "tick" }, "✓") : el("span", { class: "go-dot" }, "→"),
+        el("div", { class: "body" }, el("div", { class: "name" }, c.name), el("div", { class: "sub" }, st ? withStreak(st.sub, st.streak) : "Loading…")),
+        st && st.done ? "" : el("span", { class: "cta" }, c.cta));
+    }
+    function habitItem(h) {
+      return el("div", { class: "item" + (h.done ? " done" : ""), role: "button", tabindex: "0", "aria-pressed": String(h.done),
+          onclick: () => toggleHabit(h), onkeydown: (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleHabit(h); } } },
+        el("span", { class: "tick" }, "✓"),
+        el("div", { class: "body" }, el("div", { class: "name" }, h.name), h.streak >= 2 ? el("div", { class: "sub" }, `${h.streak}-day streak`) : ""));
     }
 
     function render() {
-      const list = $("habits"); list.innerHTML = "";
-      const firstPending = CORE.find((c) => state.core[c.key] && !state.core[c.key].done);
-      let done = 0, total = 0;
-      for (const c of CORE) {
-        const st = state.core[c.key];
-        total++; if (st && st.done) done++;
-        const row = el("a", { class: "habit" + (st && st.done ? " done" : "") + (!st ? " skeleton" : "") + (firstPending === c ? " next" : ""), href: c.href },
-          el("span", { class: "tick" }, "✓"),
-          el("span", { class: "body" }, el("div", { class: "name" }, c.name), el("div", { class: "sub" }, st ? withStreak(st.sub, st.streak) : "Loading…")),
-          el("span", { class: "go" }, c.go + " →"));
-        list.appendChild(row);
+      const T = state.tasks || [];
+      const overdue = T.filter((t) => t.horizon === "day" && t.period_start < TODAY && !t.done_at).sort(byOrder);
+      const today = T.filter((t) => t.horizon === "day" && t.period_start === TODAY).sort(byOrder);
+      const later = T.filter((t) => t.horizon !== "day" && !t.done_at).sort(byOrder);
+      const coreReady = CORE.every((c) => state.core[c.key]);
+
+      const pendingTasks = [...overdue, ...today.filter((t) => !t.done_at)];
+      const doneTasks = today.filter((t) => t.done_at);
+      const pendingCore = CORE.filter((c) => state.core[c.key] && !state.core[c.key].done);
+      const doneCore = CORE.filter((c) => state.core[c.key] && state.core[c.key].done);
+      const pendingHabits = state.custom.filter((h) => !h.done), doneHabits = state.custom.filter((h) => h.done);
+
+      const total = overdue.length + today.length + CORE.length + state.custom.length;
+      const doneN = doneTasks.length + doneCore.length + doneHabits.length;
+      const left = total - doneN;
+      const ready = state.tasks !== null && coreReady;
+      $("left").innerHTML = "";
+      $("left").append(ready ? String(left) : "…", el("small", {}, left === 1 ? "thing left" : "things left"));
+      $("bar").style.width = total ? Math.round((doneN / total) * 100) + "%" : "0%";
+
+      const list = $("list"); list.innerHTML = "";
+      if (ready && !pendingTasks.length && !pendingCore.length && !pendingHabits.length) {
+        list.append(el("div", { class: "allgood" }, el("b", {}, "All done for today"), el("span", {}, "Nice work. Check Progress to see how the week is going.")));
       }
-      for (const h of state.custom) {
-        total++; if (h.done) done++;
-        const row = el("div", { class: "habit" + (h.done ? " done" : ""), role: "button", tabindex: "0", "aria-pressed": String(h.done),
-            onclick: (e) => { if (!e.target.closest(".x")) toggle(h); },
-            onkeydown: (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggle(h); } } },
-          el("span", { class: "tick" }, "✓"),
-          el("span", { class: "body" }, el("div", { class: "name" }, h.name),
-            el("div", { class: "sub" }, withStreak(h.done ? "Done today" : "Tap when done", h.streak))),
-          el("button", { class: "x", type: "button", "aria-label": "Remove " + h.name, onclick: () => removeHabit(h) }, "✕"));
-        list.appendChild(row);
+      if (pendingTasks.length) {
+        list.append(el("div", { class: "sect" }, "Tasks"));
+        overdue.forEach((t) => list.append(taskItem(t, "overdue")));
+        today.filter((t) => !t.done_at).forEach((t) => list.append(taskItem(t)));
+      } else if (ready) {
+        list.append(el("div", { class: "sect" }, "Tasks"));
+        list.append(el("div", { class: "quiet" }, doneTasks.length ? "All of today's tasks are done." : "No tasks for today — add one above."));
       }
-      $("habits-wrap").classList.toggle("editing", state.editing);
-      $("habit-edit").textContent = state.editing ? "Done" : "Remove habits";
-      $("habit-edit").style.display = state.custom.length ? "" : "none";
-      $("today-count").textContent = `${done} of ${total} done`;
-      $("today-bar").style.width = total ? Math.round((done / total) * 100) + "%" : "0%";
+      if (!coreReady || pendingCore.length || pendingHabits.length) {
+        list.append(el("div", { class: "sect" }, "Habits"));
+        if (!coreReady) CORE.forEach((c) => list.append(coreItem(c)));
+        else pendingCore.forEach((c) => list.append(coreItem(c)));
+        pendingHabits.forEach((h) => list.append(habitItem(h)));
+      }
+      if (later.length) {
+        list.append(el("div", { class: "sect" }, "This week & month"));
+        later.forEach((t) => list.append(taskItem(t, t.horizon)));
+      }
+      if (doneN) {
+        const box = el("details", { class: "done-box" }, el("summary", {}, `Done today (${doneN})`));
+        doneTasks.forEach((t) => box.append(taskItem(t)));
+        doneCore.forEach((c) => box.append(coreItem(c)));
+        doneHabits.forEach((h) => box.append(habitItem(h)));
+        box.open = doneOpen;
+        box.addEventListener("toggle", () => { doneOpen = box.open; });
+        list.append(box);
+      }
+
+      const rows = $("habit-rows"); rows.innerHTML = "";
+      state.custom.forEach((h) => rows.append(el("div", { class: "mrow" }, el("span", {}, h.name),
+        el("button", { type: "button", onclick: () => removeHabit(h) }, "Remove"))));
     }
 
-    async function toggle(h) {
+    // ---------------- actions ----------------
+    async function toggleTask(t) {
+      const was = t.done_at, next = was ? null : new Date().toISOString();
+      t.done_at = next; render();
+      const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", t.id);
+      if (error) { t.done_at = was; render(); toast("Couldn't save — check your connection"); return; }
+      if (next && t.recur) {
+        const row = await TasksCore.spawnNext(sb, t, state.tasks);
+        if (row && row.period_start <= TODAY) { state.tasks.push(row); render(); }
+      }
+    }
+    async function toggleHabit(h) {
       const was = h.done;
       h.done = !was; h.dates[was ? "delete" : "add"](TODAY); h.streak = streakOf(h.dates); render();
       const q = was
@@ -353,68 +321,40 @@
       const { error } = await q;
       if (error) { h.done = was; h.dates[was ? "add" : "delete"](TODAY); h.streak = streakOf(h.dates); render(); toast("Couldn't save — check your connection"); }
     }
-
     async function removeHabit(h) {
       if (!confirm(`Remove "${h.name}"? Its history is kept; it just stops showing.`)) return;
       const { error } = await sb.from("habits").update({ archived: true }).eq("id", h.id);
       if (error) { toast("Couldn't remove it"); return; }
       state.custom = state.custom.filter((x) => x !== h); render();
     }
-
+    $("quick").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = $("quick-title"), title = input.value.trim();
+      if (!title) return;
+      input.disabled = true;
+      const { data, error } = await sb.from("tasks").insert({ title, horizon: "day", period_start: TODAY }).select().single();
+      input.disabled = false;
+      if (error) { toast("Couldn't add it"); return; }
+      (state.tasks = state.tasks || []).push(data); input.value = ""; render(); input.focus();
+    });
     $("habit-add").addEventListener("submit", async (e) => {
       e.preventDefault();
       const input = $("habit-name"), name = input.value.trim();
       if (!name) return;
       input.disabled = true;
-      const order = state.custom.reduce((m, h) => Math.max(m, h.sort_order), 0) + 1;
+      const order = state.custom.reduce((m, h) => Math.max(m, h.sort_order || 0), 0) + 1;
       const { data, error } = await sb.from("habits").insert({ name, sort_order: order }).select("id, name, sort_order").single();
       input.disabled = false;
       if (error) { toast("Couldn't add it"); return; }
       state.custom.push({ ...data, done: false, dates: new Set(), streak: 0 });
       input.value = ""; render();
     });
-    $("habit-edit").addEventListener("click", () => { state.editing = !state.editing; render(); });
 
-    // ---------------- today's tasks ----------------
-    let todayTasks = null;
-    function renderTasks() {
-      const box = $("tasks-today"); box.innerHTML = "";
-      if (todayTasks === null) { box.append(el("div", { class: "sub", style: "color:var(--text-faint)" }, "Loading…")); return; }
-      const open = (t) => !t.done_at;
-      const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
-      const overdue = todayTasks.filter((t) => t.horizon === "day" && t.period_start < TODAY && open(t)).sort(byOrder);
-      const today = todayTasks.filter((t) => t.horizon === "day" && t.period_start === TODAY).sort(byOrder);
-      const wk = todayTasks.filter((t) => t.horizon !== "day" && open(t)).sort(byOrder);
-      const row = (t, tag) => el("div", { class: `trow p${t.priority}${t.done_at ? " done" : ""}` },
-        el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
-        el("span", { class: "tt" }, t.title),
-        (tag || t.start_time) ? el("span", { class: "tm" }, tag || t.start_time.slice(0, 5)) : "");
-      if (!overdue.length && !today.length && !wk.length) {
-        box.append(el("div", { class: "sub", style: "color:var(--text-dim)" }, "Nothing planned for today."));
-        return;
-      }
-      if (overdue.length) { box.append(el("div", { class: "tasks-sub" }, "Overdue")); overdue.forEach((t) => box.append(row(t, "overdue"))); }
-      if (today.length) { box.append(el("div", { class: "tasks-sub" }, "Today")); today.forEach((t) => box.append(row(t))); }
-      if (wk.length) { box.append(el("div", { class: "tasks-sub" }, "This week / month")); wk.forEach((t) => box.append(row(t, t.horizon))); }
-    }
-    async function toggleTask(t) {
-      const was = t.done_at, next = was ? null : new Date().toISOString();
-      t.done_at = next; renderTasks();
-      const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", t.id);
-      if (error) { t.done_at = was; renderTasks(); toast("Couldn't save — check your connection"); return; }
-      if (next && t.recur) {
-        const row = await TasksCore.spawnNext(sb, t, todayTasks);
-        if (row && row.period_start <= TODAY) { todayTasks.push(row); renderTasks(); }
-      }
-    }
-    function loadTasks() { return SRC.tasks().then((rows) => { todayTasks = rows; }).catch(() => { todayTasks = []; }); }
-
-    // ---- load each habit's status; render as each arrives ----
+    // ---------------- loaders: render as each arrives ----------------
     function loadVocab() {
       return SRC.vocab().then((blob) => {
-        const langs = Object.values(blob.langs || {});
         let reviewed = 0, due = 0; const days = new Set();
-        for (const l of langs) {
+        for (const l of Object.values(blob.langs || {})) {
           reviewed += (l.activity && l.activity[TODAY]) || 0;
           Object.keys(l.activity || {}).forEach((d) => days.add(d));
           for (const c of [].concat(l.words || [], l.phrases || [])) if (c.box >= 1 && c.due && c.due <= TODAY) due++;
@@ -440,8 +380,7 @@
         const days = new Set(rows.map((r) => r.log_date));
         const weekAgo = addDaysISO(TODAY, -6);
         const thisWeek = rows.filter((r) => r.log_date >= weekAgo).length;
-        const done = days.has(TODAY);
-        const todays = rows.find((r) => r.log_date === TODAY);
+        const done = days.has(TODAY), todays = rows.find((r) => r.log_date === TODAY);
         const last = rows[0], idx = last ? WORKOUT_GROUPS.indexOf(last.category) : -1;
         const next = WORKOUT_GROUPS[(idx + 1) % WORKOUT_GROUPS.length];
         state.core.workout = { done, streak: 0,
@@ -456,84 +395,14 @@
         });
       }).catch(() => { state.custom = []; });
     }
+    function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }); }
+
     render();
-    [loadVocab, loadDrugs, loadWorkout, loadCustom].forEach((f) => f().then(render));
-    renderTasks();
-    loadTasks().then(renderTasks);
+    [loadTasks, loadVocab, loadDrugs, loadWorkout, loadCustom].forEach((f) => f().then(render));
 
     // A tab left open past midnight should roll over to the new day.
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "visible" && localISO(new Date()) !== TODAY) location.reload();
-    });
-
-    // ---------------- tools + 14-week strips ----------------
-    const ACTIVITY_SOURCES = {
-      workout: async () => new Set((await SRC.sessions()).map((r) => r.log_date)),
-      expenses: async () => new Set((await SRC.expenses()).map((r) => r.spent_on)),
-      drugs: async () => new Set((await SRC.drugLog()).map((r) => r.studied_on)),
-      async vocab() {
-        const langs = (await SRC.vocab()).langs || {};
-        const dates = new Set();
-        Object.values(langs).forEach((lang) => Object.keys((lang && lang.activity) || {}).forEach((d) => dates.add(d)));
-        return dates;
-      },
-    };
-
-    function renderMiniHeat(node, dateSet) {
-      const WEEKS = 14;
-      const today = new Date();
-      const endOfGrid = new Date(today);
-      endOfGrid.setDate(today.getDate() + (6 - today.getDay())); // end of this week (Sat)
-      const start = new Date(endOfGrid);
-      start.setDate(endOfGrid.getDate() - (WEEKS * 7 - 1));
-
-      node.innerHTML = "";
-      node.classList.remove("loading");
-      for (let i = 0; i < WEEKS * 7; i++) {
-        const d = new Date(start);
-        d.setDate(start.getDate() + i);
-        const iso = localISO(d);
-        const dot = document.createElement("div");
-        dot.className = "d" + (dateSet.has(iso) ? " on" : "");
-        if (d > today) dot.style.visibility = "hidden";
-        dot.title = iso;
-        node.appendChild(dot);
-      }
-    }
-
-    // Adding a new tool to the site: add one entry here. `activity` is
-    // optional -- a key into ACTIVITY_SOURCES, or omit it.
-    const PAGES = [
-      { name: "Workout Tracker", path: "workout/", monogram: "W", activity: "workout",
-        tagline: "Log sets, track a consistency streak, compare lifts across sessions." },
-      { name: "Vocab Desk", path: "vocab/", monogram: "V", activity: "vocab",
-        tagline: "Spaced-repetition review for English and Japanese vocabulary." },
-      { name: "Expenses", path: "expenses/", monogram: "E", activity: "expenses",
-        tagline: "Bookkeeping: log spending and income, see the month by category." },
-      { name: "Drug of the Day", path: "drugs/", monogram: "D", activity: "drugs",
-        tagline: "One small-molecule drug a day: structure, mechanism, PK, quiz." },
-    ];
-
-    const grid = $("app-grid");
-    PAGES.forEach((p) => {
-      const a = document.createElement("a");
-      a.className = "app-card";
-      a.href = p.path;
-      a.innerHTML = `
-        <div class="monogram">${p.monogram}</div>
-        <div class="body">
-          <div class="name">${p.name}</div>
-          <div class="tagline">${p.tagline}</div>
-        </div>
-        ${p.activity ? '<div class="mini-heat loading"></div>' : ""}
-        <div class="arrow">→</div>
-      `;
-      grid.appendChild(a);
-      if (p.activity && ACTIVITY_SOURCES[p.activity]) {
-        ACTIVITY_SOURCES[p.activity]()
-          .then((dateSet) => renderMiniHeat(a.querySelector(".mini-heat"), dateSet))
-          .catch(() => { a.querySelector(".mini-heat").remove(); });
-      }
     });
   </script>
 </body>
