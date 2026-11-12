@@ -137,14 +137,9 @@
   <footer>Static site, no backend of its own — each tool below talks to Supabase directly.</footer>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="shared/auth.js"></script>
   <script>
-    const sb = window.supabase.createClient(
-      "https://xxcwyttfhqnhuelkkimu.supabase.co",
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh4Y3d5dHRmaHFuaHVlbGtraW11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc4ODc3NzIsImV4cCI6MjEwMzQ2Mzc3Mn0.t7EgPug7NaRkRBjLjtCc-opcRHd0MaIE-r3CsYexAsc"
-    );
-    // Same public anon key already embedded in workout/assets/config.js and
-    // vocab/index.html -- see the README's Security model section for why
-    // that's fine (access control is in RLS, not key secrecy).
+    const sb = Auth.client;
     const VOCAB_SLOT_ID = "56ba90d2a3a5add3cb";
 
     function localISO(d) {

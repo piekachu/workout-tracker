@@ -1,4 +1,4 @@
-const sb = window.supabase.createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
+const sb = Auth.client;
 
 // ---------- helpers ----------
 // Local-date strings only: toISOString()/new Date("YYYY-MM-DD") are UTC-based and
