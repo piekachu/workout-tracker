@@ -82,14 +82,24 @@ function render() {
   $("total-income").textContent = fmt(totalIncome);
   $("total-net").textContent = fmt(totalIncome - totalSpent);
 
-  // category breakdown (expenses only)
+  // category donut (a category keeps one colour everywhere) + daily bars for the month
   const byCat = new Map();
   spent.forEach((r) => byCat.set(r.category || "Other", (byCat.get(r.category || "Other") || 0) + Number(r.amount)));
   const cats = [...byCat.entries()].sort((a, b) => b[1] - a[1]);
-  $("breakdown").innerHTML = cats.map(([name, amt]) => {
-    const pct = totalSpent ? Math.round((amt / totalSpent) * 100) : 0;
-    return `<div class="bd-row"><span class="name">${esc(name)}</span><span class="amt">${fmt(amt)} · ${pct}%</span><div class="bd-bar"><i style="width:${pct}%"></i></div></div>`;
-  }).join("");
+  const dh = $("ex-donut"); dh.innerHTML = "";
+  if (cats.length) {
+    const segs = cats.map(([label, value]) => ({ label, value, color: Charts.slotColor(label, Charts.EXPENSE_SLOTS) }));
+    const host = document.createElement("div"); host.className = "ring-host"; dh.append(host);
+    Charts.donut(host, { segments: segs, size: 170, big: Charts.compact(totalSpent), small: cur().sym,
+      tipValue: (sg, sh) => `${fmt(sg.value)} · ${Math.round(sh * 100)}%` });
+    dh.append(Charts.legend(segs.map((s) => ({ label: s.label, color: s.color, text: `${fmt(s.value)} · ${Math.round((s.value / totalSpent) * 100)}%` }))));
+  }
+  const dim = new Date(state.month.getFullYear(), state.month.getMonth() + 1, 0).getDate();
+  const perDay = Array.from({ length: dim }, (_, i) => 0);
+  spent.forEach((r) => { perDay[Number(r.spent_on.slice(8, 10)) - 1] += Number(r.amount); });
+  $("daily-card").hidden = !spent.length;
+  Charts.bar($("ex-daily"), { values: perDay, height: 170, xTick: (i) => ((i + 1) % 5 === 1 || i === dim - 1 ? String(i + 1) : ""),
+    fmtLabel: (v) => Charts.compact(v), tipTitle: (i) => `${state.month.toLocaleDateString("en-US", { month: "short" })} ${i + 1}`, tipValue: (i) => fmt(perDay[i]) });
 
   // list grouped by day
   const list = $("list");

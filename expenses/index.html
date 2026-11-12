@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Expenses</title>
   <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="../shared/charts.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -22,6 +23,8 @@
   </header>
 
   <main>
+   <div class="ex-grid">
+   <div class="ex-col">
     <!-- month switcher + totals -->
     <section id="summary">
       <div class="month-bar">
@@ -35,10 +38,35 @@
         <span>Income <strong id="total-income"></strong></span>
         <span>Net <strong id="total-net"></strong></span>
       </div>
-      <div id="breakdown" class="breakdown"></div>
+      <div id="breakdown" class="breakdown" hidden></div>
+      <div id="ex-donut" class="donut-wrap"></div>
+      <div class="card" id="daily-card">
+        <h2>Daily spending</h2>
+        <div class="chart" id="ex-daily"></div>
+      </div>
     </section>
 
     <!-- add / edit -->
+
+
+    <section class="tools">
+      <div class="tool-row">
+        <label for="currency">Currency</label>
+        <select id="currency">
+          <option value="KRW">₩ Won (KRW)</option>
+          <option value="USD">$ Dollar (USD)</option>
+          <option value="EUR">€ Euro (EUR)</option>
+          <option value="JPY">¥ Yen (JPY)</option>
+        </select>
+      </div>
+      <div class="tool-row">
+        <button type="button" class="btn" id="export-month">Export this month (CSV)</button>
+        <button type="button" class="btn" id="export-all">Export everything (CSV)</button>
+      </div>
+      <p class="fineprint">Records are stored in your private Supabase project and visible only when you're signed in. Still, keep account numbers out of notes.</p>
+    </section>
+   </div>
+   <div class="ex-col">
     <section id="entry" class="card">
       <div class="entry-head">
         <h2 id="entry-title">Add</h2>
@@ -83,29 +111,15 @@
       <h2>This month</h2>
       <div id="list"></div>
     </section>
-
-    <section class="tools">
-      <div class="tool-row">
-        <label for="currency">Currency</label>
-        <select id="currency">
-          <option value="KRW">₩ Won (KRW)</option>
-          <option value="USD">$ Dollar (USD)</option>
-          <option value="EUR">€ Euro (EUR)</option>
-          <option value="JPY">¥ Yen (JPY)</option>
-        </select>
-      </div>
-      <div class="tool-row">
-        <button type="button" class="btn" id="export-month">Export this month (CSV)</button>
-        <button type="button" class="btn" id="export-all">Export everything (CSV)</button>
-      </div>
-      <p class="fineprint">Records are stored in your private Supabase project and visible only when you're signed in. Still, keep account numbers out of notes.</p>
-    </section>
+   </div>
+   </div>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../shared/auth.js"></script>
+  <script src="../shared/charts.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

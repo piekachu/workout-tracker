@@ -3,10 +3,10 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; line-height: 1.5; }
 button { font-family: inherit; touch-action: manipulation; }
-header, main { max-width: 640px; margin: 0 auto; }
-header { padding: 20px 20px 0; }
-main { padding: 8px 20px calc(60px + env(safe-area-inset-bottom)); }
-@media (max-width: 420px) { header, main { padding-left: 16px; padding-right: 16px; } }
+header, main { max-width: 1400px; margin: 0 auto; }
+header { padding: 20px 28px 0; }
+main { padding: 8px 28px calc(60px + env(safe-area-inset-bottom)); }
+@media (max-width: 640px) { header, main { padding-left: 16px; padding-right: 16px; } }
 h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0 0 12px; }
 input { font: inherit; font-size: 16px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; min-height: 46px; width: 100%; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -111,3 +111,20 @@ input { font: inherit; font-size: 16px; background: var(--surface); color: var(-
 .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: .88rem; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; z-index: 50; max-width: calc(100vw - 32px); }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+.quiz-trend { flex: 1 1 260px; min-width: 220px; max-width: 460px; margin-left: auto; }
+.quiz-trend .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); margin-bottom: 2px; }
+@media (max-width: 640px) { .quiz-trend { max-width: none; margin-left: 0; flex-basis: 100%; } }
+
+/* desktop: structure + name stay in view on the left, facts scroll on the right; the list fills the width */
+@media (min-width: 980px) {
+  #study { display: grid; grid-template-columns: minmax(340px, 5fr) minmax(0, 7fr); gap: 0 28px; align-items: start; }
+  #study .hero { grid-column: 1; grid-row: 1 / span 3; position: sticky; top: 16px; }
+  #study .toolbar, #study #facts { grid-column: 2; }
+  #study .toolbar { margin-top: 0; }
+  #study .structure { min-height: 260px; }
+  #study .structure svg { max-width: 100%; max-height: 380px; }
+  .browse #drug-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px 14px; }
+}
+
+@media (min-width: 980px) { .daynav { max-width: 520px; } .banner { max-width: 520px; } }

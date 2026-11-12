@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Tasks</title>
   <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="../shared/charts.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -31,6 +32,11 @@
       <button type="button" class="period-btn" id="prev" aria-label="Previous">‹</button>
       <button type="button" class="period-label" id="period-label" aria-label="Jump to today"></button>
       <button type="button" class="period-btn" id="next" aria-label="Next">›</button>
+    </div>
+    <div class="rings-row" id="rings" aria-label="Completion">
+      <div class="ring-cell"><div id="r-today" class="ring-host"></div><span>Today</span></div>
+      <div class="ring-cell"><div id="r-week" class="ring-host"></div><span>This week</span></div>
+      <div class="ring-cell"><div id="r-month" class="ring-host"></div><span>This month</span></div>
     </div>
     <div id="content"></div>
   </main>
@@ -77,6 +83,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../shared/auth.js"></script>
   <script src="../shared/tasks-core.js"></script>
+  <script src="../shared/charts.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

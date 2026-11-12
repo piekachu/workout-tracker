@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Drug of the day</title>
   <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="../shared/charts.css" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -22,9 +23,11 @@
     <h1 class="page-title">Drug of the day</h1>
 
     <div class="stats">
+      <div id="ring-covered" class="ring-host" title="Different drugs you've studied"></div>
       <div class="stat"><div class="num" id="stat-streak">–</div><div class="lbl">day streak</div></div>
       <div class="stat"><div class="num" id="stat-total">–</div><div class="lbl">days studied</div></div>
       <div class="dots" id="dots" aria-label="Last 14 days"></div>
+      <div class="quiz-trend"><div class="lbl">Quiz score · last 14 days</div><div class="chart" id="quiz-chart"></div></div>
     </div>
   </header>
 
@@ -52,6 +55,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../shared/auth.js"></script>
+  <script src="../shared/charts.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>

@@ -1,0 +1,40 @@
+/* Styles for shared/charts.js: tooltip, empty state, matrix, ranked bars, legend, table view. */
+.chart svg { display: block; width: 100%; height: auto; touch-action: pan-y; }
+.chart-empty { padding: 26px 0; text-align: center; color: var(--text-faint); font-size: .88rem; }
+.chart-tip { position: fixed; z-index: 100; pointer-events: none; background: var(--surface); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--shadow-2); padding: 7px 10px; font-size: 12px; max-width: 240px; }
+.chart-tip[hidden] { display: none; }
+.chart-tip .t { color: var(--text-dim); margin-bottom: 1px; }
+.chart-tip .v { font-weight: 600; }
+.chart-table { margin-top: 6px; font-size: .8rem; }
+.chart-table summary { cursor: pointer; color: var(--text-dim); padding: 8px 0; min-height: 36px; }
+.chart-table table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.chart-table th, .chart-table td { text-align: left; padding: 4px 6px 4px 0; border-top: 1px solid var(--border-2); }
+.chart-table th { color: var(--text-dim); font-weight: 600; }
+
+/* consistency matrix */
+.matrix { display: grid; gap: 4px 3px; align-items: center; }
+.mx-day { text-align: center; font-family: var(--font-mono); font-size: 10px; color: var(--text-faint); }
+.mx-day.today { color: var(--accent); font-weight: 700; }
+.mx-label { font-size: .78rem; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mx-cell { height: 20px; min-width: 0; padding: 0; border: 0; border-radius: 4px; background: var(--border-2); cursor: pointer; }
+.mx-cell.on { background: var(--chart-1); }
+.mx-cell.today { outline: 1px solid var(--text-faint); outline-offset: 1px; }
+
+/* ranked bars */
+.hbars { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.hb-row { display: grid; grid-template-columns: 1fr auto; gap: 3px 12px; font-size: .86rem; }
+.hb-name { color: var(--text-2); } .hb-val { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.hb-track { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--border-2); overflow: hidden; }
+.hb-track i { display: block; height: 100%; background: var(--chart-1); border-radius: 3px; }
+
+
+/* legend (donuts) */
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.legend li { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 4px 9px; font-size: .86rem; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: block; }
+.legend .lg-name { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.legend .lg-val { color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.donut-wrap .legend { flex: 1 1 140px; }
+.ring-host svg { display: block; }

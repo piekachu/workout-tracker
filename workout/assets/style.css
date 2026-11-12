@@ -19,9 +19,9 @@ body {
 button, [role="button"] { touch-action: manipulation; }
 
 header {
-  max-width: 640px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 20px 20px 0;
+  padding: 20px 28px 0;
 }
 
 h1 {
@@ -63,9 +63,9 @@ h2 {
 }
 
 main {
-  max-width: 640px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 0 20px 60px;
+  padding: 0 28px 60px;
 }
 
 hr {
@@ -591,4 +591,25 @@ input, select, textarea {
 @media (max-width: 420px) {
   main, header { padding-left: 16px; padding-right: 16px; }
   .save-bar { margin-left: -16px; margin-right: -16px; padding-left: 16px; padding-right: 16px; }
+}
+
+
+/* desktop: consistency + exercise progress on the left, the log form on the right, using the full width */
+@media (min-width: 1000px) {
+  body.page-log main, main.log-grid { display: grid; grid-template-columns: minmax(340px, 5fr) minmax(0, 7fr); gap: 0 36px; align-items: start; padding: 0 28px 60px; }
+  main.log-grid #consistency { grid-column: 1; grid-row: 1; }
+  main.log-grid #progress { grid-column: 1; grid-row: 2; }
+  main.log-grid #log { grid-column: 2; grid-row: 1 / span 2; }
+}
+@media (min-width: 1000px) {
+  main.wide { max-width: 1400px; padding-left: 28px; padding-right: 28px; }
+}
+
+@media (max-width: 640px) { header, main { padding-left: 20px; padding-right: 20px; } }
+
+/* database + manage pages: two columns on desktop instead of one narrow strip */
+@media (min-width: 1000px) {
+  main.split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 40px; align-items: start; }
+  main.split > hr { display: none; }
+  main.split > #day-detail, main.split > #day-detail-empty { grid-column: 2; grid-row: 1; }
 }

@@ -210,6 +210,85 @@ window.Charts = (function () {
     host.append(list);
   }
 
+
+  // ---------- progress ring: one value out of a total, centre label ----------
+  // opts: value, total, size?, thickness?, big, small, color?
+  function ring(host, o) {
+    const S = o.size || 120, th = o.thickness || Math.max(8, Math.round(S * 0.13)), r = (S - th) / 2, C = 2 * Math.PI * r;
+    const frac = o.total > 0 ? Math.min(1, Math.max(0, o.value / o.total)) : 0;
+    const prev = host._ring;                                   // same size: animate the existing ring instead of redrawing
+    if (prev && prev.S === S && prev.th === th && host.contains(prev.root)) {
+      prev.frac = frac; prev.arc.style.display = frac > 0 ? "" : "none"; prev.arc.setAttribute("stroke-dashoffset", String(C * (1 - frac)));
+      prev.arc.style.stroke = o.color || "var(--chart-1)";
+      prev.big.textContent = o.big; if (prev.sm) prev.sm.textContent = o.small || "";
+      prev.root.setAttribute("aria-label", o.aria || `${o.big} ${o.small || ""}`);
+      return;
+    }
+    const root = svg("svg", { viewBox: `0 0 ${S} ${S}`, width: S, height: S, role: "img", "aria-label": o.aria || `${o.big} ${o.small || ""}` });
+    root.setAttribute("data-chart", "");
+    root.append(svg("circle", { cx: S / 2, cy: S / 2, r, "stroke-width": th }, { fill: "none", stroke: "var(--chart-grid)" }));
+    const arc = svg("circle", { cx: S / 2, cy: S / 2, r, "stroke-width": th, "stroke-linecap": "round",
+      transform: `rotate(-90 ${S / 2} ${S / 2})`, "stroke-dasharray": `${C}`, "stroke-dashoffset": `${C}` },
+      { fill: "none", stroke: o.color || "var(--chart-1)", transition: "stroke-dashoffset .6s ease", display: frac > 0 ? "" : "none" });
+    root.append(arc);
+    const big = svg("text", { x: S / 2, y: S / 2 + (o.small ? 0 : S * 0.09), "text-anchor": "middle", "font-size": S * (o.small ? 0.26 : 0.28) },
+      { fill: "var(--text)", fontFamily: "var(--font-display)", fontWeight: 500 });
+    big.textContent = o.big; root.append(big);
+    let sm = null;
+    if (o.small) {
+      sm = svg("text", { x: S / 2, y: S / 2 + S * 0.15, "text-anchor": "middle", "font-size": Math.max(10, S * 0.1) }, { fill: "var(--text-dim)" });
+      sm.textContent = o.small; root.append(sm);
+    }
+    host.innerHTML = ""; host.append(root);
+    host._ring = { root, arc, big, sm, S, th, frac };
+    // animate in from empty: commit the empty state with a layout read, then set the target (no timers, so it also works in background tabs)
+    void arc.getBoundingClientRect();
+    arc.setAttribute("stroke-dashoffset", String(C * (1 - frac)));
+  }
+
+  // ---------- donut: parts of a whole (segments carry their own colour var) ----------
+  // opts: segments[{label, value, color}], size?, thickness?, big, small, tipValue(seg, share)
+  function donut(host, o) {
+    const segs = o.segments.filter((s) => s.value > 0), total = segs.reduce((a, s) => a + s.value, 0);
+    const S = o.size || 160, th = o.thickness || Math.round(S * 0.17), r = (S - th) / 2, C = 2 * Math.PI * r;
+    const root = svg("svg", { viewBox: `0 0 ${S} ${S}`, width: S, height: S, role: "img", "aria-label": o.aria || "Breakdown" });
+    root.setAttribute("data-chart", "");
+    root.append(svg("circle", { cx: S / 2, cy: S / 2, r, "stroke-width": th }, { fill: "none", stroke: "var(--chart-grid)" }));
+    let cum = 0;
+    const gap = segs.length > 1 ? 2.5 : 0;
+    segs.forEach((seg) => {
+      const len = (seg.value / total) * C, draw = Math.max(0.5, len - gap);
+      const arc = svg("circle", { cx: S / 2, cy: S / 2, r, "stroke-width": th, transform: `rotate(-90 ${S / 2} ${S / 2})`,
+        "stroke-dasharray": `${draw} ${C - draw}`, "stroke-dashoffset": String(-(cum + gap / 2)) }, { fill: "none", stroke: seg.color });
+      const show = (e) => { const b = arc.getBoundingClientRect(); showTip(e.clientX || b.left + b.width / 2, e.clientY || b.top,
+        seg.label, o.tipValue ? o.tipValue(seg, seg.value / total) : `${Math.round((seg.value / total) * 100)}%`); };
+      arc.addEventListener("pointerenter", show); arc.addEventListener("pointermove", show);
+      arc.addEventListener("pointerleave", hideTip); arc.addEventListener("click", show);
+      root.append(arc); cum += len;
+    });
+    const big = svg("text", { x: S / 2, y: S / 2 + (o.small ? 0 : S * 0.08), "text-anchor": "middle", "font-size": S * (o.small ? 0.17 : 0.2) },
+      { fill: "var(--text)", fontFamily: "var(--font-display)", fontWeight: 500 });
+    big.textContent = total > 0 ? o.big : "—"; root.append(big);
+    if (o.small) {
+      const sm = svg("text", { x: S / 2, y: S / 2 + S * 0.12, "text-anchor": "middle", "font-size": Math.max(10, S * 0.075) }, { fill: "var(--text-dim)" });
+      sm.textContent = o.small; root.append(sm);
+    }
+    host.innerHTML = ""; host.append(root);
+  }
+
+  // Legend for a donut: swatch + name + value (text stays in text tokens).
+  function legend(items) {
+    const ul = document.createElement("ul"); ul.className = "legend";
+    items.forEach((it) => {
+      const li = document.createElement("li");
+      const sw = document.createElement("i"); sw.style.background = it.color;
+      const nm = document.createElement("span"); nm.className = "lg-name"; nm.textContent = it.label;
+      const v = document.createElement("span"); v.className = "lg-val"; v.textContent = it.text;
+      li.append(sw, nm, v); ul.append(li);
+    });
+    return ul;
+  }
+
   // ---------- table view (screen-reader / precise-number fallback) ----------
   function table(headers, rows) {
     const d = document.createElement("details"); d.className = "chart-table";
@@ -221,5 +300,10 @@ window.Charts = (function () {
     d.append(t); return d;
   }
 
-  return { bar, line, matrix, hbar, table, hideTip, compact };
+  // A category keeps its colour on every page and in every period; anything unlisted folds into muted grey.
+  const EXPENSE_SLOTS = { Food: 1, Groceries: 2, Transport: 3, Bills: 4, Rent: 5, Health: 6, Shopping: 7, Fun: 8 };
+  const WORKOUT_SLOTS = { "Back + Biceps": 1, "Chest + Triceps": 2, "Shoulder + Arms": 3, Legs: 4, "Whole body": 5 };
+  const slotColor = (name, map) => (map[name] ? `var(--chart-${map[name]})` : "var(--text-faint)");
+
+  return { bar, line, matrix, hbar, ring, donut, legend, table, hideTip, compact, EXPENSE_SLOTS, WORKOUT_SLOTS, slotColor };
 })();

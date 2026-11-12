@@ -10,7 +10,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 button { touch-action: manipulation; font-family: inherit; }
-header, main { max-width: 640px; margin: 0 auto; }
+header, main { max-width: 1400px; margin: 0 auto; }
 header { padding: 20px 20px 0; }
 main { padding: 8px 20px calc(60px + env(safe-area-inset-bottom)); }
 h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0 0 12px; }
@@ -126,3 +126,10 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+/* two columns on desktop: the month's overview left, entry form + list right */
+.ex-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 32px; align-items: start; }
+@media (min-width: 980px) { .ex-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.ex-col { min-width: 0; }
+#ex-donut { margin-top: 18px; }
+#daily-card { margin-top: 18px; }

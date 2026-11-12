@@ -81,8 +81,23 @@ function render() {
   document.querySelectorAll("#view-seg button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.view === view)));
   $("period-label").textContent = periodLabel(view, anchor);
   $("add-title").placeholder = `Add a task for ${view === "day" ? (anchor === TODAY ? "today" : "this day") : "this " + view}`;
-  const c = $("content"); c.innerHTML = "";
+  renderRings();
+  const c = $("content"); c.innerHTML = ""; c.dataset.view = view;
   if (view === "day") renderDay(c); else if (view === "week") renderWeek(c); else renderMonth(c);
+}
+
+// done / total for tasks anchored in a period (day tasks by date, week tasks by Monday, month tasks by the 1st)
+function periodStats(from, to) {
+  const t = tasks.filter((x) => x.period_start >= from && x.period_start <= to);
+  return { done: t.filter((x) => x.done_at).length, total: t.length };
+}
+function renderRings() {
+  const mon = mondayOf(TODAY), first = firstOf(TODAY);
+  const sets = [["r-today", periodStats(TODAY, TODAY), "today"], ["r-week", periodStats(mon, addDays(mon, 6)), "this week"],
+    ["r-month", periodStats(first, addDays(addMonths(first, 1), -1)), "this month"]];
+  for (const [id, s, label] of sets) {
+    Charts.ring($(id), { size: 84, value: s.done, total: s.total || 1, big: s.total ? `${s.done}/${s.total}` : "–", aria: `${s.done} of ${s.total} tasks done ${label}` });
+  }
 }
 
 function renderDay(c) {
@@ -124,7 +139,7 @@ function renderMonth(c) {
     cal.append(el("button", { type: "button", class: "cell" + (iso === TODAY ? " today" : ""),
       "aria-label": `${iso}: ${open} open`, onclick: () => { view = "day"; anchor = iso; render(); } }, String(n), dots));
   }
-  c.append(el("section", { class: "group" }, el("div", { class: "group-title" }, el("span", {}, "Days")), cal));
+  c.append(el("section", { class: "group group-cal" }, el("div", { class: "group-title" }, el("span", {}, "Days")), cal));
 
   // week-level tasks for each week that touches this month
   const weeks = [];

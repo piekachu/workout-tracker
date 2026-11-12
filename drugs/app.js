@@ -58,7 +58,14 @@ function renderStats() {
   $("dots").innerHTML = Array.from({ length: 14 }, (_, i) => {
     const iso = addDaysISO(TODAY, i - 13);
     return `<i class="${state.studied.has(iso) ? "on" : ""}${iso === TODAY ? " today" : ""}" title="${iso}"></i>`;
-  }).join("");
+  }).join("");  // ring: different drugs studied out of the whole set; bars: quiz score on each of the last 14 days
+  const seen = new Set([...state.studied.values()].map((r) => r.drug_id).filter(Boolean)).size;
+  Charts.ring($("ring-covered"), { value: seen, total: DRUGS.length, size: 84, big: String(seen), small: `of ${DRUGS.length}`, aria: `${seen} of ${DRUGS.length} drugs studied` });
+  const days14 = Array.from({ length: 14 }, (_, i) => addDaysISO(TODAY, i - 13));
+  const scores = days14.map((d) => { const r = state.studied.get(d); return r && r.quiz_total ? Math.round((r.quiz_correct / r.quiz_total) * 100) : 0; });
+  Charts.bar($("quiz-chart"), { values: scores, max: 100, height: 96, highlight: 13, fmtTick: (v) => v + "%", fmtLabel: (v) => v + "%",
+    emptyText: "Finish a quiz to see your scores here", xTick: (i) => (i % 4 === 0 || i === 13 ? days14[i].slice(5).replace("-", "/") : ""),
+    tipTitle: (i) => days14[i], tipValue: (i) => (scores[i] ? `${scores[i]}%` : "no quiz") });
 }
 
 // ---------- study view ----------

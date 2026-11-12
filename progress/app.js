@@ -20,6 +20,8 @@ let cur = CUR.KRW;
 try { cur = CUR[localStorage.getItem("expenses.currency")] || CUR.KRW; } catch {}
 const money = (v) => cur.sym + v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: cur.digits });
 
+const { EXPENSE_SLOTS, WORKOUT_SLOTS } = Charts, catColor = Charts.slotColor;
+
 // ---------- state ----------
 let view = "week", anchor = TODAY, D = null;     // D = everything, indexed by day, once loaded
 try { const v = localStorage.getItem("progress:view"); if (["day", "week", "month"].includes(v)) view = v; } catch {}
@@ -120,13 +122,21 @@ function delta(now, before, label, unit = "") {
   const p = unit === "pp" ? `${Math.round(Math.abs(diff))} pt${Math.round(Math.abs(diff)) === 1 ? "" : "s"}` : `${Math.round(Math.abs(diff) / before * 100)}%`;
   return `${diff > 0 ? "▲" : "▼"} ${p} vs ${label}`;
 }
-function tile(k, v, s, d) { return el("div", { class: "tile" }, el("div", { class: "k" }, k), el("div", { class: "v" }, v), el("div", { class: "s" }, s), d ? el("div", { class: "d" }, d) : null); }
+function tile(k, v, s, d, ring) {
+  const txt = el("div", { class: "txt" }, el("div", { class: "k" }, k), el("div", { class: "v" }, v), el("div", { class: "s" }, s), d ? el("div", { class: "d" }, d) : null);
+  if (!ring) return el("div", { class: "tile" }, txt);
+  const host = el("div", { class: "ring-host" });
+  const t = el("div", { class: "tile has-ring" }, txt, host);
+  Charts.ring(host, { size: 64, thickness: 8, value: ring.value, total: ring.total, big: ring.big, aria: ring.aria });
+  return t;
+}
 
 function renderTiles(m, p, r) {
   const t = $("tiles"); t.innerHTML = "";
   t.append(
-    tile("Daily habits", pct(m.habit), "average completion", delta(m.habit, p.habit, r.prevLabel, "pp")),
-    tile("Tasks done", String(m.tasksDone), `of ${m.tasksPlanned} planned`, delta(m.tasksDone, p.tasksDone, r.prevLabel)),
+    tile("Daily habits", pct(m.habit), "average completion", delta(m.habit, p.habit, r.prevLabel, "pp"), { value: m.habit, total: 100, big: "", aria: `${pct(m.habit)} of daily habits` }),
+    tile("Tasks done", String(m.tasksDone), `of ${m.tasksPlanned} planned`, delta(m.tasksDone, p.tasksDone, r.prevLabel),
+      { value: Math.min(m.tasksDone, m.tasksPlanned), total: m.tasksPlanned || 1, big: "", aria: `${m.tasksDone} of ${m.tasksPlanned} tasks` }),
     tile("Workouts", String(m.sessions), `${m.volume.toLocaleString()} kg lifted`, delta(m.sessions, p.sessions, r.prevLabel)),
     tile("Vocab reviews", m.vocab.toLocaleString(), `${m.vocabDays} active day${m.vocabDays === 1 ? "" : "s"}`, delta(m.vocab, p.vocab, r.prevLabel)),
     tile("Drugs studied", String(m.drugDays), m.quizN ? `${pct(m.quiz)} average quiz` : "no quizzes yet", delta(m.drugDays, p.drugDays, r.prevLabel)),
@@ -149,9 +159,9 @@ function renderDetail(d) {
   box.append(card);
 }
 
-function card(title, sub) {
+function card(title, sub, wide) {
   const host = el("div", { class: "chart" });
-  const c = el("section", { class: "card" }, el("h3", {}, title), el("p", { class: "sub" }, sub), host);
+  const c = el("section", { class: "card" + (wide ? " wide" : "") }, el("h3", {}, title), el("p", { class: "sub" }, sub), host);
   $("charts").append(c); return { c, host };
 }
 
@@ -167,9 +177,28 @@ function renderCharts(r) {
 
   out.append(el("div", { class: "group-h" }, view === "day" ? "The week leading up to this day" : "Trends"));
 
+  // 0. habit scorecard: one ring per habit = share of days done
+  {
+    const { host, c } = card("Habit scorecard", `Days you did each one · ${scope}`, true);
+    host.className = "scorecard";
+    const items = [
+      { label: "Vocab", on: (d) => vocabOn(d) > 0 }, { label: "Drug of the day", on: (d) => !!drugOn(d) },
+      { label: "Workout", on: (d) => sessionsOn(d).length > 0 }, { label: "Tasks", on: (d) => num(D.tasksDone[d]) > 0 },
+      ...D.habitsActive.map((h) => ({ label: h.name, on: (d) => !!(D.habitDone[d] && D.habitDone[d].has(h.id)) })),
+    ];
+    const rowsTbl = [];
+    items.forEach((it, i) => {
+      const done = past.filter(it.on).length, cell = el("div", { class: "ring-cell" }), rh = el("div", { class: "ring-host" });
+      cell.append(rh, el("span", {}, it.label)); host.append(cell);
+      Charts.ring(rh, { size: 88, value: done, total: past.length || 1, big: `${done}/${past.length}`, aria: `${it.label}: ${done} of ${past.length} days` });
+      rowsTbl.push([it.label, `${done} of ${past.length}`]);
+    });
+    c.append(Charts.table(["Habit", "Days done"], rowsTbl));
+  }
+
   // 1. consistency matrix
   {
-    const { host, c } = card("Consistency", `Which habits you hit each day · ${scope}`);
+    const { host, c } = card("Consistency", `Which habits you hit each day · ${scope}`, true);
     const rowsDef = [
       { label: "Vocab", on: (d) => vocabOn(d) > 0, tip: (d) => (vocabOn(d) ? `${vocabOn(d)} reviewed · ${long(d)}` : `Not done · ${long(d)}`) },
       { label: "Drug", on: (d) => !!drugOn(d), tip: (d) => (drugOn(d) ? `Quiz ${drugOn(d).correct}/${drugOn(d).total} · ${long(d)}` : `Not done · ${long(d)}`) },
@@ -236,14 +265,40 @@ function renderCharts(r) {
     const total = vals.reduce((a, b) => a + b, 0);
     const { host, c } = card("Spending", total ? `${money(total)} spent · ${scope}` : `Expenses per day · ${scope}`);
     Charts.bar(host, { values: vals, xTick, highlight: hl, fmtLabel: (v) => Charts.compact(v), tipTitle: (i) => long(days[i]), tipValue: (i) => money(vals[i]) });
-    const byCat = {};
-    const inRange = new Set(days);
+    c.append(Charts.table(["Day", "Spent"], days.map((d, i) => [long(d), money(vals[i])])));
+  }
+
+  // 7b. where the money went (fixed colour per category, so it never repaints between periods)
+  {
+    const byCat = {}, inRange = new Set(days);
     for (const e of D.expenses) if (inRange.has(e.spent_on)) byCat[e.category || "Other"] = (byCat[e.category || "Other"] || 0) + num(e.amount);
     const cats = Object.entries(byCat).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
-    if (cats.length) {
-      c.append(el("p", { class: "sub", style: "margin-top:14px" }, "By category"));
-      const h = el("div", {}); c.append(h); Charts.hbar(h, cats, money);
+    const total = cats.reduce((a, x) => a + x.value, 0);
+    const { host, c } = card("Where the money went", total ? `${money(total)} across ${cats.length} categor${cats.length === 1 ? "y" : "ies"} · ${scope}` : `Spending by category · ${scope}`);
+    host.className = "donut-wrap";
+    if (!total) { Charts.hbar(host, [], money); } else {
+      const segs = cats.map((x) => ({ ...x, color: catColor(x.label, EXP_SLOTS) }));
+      const dh = el("div", { class: "ring-host" }); host.append(dh);
+      Charts.donut(dh, { segments: segs, size: 170, big: Charts.compact(total), small: cur.sym, tipValue: (sg, sh) => `${money(sg.value)} · ${Math.round(sh * 100)}%` });
+      host.append(Charts.legend(segs.map((x) => ({ label: x.label, color: x.color, text: `${money(x.value)} · ${Math.round((x.value / total) * 100)}%` }))));
       c.append(Charts.table(["Category", "Spent"], cats.map((x) => [x.label, money(x.value)])));
+    }
+  }
+
+  // 4b. training split by muscle group
+  {
+    const byGroup = {};
+    days.forEach((d) => sessionsOn(d).forEach((s) => { const k = s.category || "Other"; byGroup[k] = (byGroup[k] || 0) + 1; }));
+    const groups = Object.entries(byGroup).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
+    const total = groups.reduce((a, x) => a + x.value, 0);
+    const { host, c } = card("Training split", total ? `${total} session${total === 1 ? "" : "s"} by muscle group · ${scope}` : `Sessions by muscle group · ${scope}`);
+    host.className = "donut-wrap";
+    if (!total) { Charts.hbar(host, [], String); } else {
+      const segs = groups.map((x) => ({ ...x, color: catColor(x.label, WORKOUT_SLOTS) }));
+      const dh = el("div", { class: "ring-host" }); host.append(dh);
+      Charts.donut(dh, { segments: segs, size: 170, big: String(total), small: total === 1 ? "session" : "sessions", tipValue: (sg, sh) => `${sg.value} · ${Math.round(sh * 100)}%` });
+      host.append(Charts.legend(segs.map((x) => ({ label: x.label, color: x.color, text: `${x.value} · ${Math.round((x.value / total) * 100)}%` }))));
+      c.append(Charts.table(["Group", "Sessions"], groups.map((x) => [x.label, x.value])));
     }
   }
 

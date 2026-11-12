@@ -5,26 +5,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Today</title>
   <link rel="stylesheet" href="shared/theme.css" />
+  <link rel="stylesheet" href="shared/charts.css" />
   <style>
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
     body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui);
       -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
     button, input { font-family: inherit; touch-action: manipulation; }
-    header, main { max-width: 640px; margin: 0 auto; }
-    header { padding: 24px 20px 0; }
-    main { padding: 6px 20px calc(48px + env(safe-area-inset-bottom)); }
-    @media (max-width: 420px) { header, main { padding-left: 16px; padding-right: 16px; } }
+    header, main, footer { max-width: 1400px; margin: 0 auto; }
+    header { padding: 24px 28px 0; }
+    main { padding: 6px 28px calc(48px + env(safe-area-inset-bottom)); }
+    @media (max-width: 640px) { header, main, footer { padding-left: 16px !important; padding-right: 16px !important; } }
+
+    /* phone: one column. desktop: tasks + habits on the left, insights on the right, full width. */
+    .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px 32px; align-items: start; }
+    @media (min-width: 980px) {
+      .layout { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
+      .col-side { position: sticky; top: 16px; }
+    }
+    @media (min-width: 1500px) { header, main, footer { max-width: 1600px; } }
+    .col-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px 12px; min-width: 0; }
+    .panel h2 { margin: 0 0 2px; font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; }
+    .panel .cap { margin: 0 0 8px; font-size: .8rem; color: var(--text-dim); }
+    .rings { display: flex; justify-content: space-around; gap: 12px; flex-wrap: wrap; padding: 6px 0 4px; }
+    .ring-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .82rem; color: var(--text-dim); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .chip { display: inline-flex; align-items: baseline; gap: 6px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px;
+      background: var(--bg-2); font-size: .85rem; color: var(--text-2); }
+    .chip b { font-family: var(--font-display); font-weight: 500; font-size: 1.05rem; color: var(--text); }
+    .span-all { grid-column: 1 / -1; }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     /* ---- heading: date, what's left, progress ---- */
-    .hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin: 4px 0 10px; }
+    .hero { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 4px 0 6px; }
     .hero h1 { margin: 0; font-family: var(--font-display); font-weight: 500; font-size: 2rem; letter-spacing: -.01em; line-height: 1.1; }
     .hero .date { color: var(--text-dim); font-size: .92rem; margin-top: 3px; }
-    .hero .left { text-align: right; font-family: var(--font-display); font-size: 2.6rem; font-weight: 500; line-height: 1; }
-    .hero .left small { display: block; margin-top: 4px; font-family: var(--font-ui); font-size: .78rem; font-weight: 400; color: var(--text-dim); }
-    .bar { height: 5px; border-radius: 3px; background: var(--border-2); overflow: hidden; margin-bottom: 16px; }
-    .bar > i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
+    .hero .sub { color: var(--text-2); font-size: .95rem; margin-top: 8px; }
+    #hero-ring { flex: 0 0 auto; }
+    @media (min-width: 980px) { .hero h1 { font-size: 2.5rem; } }
+    .hero-wrap { margin-bottom: 14px; }
 
     /* ---- quick add ---- */
     .quick { display: flex; gap: 8px; margin-bottom: 18px; }
@@ -78,6 +98,7 @@
 
     /* ---- tools ---- */
     .tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+    @media (min-width: 760px) { .tools { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
     .tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 76px; padding: 10px 6px;
       background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); text-decoration: none; font-size: .85rem; }
     .tool:active { transform: scale(.98); }
@@ -101,17 +122,19 @@
       <a href="expenses/">Expenses</a>
       <a href="drugs/">Drugs</a>
     </nav>
-    <div class="hero">
+    <div class="hero hero-wrap">
       <div>
         <h1>Today</h1>
         <div class="date" id="today-date"></div>
+        <div class="sub" id="hero-sub" aria-live="polite"></div>
       </div>
-      <div class="left" id="left" aria-live="polite"></div>
+      <div id="hero-ring" class="ring-host"></div>
     </div>
-    <div class="bar"><i id="bar"></i></div>
   </header>
 
   <main>
+   <div class="layout">
+    <section class="col-main">
     <form class="quick" id="quick" autocomplete="off">
       <input id="quick-title" type="text" maxlength="200" placeholder="Add a task for today" enterkeyhint="done" aria-label="New task for today">
       <button type="submit">Add</button>
@@ -127,8 +150,36 @@
       </form>
       <div id="habit-rows"></div>
     </details>
+    </section>
 
-    <div class="sect" style="margin-top:28px">Open</div>
+    <aside class="col-side" aria-label="Insights">
+      <div class="panel">
+        <h2>Today at a glance</h2>
+        <p class="cap">Share finished so far</p>
+        <div class="rings">
+          <div class="ring-cell"><div id="ring-habits" class="ring-host"></div>Habits</div>
+          <div class="ring-cell"><div id="ring-all" class="ring-host"></div>Everything</div>
+          <div class="ring-cell"><div id="ring-week" class="ring-host"></div>This week</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Habits, last 7 days</h2>
+        <p class="cap" id="cap-habits">Share of daily habits done each day</p>
+        <div class="chart" id="ch-habits"></div>
+      </div>
+      <div class="panel">
+        <h2>Tasks completed, last 7 days</h2>
+        <p class="cap" id="cap-tasks">Finished per day</p>
+        <div class="chart" id="ch-tasks"></div>
+      </div>
+      <div class="panel">
+        <h2>Streaks</h2>
+        <div class="chips" id="chips"></div>
+      </div>
+    </aside>
+
+    <section class="span-all">
+    <div class="sect" style="margin-top:10px">Open</div>
     <div class="tools">
       <a class="tool primary" href="progress/"><span class="m">↗</span>Progress</a>
       <a class="tool" href="tasks/"><span class="m">T</span>Tasks</a>
@@ -137,6 +188,8 @@
       <a class="tool" href="expenses/"><span class="m">E</span>Expenses</a>
       <a class="tool" href="drugs/"><span class="m">D</span>Drugs</a>
     </div>
+    </section>
+   </div>
   </main>
 
   <footer>Private — your data is visible only when signed in.</footer>
@@ -144,6 +197,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="shared/auth.js"></script>
   <script src="shared/tasks-core.js"></script>
+  <script src="shared/charts.js"></script>
   <script>
     const sb = Auth.client;
     const VOCAB_SLOT_ID = "56ba90d2a3a5add3cb";
@@ -189,6 +243,11 @@
         if (longer.error) throw longer.error;
         return [...(days.data || []), ...(longer.data || [])];
       }),
+      tasksRecent: once(async () => {
+        const since = new Date(); since.setHours(0, 0, 0, 0); since.setDate(since.getDate() - 6);
+        const { data, error } = await sb.from("tasks").select("done_at").gte("done_at", since.toISOString());
+        if (error) throw error; return data || [];
+      }),
       habits: once(async () => {
         const { data, error } = await sb.from("habits").select("id, name, sort_order").eq("archived", false).order("sort_order").order("id");
         if (error) throw error; return data || [];
@@ -217,7 +276,7 @@
       { key: "drugs",   name: "Drug of the day", href: "drugs/",   cta: "Study" },
       { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
     ];
-    const state = { core: {}, tasks: null, custom: [] };   // core[key] = { done, sub, streak }
+    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, drugSet: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0 };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
     const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
@@ -260,9 +319,13 @@
       const doneN = doneTasks.length + doneCore.length + doneHabits.length;
       const left = total - doneN;
       const ready = state.tasks !== null && coreReady;
-      $("left").innerHTML = "";
-      $("left").append(ready ? String(left) : "…", el("small", {}, left === 1 ? "thing left" : "things left"));
-      $("bar").style.width = total ? Math.round((doneN / total) * 100) + "%" : "0%";
+      const taskTotal = overdue.length + today.length, taskLeft = taskTotal - doneTasks.length;
+      const habitTotal = CORE.length + state.custom.length, habitDone = doneCore.length + doneHabits.length;
+      const size = window.innerWidth < 640 ? 92 : 112;
+      Charts.ring($("hero-ring"), { value: taskTotal ? doneTasks.length : 1, total: taskTotal || 1, size,
+        big: ready ? String(taskLeft) : "…", small: taskLeft === 1 ? "task left" : "tasks left", aria: `${taskLeft} tasks left` });
+      $("hero-sub").textContent = !ready ? "" : habitTotal - habitDone ? `${habitTotal - habitDone} habit${habitTotal - habitDone === 1 ? "" : "s"} left` : "All habits done";
+      if (ready) renderInsights({ doneN, total, habitDone, habitTotal });
 
       const list = $("list"); list.innerHTML = "";
       if (ready && !pendingTasks.length && !pendingCore.length && !pendingHabits.length) {
@@ -301,12 +364,46 @@
         el("button", { type: "button", onclick: () => removeHabit(h) }, "Remove"))));
     }
 
+    // ---------------- insights panel ----------------
+    const lastDays = (n) => Array.from({ length: n }, (_, i) => addDaysISO(TODAY, i - (n - 1)));
+    function habitPct(d) {
+      const ids = new Set(state.custom.map((h) => h.id)), logged = state.habitLogByDay[d] || new Set();
+      let custom = 0; logged.forEach((id) => { if (ids.has(id)) custom++; });
+      return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + (state.drugSet.has(d) ? 1 : 0) + custom) / (2 + state.custom.length) * 100);
+    }
+    function renderInsights({ doneN, total, habitDone, habitTotal }) {
+      const days = lastDays(7);
+      const pcts = days.map(habitPct), tdone = days.map((d) => state.doneByDay[d] || 0);
+      const avg = Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length);
+      Charts.ring($("ring-habits"), { value: habitDone, total: habitTotal, size: 96, big: `${habitDone}/${habitTotal}`, small: "habits" });
+      Charts.ring($("ring-all"), { value: doneN, total: total || 1, size: 96, big: total ? Math.round((doneN / total) * 100) + "%" : "—", small: "done", color: "var(--chart-2)" });
+      Charts.ring($("ring-week"), { value: avg, total: 100, size: 96, big: avg + "%", small: "avg habits" });
+
+      const long = (d) => new Date(d + "T00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+      const xTick = (i) => new Date(days[i] + "T00:00").toLocaleDateString(undefined, { weekday: "short" });
+      Charts.bar($("ch-habits"), { values: pcts, xTick, max: 100, highlight: 6, height: 150, fmtTick: (v) => v + "%", fmtLabel: (v) => v + "%",
+        emptyText: "Nothing logged in the last 7 days yet", tipTitle: (i) => long(days[i]), tipValue: (i) => `${pcts[i]}% of habits` });
+      $("cap-habits").textContent = `Average ${avg}% — share of daily habits done each day`;
+      const tTotal = tdone.reduce((a, b) => a + b, 0);
+      Charts.bar($("ch-tasks"), { values: tdone, xTick, highlight: 6, height: 130, emptyText: "No tasks completed in the last 7 days yet",
+        tipTitle: (i) => long(days[i]), tipValue: (i) => `${tdone[i]} completed` });
+      $("cap-tasks").textContent = `${tTotal} finished this week`;
+
+      const chips = $("chips"); chips.innerHTML = "";
+      const chip = (n, label) => chips.append(el("span", { class: "chip" }, el("b", {}, String(n)), label));
+      chip(state.core.vocab ? state.core.vocab.streak : 0, "day vocab streak");
+      chip(state.core.drugs ? state.core.drugs.streak : 0, "day drug streak");
+      chip(state.sessions7, state.sessions7 === 1 ? "workout this week" : "workouts this week");
+      state.custom.filter((h) => h.streak >= 1).forEach((h) => chip(h.streak, `day ${h.name.toLowerCase()}`));
+    }
+
     // ---------------- actions ----------------
     async function toggleTask(t) {
       const was = t.done_at, next = was ? null : new Date().toISOString();
-      t.done_at = next; render();
+      const bump = (n) => { state.doneByDay[TODAY] = Math.max(0, (state.doneByDay[TODAY] || 0) + n); };
+      t.done_at = next; bump(next ? 1 : -1); render();
       const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", t.id);
-      if (error) { t.done_at = was; render(); toast("Couldn't save — check your connection"); return; }
+      if (error) { t.done_at = was; bump(next ? -1 : 1); render(); toast("Couldn't save — check your connection"); return; }
       if (next && t.recur) {
         const row = await TasksCore.spawnNext(sb, t, state.tasks);
         if (row && row.period_start <= TODAY) { state.tasks.push(row); render(); }
@@ -314,12 +411,13 @@
     }
     async function toggleHabit(h) {
       const was = h.done;
-      h.done = !was; h.dates[was ? "delete" : "add"](TODAY); h.streak = streakOf(h.dates); render();
+      const day = (state.habitLogByDay[TODAY] = state.habitLogByDay[TODAY] || new Set());
+      h.done = !was; h.dates[was ? "delete" : "add"](TODAY); day[was ? "delete" : "add"](h.id); h.streak = streakOf(h.dates); render();
       const q = was
         ? sb.from("habit_log").delete().eq("habit_id", h.id).eq("done_on", TODAY)
         : sb.from("habit_log").upsert({ habit_id: h.id, done_on: TODAY }, { onConflict: "habit_id,done_on" });
       const { error } = await q;
-      if (error) { h.done = was; h.dates[was ? "add" : "delete"](TODAY); h.streak = streakOf(h.dates); render(); toast("Couldn't save — check your connection"); }
+      if (error) { h.done = was; h.dates[was ? "add" : "delete"](TODAY); day[was ? "add" : "delete"](h.id); h.streak = streakOf(h.dates); render(); toast("Couldn't save — check your connection"); }
     }
     async function removeHabit(h) {
       if (!confirm(`Remove "${h.name}"? Its history is kept; it just stops showing.`)) return;
@@ -360,6 +458,8 @@
           for (const c of [].concat(l.words || [], l.phrases || [])) if (c.box >= 1 && c.due && c.due <= TODAY) due++;
         }
         const done = reviewed > 0;
+        state.vocabAct = {};
+        for (const l of Object.values(blob.langs || {})) for (const [d, n] of Object.entries(l.activity || {})) state.vocabAct[d] = (state.vocabAct[d] || 0) + (Number(n) || 0);
         state.core.vocab = { done, streak: streakOf(days),
           sub: done ? `${reviewed} reviewed today${due ? ` · ${due} still due` : ""}` : (due ? `${due} due for review` : "Nothing due — learn some new words") };
       }).catch(() => { state.core.vocab = { done: false, sub: "Couldn't load" }; });
@@ -371,6 +471,7 @@
         const n = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(y0, m0 - 1, d0)) / 86400000);
         const drug = drugs.length ? drugs[((n % drugs.length) + drugs.length) % drugs.length] : null;
         const done = days.has(TODAY);
+        state.drugSet = days;
         state.core.drugs = { done, streak: streakOf(days),
           sub: drug ? (done ? `${drug.name} — quiz finished` : `Today: ${drug.name}`) : "Open to study" };
       }).catch(() => { state.core.drugs = { done: false, sub: "Couldn't load" }; });
@@ -381,6 +482,7 @@
         const weekAgo = addDaysISO(TODAY, -6);
         const thisWeek = rows.filter((r) => r.log_date >= weekAgo).length;
         const done = days.has(TODAY), todays = rows.find((r) => r.log_date === TODAY);
+        state.sessions7 = thisWeek;
         const last = rows[0], idx = last ? WORKOUT_GROUPS.indexOf(last.category) : -1;
         const next = WORKOUT_GROUPS[(idx + 1) % WORKOUT_GROUPS.length];
         state.core.workout = { done, streak: 0,
@@ -389,16 +491,25 @@
     }
     function loadCustom() {
       return Promise.all([SRC.habits(), SRC.habitLog()]).then(([habits, log]) => {
+        state.habitLogByDay = {};
+        for (const r of log) (state.habitLogByDay[r.done_on] = state.habitLogByDay[r.done_on] || new Set()).add(r.habit_id);
         state.custom = habits.map((h) => {
           const dates = new Set(log.filter((r) => r.habit_id === h.id).map((r) => r.done_on));
           return { ...h, dates, done: dates.has(TODAY), streak: streakOf(dates) };
         });
       }).catch(() => { state.custom = []; });
     }
+    function loadRecent() {
+      return SRC.tasksRecent().then((rows) => {
+        state.doneByDay = {};
+        rows.forEach((r) => { const d = localISO(new Date(r.done_at)); state.doneByDay[d] = (state.doneByDay[d] || 0) + 1; });
+      }).catch(() => { state.doneByDay = {}; });
+    }
     function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }); }
 
     render();
-    [loadTasks, loadVocab, loadDrugs, loadWorkout, loadCustom].forEach((f) => f().then(render));
+    [loadTasks, loadRecent, loadVocab, loadDrugs, loadWorkout, loadCustom].forEach((f) => f().then(render));
+    window.addEventListener("resize", (() => { let w = innerWidth; return () => { if ((innerWidth < 640) !== (w < 640)) { w = innerWidth; render(); } }; })());
 
     // A tab left open past midnight should roll over to the new day.
     document.addEventListener("visibilitychange", () => {

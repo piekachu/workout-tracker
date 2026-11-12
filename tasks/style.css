@@ -4,10 +4,10 @@ html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
 button { touch-action: manipulation; font-family: inherit; }
-header, main { max-width: 640px; margin: 0 auto; }
-header { padding: 20px 20px 0; }
-main { padding: 8px 20px calc(110px + env(safe-area-inset-bottom)); }
-@media (max-width: 420px) { header, main { padding-left: 16px; padding-right: 16px; } }
+header, main { max-width: 1500px; margin: 0 auto; }
+header { padding: 20px 28px 0; }
+main { padding: 8px 28px calc(110px + env(safe-area-inset-bottom)); }
+@media (max-width: 640px) { header, main { padding-left: 16px; padding-right: 16px; } }
 h2 { font-family: var(--font-display); font-weight: 500; font-size: 1.1rem; margin: 0 0 12px; }
 
 input, select, textarea { font: inherit; font-size: 16px; background: var(--surface); color: var(--text);
@@ -65,7 +65,7 @@ textarea { resize: vertical; }
 .add-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; gap: 8px; justify-content: center;
   padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: color-mix(in oklab, var(--bg) 92%, transparent);
   backdrop-filter: blur(10px); border-top: 1px solid var(--border); }
-.add-bar input { max-width: 540px; min-height: 50px; }
+.add-bar input { max-width: 760px; min-height: 50px; }
 .add-bar button { flex: 0 0 auto; min-height: 50px; padding: 0 20px; border: 0; border-radius: 10px; background: var(--accent);
   color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; }
 
@@ -88,3 +88,21 @@ textarea { resize: vertical; }
   background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 13px; opacity: 0;
   pointer-events: none; transition: opacity .2s, transform .2s; z-index: 60; }
 .toast.show { opacity: 1; transform: translateX(-50%); }
+
+/* completion rings */
+.rings-row { display: flex; justify-content: space-around; gap: 12px; padding: 12px 8px 6px; margin-top: 8px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); }
+.rings-row .ring-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: .8rem; color: var(--text-dim); }
+.rings-row .ring-host svg { display: block; }
+@media (min-width: 980px) { .rings-row { justify-content: flex-start; gap: 36px; padding: 12px 24px 8px; } }
+
+/* desktop: groups flow across the full width -- day columns for a week, calendar + lists for a month */
+@media (min-width: 900px) {
+  #content { display: grid; gap: 0 28px; align-items: start; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+  #content[data-view="week"] { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  #content .group { min-width: 0; }
+  #content .group.group-cal { grid-column: span 2; }
+}
+@media (min-width: 1300px) { #content[data-view="week"] { grid-template-columns: repeat(7, minmax(0, 1fr)); } #content[data-view="week"] .task .title { font-size: .92rem; } }
+
+@media (min-width: 900px) { #content[data-view="week"] > .group:first-child { grid-column: 1 / -1; } #content[data-view="week"] > .group:first-child .task { max-width: 420px; } }
