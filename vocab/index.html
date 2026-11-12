@@ -1180,15 +1180,19 @@ const LANGS = {
         brand: "Kotoba Desk", brandNative: "言葉デスク", tagline: "Japanese study bench" },
 };
 
-function today() { return new Date().toISOString().slice(0, 10); }
+// Local-date strings, not toISOString(): that is UTC, which reports yesterday
+// for the first hours of each day east of Greenwich (e.g. before 9am in Seoul).
+function localISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+function today() { return localISO(new Date()); }
 function daysBetween(a, b) {
   const ms = new Date(b) - new Date(a);
   return Math.round(ms / 86400000);
 }
 function addDays(iso, n) {
-  const d = new Date(iso);
-  d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
+  const [y, m, d] = iso.split("-").map(Number);
+  return localISO(new Date(y, m - 1, d + n));
 }
 
 function loadSeed(langId) {
@@ -2454,7 +2458,7 @@ views.overview = () => {
   for (let i = 97; i >= 0; i--) {
     const d = new Date(now);
     d.setDate(d.getDate() - i);
-    days.push(d.toISOString().slice(0, 10));
+    days.push(localISO(d));
   }
   const maxA = Math.max(1, ...Object.values(L().activity));
   const t = today();
