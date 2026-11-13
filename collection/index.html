@@ -24,7 +24,7 @@
         <div class="quote"><span class="q-label">Still missing</span><span class="q-value" id="s-miss">–</span></div>
         <div class="quote"><span class="q-label">Wishlist</span><span class="q-value" id="s-wish">–</span></div>
         <div class="quote"><span class="q-label">Skipped</span><span class="q-value" id="s-skip">–</span><span class="q-sub">not counted</span></div>
-        <div class="quote"><span class="q-label">Secrets owned</span><span class="q-value" id="s-secret">–</span></div>
+        <div class="quote"><span class="q-label">Secrets owned</span><span class="q-value" id="s-secret">–</span><span class="q-sub" id="s-removed"></span></div>
       </div>
       <div class="stat-grid spend">
         <div class="quote"><span class="q-label">Total spent</span><span class="q-value" id="s-spent">–</span><span class="q-sub" id="s-spent-sub"></span></div>
@@ -48,12 +48,13 @@
         <button type="button" data-v="owned" aria-selected="false">Owned</button>
         <button type="button" data-v="wishlist" aria-selected="false">Wishlist</button>
         <button type="button" data-v="skip" aria-selected="false">Skipped</button>
+        <button type="button" data-v="removed" aria-selected="false">Deleted</button>
       </div>
       <select id="year" aria-label="Year"></select>
       <button type="button" class="tb-btn" id="toggle-all">Expand all</button>
     </div>
 
-    <p class="hint" id="hint">Tap a figure to mark it owned. ☆ wishlist · ⊘ don't want it (left out of the totals). On owned figures, tap the price to record what you paid.</p>
+    <p class="hint" id="hint">Tap a figure to mark it owned. ☆ wishlist · ⊘ don't want it (left out of the totals) · ✕ delete it from your list (restore from the Deleted filter). On owned figures, tap the price to record what you paid.</p>
     <div id="list"></div>
   </main>
 

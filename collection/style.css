@@ -95,3 +95,13 @@ dialog input { width: 100%; margin-top: 4px; }
 .buy-actions button { min-height: 42px; padding: 0 16px; background: var(--bg-2); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); cursor: pointer; font-size: .95rem; }
 .buy-actions .primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
 @media (max-width: 760px) { .charts { grid-template-columns: minmax(0, 1fr); } .it .price { padding: 5px 7px; } }
+
+.it .st.delb { width: 32px; font-size: .9rem; }
+.it .st.delb:hover { color: var(--danger); }
+.it.removed .nm { color: var(--text-faint); text-decoration: line-through; }
+.it.removed { cursor: default; }
+.it.removed .st, .it.removed .price, .it.removed .ck { display: none; }
+.it .restore { display: none; flex: 0 0 auto; background: none; border: 1px solid var(--border); border-radius: var(--radius); color: var(--text-dim); padding: 5px 10px; min-height: 32px; cursor: pointer; font-size: .85rem; }
+.it.removed .restore { display: inline-block; }
+.toast.act { pointer-events: auto; }
+.toast button { margin-left: 14px; background: none; border: 0; color: var(--accent); font-weight: 700; cursor: pointer; font-size: inherit; padding: 4px; }

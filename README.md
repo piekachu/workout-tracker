@@ -455,5 +455,8 @@ to record price each, quantity and an optional purchase date. The top shows tota
 purchased and the average per item (currency follows the Expenses setting, ₩ by default).
 Charts: status donut, completion % by release year, spending by month (dated purchases only)
 and spending by series. Migration 0011 adds the `skip` status and the price/qty/date columns.
+**Delete:** ✕ removes a figure from your list (hidden and left out of all totals); the Deleted
+filter shows them with a Restore button (migration 0012 adds the `removed` status). Skip all,
+Clear all and Delete show an Undo toast instead of a confirm dialog.
 To refresh the catalogue after the spreadsheet changes, regenerate `catalog.json`
 (existing marks keep working for rows whose series, number and name are unchanged).

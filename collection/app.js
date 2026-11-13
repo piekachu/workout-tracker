@@ -11,7 +11,11 @@ function el(tag, attrs = {}, ...kids) {
   return e;
 }
 let toastTimer;
-function toast(msg) { const t = $("toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2600); }
+function toast(msg, undo) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show"); t.classList.toggle("act", !!undo);
+  if (undo) t.append(el("button", { type: "button", onclick: () => { t.classList.remove("show"); undo(); } }, "Undo"));
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), undo ? 7000 : 2600);
+}
 const pad = (n) => String(n).padStart(2, "0");
 const localISO = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
@@ -71,12 +75,21 @@ const setStatus = (ids, next) => commit(ids, (old) => !next ? null
   : next === "owned" ? { status: "owned", price: old && old.status === "owned" ? old.price : null, qty: old && old.status === "owned" ? old.qty : 1, on: old && old.status === "owned" ? old.on : null }
   : { status: next, price: null, qty: 1, on: null });
 
+// Bulk/destructive change with an Undo toast instead of a confirm() dialog.
+function undoable(label, ids, next) {
+  if (!ids.length) return;
+  const before = new Map(ids.map((id) => [id, marks.get(id) || null]));
+  setStatus(ids, next);
+  toast(label, () => commit(ids, (old, id) => before.get(id)));
+}
+
 // ---- derived numbers ----
 function compute() {
-  const c = { total: items.length, owned: 0, wish: 0, skip: 0, secret: 0, qty: 0, spent: 0, priced: 0, unpriced: 0 };
+  const c = { total: items.length, removed: 0, owned: 0, wish: 0, skip: 0, secret: 0, qty: 0, spent: 0, priced: 0, unpriced: 0 };
   const yr = new Map(), mon = new Map(), ser = series.map(() => ({ owned: 0, tracked: 0, spent: 0 }));
   for (const it of items) {
     const m = marks.get(it.id), s = m && m.status, sr = series[it.s], y = sr.year, S = ser[it.s];
+    if (s === "removed") { c.removed++; continue; }
     if (s !== "skip") { S.tracked++; if (y) { const o = yr.get(y) || { owned: 0, tracked: 0 }; o.tracked++; if (s === "owned") o.owned++; yr.set(y, o); } }
     if (s === "owned") {
       c.owned++; S.owned++; if (it.secret) c.secret++; c.qty += m.qty;
@@ -85,13 +98,15 @@ function compute() {
     } else if (s === "wishlist") c.wish++;
     else if (s === "skip") c.skip++;
   }
-  c.tracked = c.total - c.skip; c.missing = c.tracked - c.owned;
+  c.total -= c.removed; c.tracked = c.total - c.skip; c.missing = c.tracked - c.owned;
   return { c, yr, mon, ser };
 }
 
 // ---- rendering ----
 const matches = (it) => {
   const s = st(it.id);
+  if (status === "removed") return s === "removed" && (!query || (it.name + " " + (it.no || "")).toLowerCase().includes(query));
+  if (s === "removed") return false;
   if (status === "owned" && s !== "owned") return false;
   if (status === "wishlist" && s !== "wishlist") return false;
   if (status === "skip" && s !== "skip") return false;
@@ -104,7 +119,7 @@ const shortName = (n) => n.replace(/^Gundam Converge\s*:?\s*/, "") || n;
 function summary(d) {
   const { c } = d;
   $("s-owned").textContent = c.owned; $("s-owned-sub").textContent = `of ${c.tracked} wanted`;
-  $("s-miss").textContent = c.missing; $("s-wish").textContent = c.wish; $("s-skip").textContent = c.skip; $("s-secret").textContent = c.secret;
+  $("s-miss").textContent = c.missing; $("s-wish").textContent = c.wish; $("s-skip").textContent = c.skip; $("s-removed").textContent = c.removed ? `${c.removed} deleted` : ""; $("s-secret").textContent = c.secret;
   $("s-spent").textContent = money(c.spent);
   $("s-spent-sub").textContent = c.unpriced ? `${c.unpriced} owned without a price` : (c.priced ? "all owned items priced" : "");
   $("s-bought").textContent = c.qty;
@@ -152,7 +167,7 @@ function charts(d) {
 function render() {
   if (!items.length) return;
   const d = compute(); summary(d); charts(d);
-  const filtering = status !== "all" || !!query;
+  const filtering = status !== "all" || !!query;  // "removed" also counts, so those series open
   const bySeries = series.map(() => []);
   items.forEach((it) => bySeries[it.s].push(it));
   const host = $("list"); host.textContent = "";
@@ -160,7 +175,8 @@ function render() {
   series.forEach((s, i) => {
     if (year !== "all" && String(s.year) !== year) return;
     const all = bySeries[i], vis = all.filter(matches);
-    if (filtering && !vis.length) return;
+    if ((filtering || status === "removed") && !vis.length) return;
+    if (!vis.length && all.every((x) => st(x.id) === "removed")) return;
     shown++;
     const S = d.ser[i], isOpen = open.has(i) || (filtering && vis.length > 0);
     const g = el("div", { class: "grp" + (isOpen ? " open" : "") + (S.tracked > 0 && S.owned === S.tracked ? " done" : "") });
@@ -172,9 +188,9 @@ function render() {
     if (isOpen) {
       const body = el("div", { class: "grp-body" });
       body.append(el("div", { class: "grp-tools" },
-        el("button", { type: "button", onclick: () => setStatus(all.filter((x) => st(x.id) !== "owned" && st(x.id) !== "skip").map((x) => x.id), "owned") }, "Mark all owned"),
-        el("button", { type: "button", onclick: () => { if (confirm("Skip every figure in this series? They won't count toward your total.")) setStatus(all.filter((x) => st(x.id) !== "owned").map((x) => x.id), "skip"); } }, "Skip all"),
-        el("button", { type: "button", onclick: () => { if (confirm("Clear all marks (including prices) in this series?")) setStatus(all.filter((x) => marks.has(x.id)).map((x) => x.id), null); } }, "Clear all")));
+        el("button", { type: "button", onclick: () => setStatus(all.filter((x) => !["owned", "skip", "removed"].includes(st(x.id))).map((x) => x.id), "owned") }, "Mark all owned"),
+        el("button", { type: "button", onclick: () => { const ids = all.filter((x) => !["owned", "skip", "removed"].includes(st(x.id))).map((x) => x.id); undoable(`Skipped ${ids.length}`, ids, "skip"); } }, "Skip all"),
+        el("button", { type: "button", onclick: () => { const ids = all.filter((x) => marks.has(x.id) && st(x.id) !== "removed").map((x) => x.id); undoable(`Cleared ${ids.length}`, ids, null); } }, "Clear all")));
       vis.forEach((it) => body.append(row(it)));
       g.append(body);
     }
@@ -188,15 +204,18 @@ function row(it) {
   const m = marks.get(it.id), s = m && m.status;
   const label = m && m.price != null ? money(m.price * m.qty) + (m.qty > 1 ? ` ×${m.qty}` : "") : (m && m.qty > 1 ? `×${m.qty}` : "+ price");
   return el("div", { class: "it" + (s ? " " + (s === "wishlist" ? "wish" : s) : ""), role: "checkbox", tabindex: "0", "aria-checked": String(s === "owned"),
-    onclick: () => setStatus([it.id], s === "owned" ? null : "owned"),
-    onkeydown: (e) => { if (e.target === e.currentTarget && (e.key === " " || e.key === "Enter")) { e.preventDefault(); setStatus([it.id], s === "owned" ? null : "owned"); } } },
+    onclick: () => { if (s !== "removed") setStatus([it.id], s === "owned" ? null : "owned"); },
+    onkeydown: (e) => { if (s !== "removed" && e.target === e.currentTarget && (e.key === " " || e.key === "Enter")) { e.preventDefault(); setStatus([it.id], s === "owned" ? null : "owned"); } } },
     el("span", { class: "ck" }, "✓"), el("span", { class: "no" }, it.no || "·"), el("span", { class: "nm" }, it.name),
     it.secret ? el("span", { class: "tag" }, "Secret") : null,
     el("button", { type: "button", class: "price" + (m && m.price != null ? " set" : ""), "aria-label": "Price and quantity", onclick: (e) => { e.stopPropagation(); editBuy(it); } }, label),
     el("button", { type: "button", class: "st", "aria-label": s === "wishlist" ? "Remove from wishlist" : "Add to wishlist",
       onclick: (e) => { e.stopPropagation(); setStatus([it.id], s === "wishlist" ? null : "wishlist"); } }, s === "wishlist" ? "★" : "☆"),
     el("button", { type: "button", class: "st skipb", "aria-label": s === "skip" ? "Want this again" : "Don't want this (skip)",
-      onclick: (e) => { e.stopPropagation(); setStatus([it.id], s === "skip" ? null : "skip"); } }, "⊘"));
+      onclick: (e) => { e.stopPropagation(); setStatus([it.id], s === "skip" ? null : "skip"); } }, "⊘"),
+    el("button", { type: "button", class: "st delb", "aria-label": "Delete from my list", title: "Delete from my list",
+      onclick: (e) => { e.stopPropagation(); undoable("Deleted “" + it.name + "”", [it.id], "removed"); } }, "✕"),
+    el("button", { type: "button", class: "restore", onclick: (e) => { e.stopPropagation(); setStatus([it.id], null); } }, "Restore"));
 }
 
 // ---- purchase editor ----
