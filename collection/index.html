@@ -33,6 +33,8 @@
       </div>
     </section>
 
+    <details class="charts-wrap" id="charts-wrap" open>
+    <summary>Charts</summary>
     <section class="charts">
       <div class="panel"><div class="panel-h">Collection status</div><div class="panel-b" id="ch-status"></div></div>
       <div class="panel"><div class="panel-h">Completion by release year <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-year"></div></div>
@@ -41,6 +43,7 @@
       <div class="panel"><div class="panel-h">Spent by category</div><div class="panel-b" id="ch-catspend"></div></div>
       <div class="panel"><div class="panel-h">Spent by series <span class="meta">top 8</span></div><div class="panel-b" id="ch-series"></div></div>
     </section>
+    </details>
 
     <div class="toolbar">
       <input id="q" type="search" placeholder="Search name or code (e.g. Zaku, MS-06)" aria-label="Search" autocomplete="off">
@@ -53,13 +56,40 @@
         <button type="button" data-v="removed" aria-selected="false">Deleted</button>
       </div>
       <select id="cat" aria-label="Category"></select>
+      <button type="button" class="tb-btn" id="manage-cats">Categories</button>
       <select id="year" aria-label="Year"></select>
       <button type="button" class="tb-btn" id="toggle-all">Expand all</button>
+      <button type="button" class="tb-btn add" id="add-fig">+ Add figure</button>
     </div>
 
     <p class="hint" id="hint">Tap a figure to mark it owned. ☆ wishlist · ⊘ don't want it (left out of the totals) · ✕ delete it from your list (restore from the Deleted filter). On owned figures, tap the price to record what you paid.</p>
     <div id="list"></div>
   </main>
+
+  <datalist id="series-list"></datalist>
+  <dialog id="e-dlg">
+    <form id="e-form">
+      <h2 id="e-title">Edit figure</h2>
+      <label>Name<input id="e-name" type="text" maxlength="200" required></label>
+      <label>Number / code<input id="e-no" type="text" maxlength="40" placeholder="optional"></label>
+      <label>Category<select id="e-cat"></select></label>
+      <label id="e-series-wrap">Series<input id="e-series" type="text" list="series-list" maxlength="200" placeholder="pick an existing series or type a new one"></label>
+      <div class="buy-actions">
+        <button type="button" id="e-del" class="danger-b">Delete</button>
+        <button type="button" id="e-reset">Reset</button>
+        <span class="spacer"></span>
+        <button type="button" id="e-cancel">Cancel</button><button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="c-dlg">
+    <h2>My categories</h2>
+    <p class="hint">Built-in categories (EX, CORE, …) stay as they are. Add your own, then assign figures with ✎ or move a whole series from its header.</p>
+    <div id="c-list"></div>
+    <div class="c-row add"><input id="c-new" type="text" maxlength="40" placeholder="New category name"><button type="button" class="tb-btn" id="c-add">Add</button></div>
+    <div class="buy-actions"><button type="button" class="primary" id="c-close">Done</button></div>
+  </dialog>
 
   <dialog id="buy-dlg">
     <form method="dialog" id="buy-form">

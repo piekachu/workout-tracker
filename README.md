@@ -464,6 +464,14 @@ Clear all and Delete show an Undo toast instead of a confirm dialog.
 Limited & exclusives, Promo & events. Use the category dropdown to filter (it combines with year,
 status and search); each series header shows its category, and two charts show progress and spend
 per category. To change a rule, edit the script and run it again.
+**Editing and your own categories** (migration 0013: `collection_edits`, `collection_added`,
+`collection_cats`, all owner-only). ✎ on a figure edits its name, number and category (Reset puts
+the catalogue values back). "+ Add figure" adds your own (pick an existing series or type a new
+one; custom figures can be deleted for good from their edit dialog). "Categories" manages your own
+category names: add, rename (inline) or delete; deleting one sends its figures back to their
+original category. "Set category…" in a series header moves the whole series at once. The static
+catalogue is never modified: edits are layered on top, so refreshing the catalogue keeps them.
+On phones the row actions sit behind a ⋯ toggle and the charts start collapsed.
 To refresh the catalogue after the spreadsheet changes, regenerate `catalog.json`
 (existing marks keep working for rows whose series, number and name are unchanged), then run
 `python3 scripts/categorize_catalog.py`.
