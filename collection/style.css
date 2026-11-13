@@ -105,3 +105,7 @@ dialog input { width: 100%; margin-top: 4px; }
 .it.removed .restore { display: inline-block; }
 .toast.act { pointer-events: auto; }
 .toast button { margin-left: 14px; background: none; border: 0; color: var(--accent); font-weight: 700; cursor: pointer; font-size: inherit; padding: 4px; }
+
+.grp-h .cat { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--text-dim);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 1px 6px; white-space: nowrap; }
+@media (max-width: 640px) { .grp-h .cat { display: none; } .toolbar select { flex: 1 1 140px; } }

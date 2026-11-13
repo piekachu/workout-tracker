@@ -28,7 +28,7 @@ const money = (v) => CURS[CUR].sym + Number(v || 0).toLocaleString(CURS[CUR].loc
 let series = [], items = [], byId = new Map();
 const marks = new Map();            // item id -> { status, price, qty, on }
 const open = new Set();             // series indexes the user expanded
-let status = "all", year = "all", query = "";
+let status = "all", year = "all", cat = "all", query = "";
 let ready = false;
 const st = (id) => (marks.get(id) || {}).status || null;
 
@@ -42,6 +42,8 @@ async function init() {
   } catch { toast("Couldn't load the list"); return; }
   const years = [...new Set(series.map((s) => s.year))].filter(Boolean).sort((a, b) => b - a);
   $("year").append(el("option", { value: "all" }, "All years"), ...years.map((y) => el("option", { value: y }, String(y))));
+  const cats = [...new Set(series.map((s) => s.cat))];
+  $("cat").append(el("option", { value: "all" }, "All categories"), ...cats.map((c) => el("option", { value: c }, c)));
   $("buy-cur").textContent = `(${CURS[CUR].sym})`;
   render();
   for (let from = 0; ; from += 1000) {                 // paged: the API caps a response at 1000 rows
@@ -86,20 +88,22 @@ function undoable(label, ids, next) {
 // ---- derived numbers ----
 function compute() {
   const c = { total: items.length, removed: 0, owned: 0, wish: 0, skip: 0, secret: 0, qty: 0, spent: 0, priced: 0, unpriced: 0 };
-  const yr = new Map(), mon = new Map(), ser = series.map(() => ({ owned: 0, tracked: 0, spent: 0 }));
+  const cats = new Map(), yr = new Map(), mon = new Map(), ser = series.map(() => ({ owned: 0, tracked: 0, spent: 0 }));
   for (const it of items) {
     const m = marks.get(it.id), s = m && m.status, sr = series[it.s], y = sr.year, S = ser[it.s];
     if (s === "removed") { c.removed++; continue; }
+    const K = cats.get(sr.cat) || cats.set(sr.cat, { owned: 0, tracked: 0, spent: 0 }).get(sr.cat);
+    if (s !== "skip") K.tracked++;
     if (s !== "skip") { S.tracked++; if (y) { const o = yr.get(y) || { owned: 0, tracked: 0 }; o.tracked++; if (s === "owned") o.owned++; yr.set(y, o); } }
     if (s === "owned") {
-      c.owned++; S.owned++; if (it.secret) c.secret++; c.qty += m.qty;
-      if (m.price != null) { const amt = m.price * m.qty; c.spent += amt; c.priced += m.qty; S.spent += amt; if (m.on) { const k = m.on.slice(0, 7); mon.set(k, (mon.get(k) || 0) + amt); } }
+      c.owned++; S.owned++; K.owned++; if (it.secret) c.secret++; c.qty += m.qty;
+      if (m.price != null) { const amt = m.price * m.qty; c.spent += amt; c.priced += m.qty; S.spent += amt; K.spent += amt; if (m.on) { const k = m.on.slice(0, 7); mon.set(k, (mon.get(k) || 0) + amt); } }
       else c.unpriced += m.qty;
     } else if (s === "wishlist") c.wish++;
     else if (s === "skip") c.skip++;
   }
   c.total -= c.removed; c.tracked = c.total - c.skip; c.missing = c.tracked - c.owned;
-  return { c, yr, mon, ser };
+  return { c, yr, mon, ser, cats };
 }
 
 // ---- rendering ----
@@ -157,6 +161,13 @@ function charts(d) {
     emptyText: "Record a price and purchase date on owned figures to see spending over time.",
     xTick: (i) => (months.length > 12 && i % 2) ? "" : new Date(months[i] + "-15").toLocaleDateString(undefined, { month: "short" }) + (months[i].endsWith("-01") || i === 0 ? " ’" + months[i].slice(2, 4) : ""),
     fmtTick: (v) => CURS[CUR].sym + Charts.compact(v), tipTitle: (i) => new Date(months[i] + "-15").toLocaleDateString(undefined, { month: "long", year: "numeric" }), tipValue: (i) => money(mon.get(months[i]) || 0) });
+  // progress and spend by category
+  const catRows = [...d.cats].filter(([, v]) => v.tracked > 0).sort((a, b) => b[1].tracked - a[1].tracked);
+  const pc = $("ch-cat"); pc.textContent = "";
+  Charts.hbar(pc, catRows.map(([k, v]) => ({ label: `${k} · ${v.owned}/${v.tracked}`, value: Math.round(v.owned / v.tracked * 100) })), (v) => v + "%");
+  const sc = $("ch-catspend"); sc.textContent = "";
+  const cs = [...d.cats].filter(([, v]) => v.spent > 0).sort((a, b) => b[1].spent - a[1].spent).map(([k, v]) => ({ label: k, value: v.spent }));
+  if (!cs.length) sc.append(el("p", { class: "empty" }, "Prices you record will rank the categories here.")); else Charts.hbar(sc, cs, money);
   // spend by series
   const top = series.map((s, i) => ({ label: shortName(s.name), value: ser[i].spent })).filter((x) => x.value > 0).sort((a, b) => b.value - a.value).slice(0, 8);
   const th = $("ch-series"); th.textContent = "";
@@ -174,6 +185,7 @@ function render() {
   let shown = 0;
   series.forEach((s, i) => {
     if (year !== "all" && String(s.year) !== year) return;
+    if (cat !== "all" && s.cat !== cat) return;
     const all = bySeries[i], vis = all.filter(matches);
     if ((filtering || status === "removed") && !vis.length) return;
     if (!vis.length && all.every((x) => st(x.id) === "removed")) return;
@@ -182,7 +194,7 @@ function render() {
     const g = el("div", { class: "grp" + (isOpen ? " open" : "") + (S.tracked > 0 && S.owned === S.tracked ? " done" : "") });
     g.append(el("button", { type: "button", class: "grp-h", "aria-expanded": String(isOpen), onclick: () => { open.has(i) ? open.delete(i) : open.add(i); render(); } },
       Object.assign(el("span", { class: "chev" }), { innerHTML: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M5 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' }),
-      el("span", { class: "nm" }, shortName(s.name)), S.spent ? el("span", { class: "sp" }, money(S.spent)) : null,
+      el("span", { class: "nm" }, shortName(s.name)), el("span", { class: "cat" }, s.cat), S.spent ? el("span", { class: "sp" }, money(S.spent)) : null,
       el("span", { class: "dt" }, s.date || ""), el("span", { class: "bar" }, el("i")), el("span", { class: "ct" }, S.tracked ? `${S.owned}/${S.tracked}` : "skipped")));
     g.querySelector(".bar i").style.width = (S.tracked ? S.owned / S.tracked * 100 : 0) + "%";
     if (isOpen) {
@@ -240,6 +252,7 @@ $("buy-form").addEventListener("submit", () => {
 
 // ---- controls ----
 $("q").addEventListener("input", (e) => { query = e.target.value.trim().toLowerCase(); render(); });
+$("cat").addEventListener("change", (e) => { cat = e.target.value; render(); });
 $("year").addEventListener("change", (e) => { year = e.target.value; render(); });
 $("status-seg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
@@ -249,7 +262,7 @@ $("status-seg").addEventListener("click", (e) => {
 });
 $("toggle-all").addEventListener("click", () => {
   if (open.size) open.clear();
-  else series.forEach((s, i) => { if (year === "all" || String(s.year) === year) open.add(i); });
+  else series.forEach((s, i) => { if ((year === "all" || String(s.year) === year) && (cat === "all" || s.cat === cat)) open.add(i); });
   render();
 });
 init();

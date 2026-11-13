@@ -37,6 +37,8 @@
       <div class="panel"><div class="panel-h">Collection status</div><div class="panel-b" id="ch-status"></div></div>
       <div class="panel"><div class="panel-h">Completion by release year <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-year"></div></div>
       <div class="panel"><div class="panel-h">Spending by month <span class="meta" id="ch-month-meta"></span></div><div class="panel-b" id="ch-month"></div></div>
+      <div class="panel"><div class="panel-h">Progress by category <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-cat"></div></div>
+      <div class="panel"><div class="panel-h">Spent by category</div><div class="panel-b" id="ch-catspend"></div></div>
       <div class="panel"><div class="panel-h">Spent by series <span class="meta">top 8</span></div><div class="panel-b" id="ch-series"></div></div>
     </section>
 
@@ -50,6 +52,7 @@
         <button type="button" data-v="skip" aria-selected="false">Skipped</button>
         <button type="button" data-v="removed" aria-selected="false">Deleted</button>
       </div>
+      <select id="cat" aria-label="Category"></select>
       <select id="year" aria-label="Year"></select>
       <button type="button" class="tb-btn" id="toggle-all">Expand all</button>
     </div>
