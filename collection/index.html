@@ -40,8 +40,10 @@
       <div class="panel"><div class="panel-h">Completion by release year <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-year"></div></div>
       <div class="panel"><div class="panel-h">Spending by month <span class="meta" id="ch-month-meta"></span></div><div class="panel-b" id="ch-month"></div></div>
       <div class="panel"><div class="panel-h">Progress by category <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-cat"></div></div>
+      <div class="panel"><div class="panel-h">Progress by series <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-fr"></div></div>
       <div class="panel"><div class="panel-h">Spent by category</div><div class="panel-b" id="ch-catspend"></div></div>
-      <div class="panel"><div class="panel-h">Spent by series <span class="meta">top 8</span></div><div class="panel-b" id="ch-series"></div></div>
+      <div class="panel"><div class="panel-h">Spent by series <span class="meta">top 10</span></div><div class="panel-b" id="ch-frspend"></div></div>
+      <div class="panel"><div class="panel-h">My categories <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-my"></div></div>
     </section>
     </details>
 
@@ -56,7 +58,9 @@
         <button type="button" data-v="removed" aria-selected="false">Deleted</button>
       </div>
       <select id="cat" aria-label="Category"></select>
-      <button type="button" class="tb-btn" id="manage-cats">Categories</button>
+      <select id="fr" aria-label="Series"></select>
+      <select id="my" aria-label="My category"></select>
+      <button type="button" class="tb-btn" id="manage-cats">My categories</button>
       <select id="year" aria-label="Year"></select>
       <button type="button" class="tb-btn" id="toggle-all">Expand all</button>
       <button type="button" class="tb-btn add" id="add-fig">+ Add figure</button>
@@ -72,8 +76,11 @@
       <h2 id="e-title">Edit figure</h2>
       <label>Name<input id="e-name" type="text" maxlength="200" required></label>
       <label>Number / code<input id="e-no" type="text" maxlength="40" placeholder="optional"></label>
-      <label>Category<select id="e-cat"></select></label>
-      <label id="e-series-wrap">Series<input id="e-series" type="text" list="series-list" maxlength="200" placeholder="pick an existing series or type a new one"></label>
+      <label>Series<select id="e-fr"></select></label>
+      <label>My category<select id="e-cat"></select></label>
+      <label id="e-fixed-wrap">Category<select id="e-fixed"></select></label>
+      <p class="hint" id="e-fixed-note"></p>
+      <label id="e-series-wrap">Release / set<input id="e-series" type="text" list="series-list" maxlength="200" placeholder="pick an existing release or type a new one"></label>
       <div class="buy-actions">
         <button type="button" id="e-del" class="danger-b">Delete</button>
         <button type="button" id="e-reset">Reset</button>
@@ -85,7 +92,7 @@
 
   <dialog id="c-dlg">
     <h2>My categories</h2>
-    <p class="hint">Built-in categories (EX, CORE, …) stay as they are. Add your own, then assign figures with ✎ or move a whole series from its header.</p>
+    <p class="hint">The fixed categories (Classics, CORE, EX, …) can't be changed. These are your own labels: add them here, then tag figures with ✎ or tag a whole release from its header.</p>
     <div id="c-list"></div>
     <div class="c-row add"><input id="c-new" type="text" maxlength="40" placeholder="New category name"><button type="button" class="tb-btn" id="c-add">Add</button></div>
     <div class="buy-actions"><button type="button" class="primary" id="c-close">Done</button></div>

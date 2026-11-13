@@ -458,20 +458,26 @@ and spending by series. Migration 0011 adds the `skip` status and the price/qty/
 **Delete:** ✕ removes a figure from your list (hidden and left out of all totals); the Deleted
 filter shows them with a Restore button (migration 0012 adds the `removed` status). Skip all,
 Clear all and Delete show an Undo toast instead of a confirm dialog.
-**Categories:** every series belongs to a product line, worked out from its name by
-`scripts/categorize_catalog.py` and stored as `cat` in `catalog.json`: EX series, CORE, # series,
-# Plus, Vol. series, SP, SB (Webshop), Anniversary sets, Selection, Operation & option sets,
-Limited & exclusives, Promo & events. Use the category dropdown to filter (it combines with year,
-status and search); each series header shows its category, and two charts show progress and spend
-per category. To change a rule, edit the script and run it again.
+**Categories (fixed), series and my categories.** Every figure has three labels:
+- **Category** — one of nine fixed product lines: Classics, Classics Revive, SP, # Series,
+  # Series Selection, # Plus, CORE, EX, SB. Set per release by `scripts/categorize_catalog.py`
+  and *not editable* in the app (only for figures you add yourself).
+- **Series** — the franchise it comes from (Universal Century, Gundam SEED, Gundam 00, Gundam Wing,
+  Witch from Mercury, …), worked out from the figure's name / MS code by the same script and stored
+  as `fr` in `catalog.json`. The rules are guesses, so ✎ lets you correct a figure's series.
+- **My category** — your own labels, fully customisable (see below).
+Three dropdowns filter by each (plus year, status and search); charts show progress by category,
+by series and by my category, and spending by category and by series.
+To change a mapping, edit the rules in the script and run it again.
+
 **Editing and your own categories** (migration 0013: `collection_edits`, `collection_added`,
-`collection_cats`, all owner-only). ✎ on a figure edits its name, number and category (Reset puts
-the catalogue values back). "+ Add figure" adds your own (pick an existing series or type a new
-one; custom figures can be deleted for good from their edit dialog). "Categories" manages your own
-category names: add, rename (inline) or delete; deleting one sends its figures back to their
-original category. "Set category…" in a series header moves the whole series at once. The static
+`collection_cats`, all owner-only; migration 0014 adds franchise corrections). ✎ on a figure edits its name,
+number, series and my category (Reset puts the catalogue values back). "+ Add figure" adds your own (pick an existing series or type a new
+one; custom figures can be deleted for good from their edit dialog). "My categories" manages your own
+category names: add, rename (inline) or delete; deleting one clears it from its figures.
+"Set my category…" in a release header tags the whole release at once. The static
 catalogue is never modified: edits are layered on top, so refreshing the catalogue keeps them.
 On phones the row actions sit behind a ⋯ toggle and the charts start collapsed.
 To refresh the catalogue after the spreadsheet changes, regenerate `catalog.json`
 (existing marks keep working for rows whose series, number and name are unchanged), then run
-`python3 scripts/categorize_catalog.py`.
+`python3 scripts/categorize_catalog.py` (it sets the categories and series).

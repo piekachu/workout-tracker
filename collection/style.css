@@ -147,3 +147,8 @@ dialog input { width: 100%; margin-top: 4px; }
   .it.acts-open .acts { display: flex; }
   .it.removed .more { display: none; }
 }
+
+.it .frn { flex: 0 0 auto; color: var(--text-faint); font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .04em; white-space: nowrap; }
+.it.owned .frn { opacity: .7; }
+@media (max-width: 760px) { .it .frn { display: none; } }
+.toolbar select { max-width: 220px; }

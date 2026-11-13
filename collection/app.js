@@ -30,7 +30,8 @@ const edits = new Map();            // catalogue item id -> {name, no, cat} over
 let added = [], customCats = [];    // figures and category names the user created
 const marks = new Map();            // item id -> { status, price, qty, on }
 const open = new Set();             // series indexes the user expanded
-let status = "all", year = "all", cat = "all", query = "";
+let status = "all", year = "all", cat = "all", fr = "all", my = "all", query = "";
+let CATS = [], FRS = [];            // the fixed categories and the franchise list (from catalog.json)
 let ready = false;
 const st = (id) => (marks.get(id) || {}).status || null;
 
@@ -41,24 +42,29 @@ function rebuild() {
   const sIdx = new Map(series.map((x, i) => [x.name, i]));
   items = baseItems.map((b) => {
     const e = edits.get(b.id) || {}, sr = series[b.s];
-    return { id: b.id, s: b.s, secret: b.secret, no: e.no != null ? e.no : b.no, name: e.name || b.name, cat: e.cat || sr.cat,
-      base: { no: b.no || "", name: b.name, cat: sr.cat }, edited: !!(e.name || e.no != null || e.cat), catOv: !!e.cat };
+    return { id: b.id, s: b.s, secret: b.secret, no: e.no != null ? e.no : b.no, name: e.name || b.name,
+      cat: sr.cat, fr: e.fr || b.fr, my: e.cat || null,                 // fixed category / franchise / my own category
+      base: { no: b.no || "", name: b.name, fr: b.fr }, edited: !!(e.name || e.no != null || e.cat || e.fr) };
   });
   for (const a of added) {
     let i = sIdx.get(a.series_name);
-    if (i == null) { i = series.length; series.push({ name: a.series_name, date: "", year: null, cat: "Custom", virtual: true }); sIdx.set(a.series_name, i); }
-    items.push({ id: a.id, s: i, secret: false, no: a.no || "", name: a.name, cat: a.cat || series[i].cat, custom: true, base: null, edited: false, catOv: !!a.cat });
+    if (i == null) { i = series.length; series.push({ name: a.series_name, date: "", year: null, cat: a.base_cat || "Classics", virtual: true }); sIdx.set(a.series_name, i); }
+    items.push({ id: a.id, s: i, secret: false, no: a.no || "", name: a.name, cat: a.base_cat || "Classics", fr: a.fr || "Other", my: a.cat || null, custom: true, base: null, edited: false });
   }
   byId = new Map(items.map((i) => [i.id, i]));
   fillCats();
 }
-const allCats = () => [...new Set([...baseSeries.map((x) => x.cat), ...customCats, ...items.map((i) => i.cat)])];
+const myCats = () => [...new Set([...customCats, ...items.map((i) => i.my).filter(Boolean)])];
 function fillCats() {
-  const sel = $("cat"), keep = cat, list = allCats();
-  sel.textContent = "";
-  sel.append(el("option", { value: "all" }, "All categories"), ...list.map((c) => el("option", { value: c }, c)));
-  if (keep !== "all" && !list.includes(keep)) cat = "all";
-  sel.value = cat;
+  const fill = (id, label, list, keep, extra) => {
+    const sel = $(id); sel.textContent = "";
+    sel.append(el("option", { value: "all" }, label), ...(extra || []), ...list.map((c) => el("option", { value: c }, c)));
+    const ok = keep === "all" || list.includes(keep) || (extra && keep === "__none"); sel.value = ok ? keep : "all"; return sel.value;
+  };
+  cat = fill("cat", "All categories", CATS, cat);
+  const cnt = new Map(); items.forEach((i) => cnt.set(i.fr, (cnt.get(i.fr) || 0) + 1));
+  fr = fill("fr", "All series", FRS.filter((f) => cnt.get(f)).sort((a, b) => (cnt.get(b) || 0) - (cnt.get(a) || 0)), fr);
+  my = fill("my", "All my categories", myCats(), my, [el("option", { value: "__none" }, "No category of mine")]);
   $("series-list").textContent = "";
   $("series-list").append(...series.map((x) => el("option", { value: x.name })));
 }
@@ -69,7 +75,7 @@ const fromRow = (r) => ({ status: r.status, price: r.price == null ? null : Numb
 async function init() {
   try {
     const cat = await (await fetch("catalog.json")).json();
-    baseSeries = cat.series; baseItems = cat.items;
+    baseSeries = cat.series; baseItems = cat.items; CATS = cat.categories; FRS = cat.franchises;
   } catch { toast("Couldn't load the list"); return; }
   const years = [...new Set(baseSeries.map((s) => s.year))].filter(Boolean).sort((a, b) => b - a);
   $("year").append(el("option", { value: "all" }, "All years"), ...years.map((y) => el("option", { value: y }, String(y))));
@@ -77,7 +83,7 @@ async function init() {
   rebuild(); render();
   const [ed, ad, cc] = await Promise.all([sb.from("collection_edits").select("*").limit(5000), sb.from("collection_added").select("*").order("created_at").limit(5000), sb.from("collection_cats").select("name").order("name")]);
   if (ed.error || ad.error || cc.error) toast("Couldn't load your edits — check your connection");
-  (ed.data || []).forEach((r) => edits.set(r.item_id, { name: r.name, no: r.no, cat: r.cat }));
+  (ed.data || []).forEach((r) => edits.set(r.item_id, { name: r.name, no: r.no, cat: r.cat, fr: r.fr }));
   added = ad.data || []; customCats = (cc.data || []).map((r) => r.name);
   rebuild(); render();
   for (let from = 0; ; from += 1000) {                 // paged: the API caps a response at 1000 rows
@@ -122,28 +128,32 @@ function undoable(label, ids, next) {
 // ---- derived numbers ----
 function compute() {
   const c = { total: items.length, removed: 0, owned: 0, wish: 0, skip: 0, secret: 0, qty: 0, spent: 0, priced: 0, unpriced: 0 };
-  const cats = new Map(), yr = new Map(), mon = new Map(), ser = series.map(() => ({ owned: 0, tracked: 0, spent: 0 }));
+  const frs = new Map(), mys = new Map(), cats = new Map(), yr = new Map(), mon = new Map(), ser = series.map(() => ({ owned: 0, tracked: 0, spent: 0 }));
   for (const it of items) {
     const m = marks.get(it.id), s = m && m.status, sr = series[it.s], y = sr.year, S = ser[it.s];
     if (s === "removed") { c.removed++; continue; }
     const K = cats.get(it.cat) || cats.set(it.cat, { owned: 0, tracked: 0, spent: 0 }).get(it.cat);
-    if (s !== "skip") K.tracked++;
+    const F = frs.get(it.fr) || frs.set(it.fr, { owned: 0, tracked: 0, spent: 0 }).get(it.fr);
+    const M = it.my ? (mys.get(it.my) || mys.set(it.my, { owned: 0, tracked: 0, spent: 0 }).get(it.my)) : null;
+    if (s !== "skip") { K.tracked++; F.tracked++; if (M) M.tracked++; }
     if (s !== "skip") { S.tracked++; if (y) { const o = yr.get(y) || { owned: 0, tracked: 0 }; o.tracked++; if (s === "owned") o.owned++; yr.set(y, o); } }
     if (s === "owned") {
-      c.owned++; S.owned++; K.owned++; if (it.secret) c.secret++; c.qty += m.qty;
-      if (m.price != null) { const amt = m.price * m.qty; c.spent += amt; c.priced += m.qty; S.spent += amt; K.spent += amt; if (m.on) { const k = m.on.slice(0, 7); mon.set(k, (mon.get(k) || 0) + amt); } }
+      c.owned++; S.owned++; K.owned++; F.owned++; if (M) M.owned++; if (it.secret) c.secret++; c.qty += m.qty;
+      if (m.price != null) { const amt = m.price * m.qty; c.spent += amt; c.priced += m.qty; S.spent += amt; K.spent += amt; F.spent += amt; if (M) M.spent += amt; if (m.on) { const k = m.on.slice(0, 7); mon.set(k, (mon.get(k) || 0) + amt); } }
       else c.unpriced += m.qty;
     } else if (s === "wishlist") c.wish++;
     else if (s === "skip") c.skip++;
   }
   c.total -= c.removed; c.tracked = c.total - c.skip; c.missing = c.tracked - c.owned;
-  return { c, yr, mon, ser, cats };
+  return { c, yr, mon, ser, cats, frs, mys };
 }
 
 // ---- rendering ----
 const matches = (it) => {
   const s = st(it.id);
   if (cat !== "all" && it.cat !== cat) return false;
+  if (fr !== "all" && it.fr !== fr) return false;
+  if (my !== "all" && (my === "__none" ? !!it.my : it.my !== my)) return false;
   if (status === "removed") return s === "removed" && (!query || (it.name + " " + (it.no || "")).toLowerCase().includes(query));
   if (s === "removed") return false;
   if (status === "owned" && s !== "owned") return false;
@@ -196,24 +206,29 @@ function charts(d) {
     emptyText: "Record a price and purchase date on owned figures to see spending over time.",
     xTick: (i) => (months.length > 12 && i % 2) ? "" : new Date(months[i] + "-15").toLocaleDateString(undefined, { month: "short" }) + (months[i].endsWith("-01") || i === 0 ? " ’" + months[i].slice(2, 4) : ""),
     fmtTick: (v) => CURS[CUR].sym + Charts.compact(v), tipTitle: (i) => new Date(months[i] + "-15").toLocaleDateString(undefined, { month: "long", year: "numeric" }), tipValue: (i) => money(mon.get(months[i]) || 0) });
-  // progress and spend by category
-  const catRows = [...d.cats].filter(([, v]) => v.tracked > 0).sort((a, b) => b[1].tracked - a[1].tracked);
-  const pc = $("ch-cat"); pc.textContent = "";
-  Charts.hbar(pc, catRows.map(([k, v]) => ({ label: `${k} · ${v.owned}/${v.tracked}`, value: Math.round(v.owned / v.tracked * 100) })), (v) => v + "%");
-  const sc = $("ch-catspend"); sc.textContent = "";
-  const cs = [...d.cats].filter(([, v]) => v.spent > 0).sort((a, b) => b[1].spent - a[1].spent).map(([k, v]) => ({ label: k, value: v.spent }));
-  if (!cs.length) sc.append(el("p", { class: "empty" }, "Prices you record will rank the categories here.")); else Charts.hbar(sc, cs, money);
-  // spend by series
-  const top = series.map((s, i) => ({ label: shortName(s.name), value: ser[i].spent })).filter((x) => x.value > 0).sort((a, b) => b.value - a.value).slice(0, 8);
-  const th = $("ch-series"); th.textContent = "";
-  if (!top.length) th.append(el("p", { class: "empty" }, "Prices you record will rank the series here."));
-  else Charts.hbar(th, top, money);
+  // progress / spend per fixed category, per series (franchise) and per my category
+  const prog = (id, map, order, emptyMsg) => {
+    const h = $(id); h.textContent = "";
+    const rows = (order || [...map.keys()]).filter((k) => map.has(k) && map.get(k).tracked > 0).map((k) => [k, map.get(k)]);
+    if (!rows.length) { h.append(el("p", { class: "empty" }, emptyMsg || "Nothing to show yet.")); return; }
+    Charts.hbar(h, rows.map(([k, v]) => ({ label: `${k} · ${v.owned}/${v.tracked}`, value: Math.round(v.owned / v.tracked * 100) })), (v) => v + "%");
+  };
+  const spend = (id, map, msg) => {
+    const h = $(id); h.textContent = "";
+    const rows = [...map].filter(([, v]) => v.spent > 0).sort((a, b) => b[1].spent - a[1].spent).slice(0, 10).map(([k, v]) => ({ label: k, value: v.spent }));
+    if (!rows.length) h.append(el("p", { class: "empty" }, msg)); else Charts.hbar(h, rows, money);
+  };
+  prog("ch-cat", d.cats, CATS);
+  prog("ch-fr", d.frs, [...d.frs.keys()].sort((a, b) => d.frs.get(b).tracked - d.frs.get(a).tracked));
+  prog("ch-my", d.mys, [...d.mys.keys()].sort(), "Make your own categories (Categories button) and tag figures to see progress here.");
+  spend("ch-catspend", d.cats, "Prices you record will rank the categories here.");
+  spend("ch-frspend", d.frs, "Prices you record will rank the series here.");
 }
 
 function render() {
   if (!items.length) return;
   const d = compute(); summary(d); charts(d);
-  const filtering = status !== "all" || !!query || cat !== "all";  // "removed" also counts, so those series open
+  const filtering = status !== "all" || !!query || cat !== "all" || fr !== "all" || my !== "all";  // "removed" also counts, so those series open
   const bySeries = series.map(() => []);
   items.forEach((it) => bySeries[it.s].push(it));
   const host = $("list"); host.textContent = "";
@@ -240,7 +255,7 @@ function render() {
       body.querySelector(".grp-tools").append(el("select", { class: "mv", "aria-label": "Move series to category", onchange: async (e) => {
         const v = e.target.value; if (v === "") return;
         await moveCat(all, v === "__default" ? null : v); }},
-        el("option", { value: "" }, "Set category…"), el("option", { value: "__default" }, "↺ Original category"), ...allCats().map((c) => el("option", { value: c }, c))));
+        el("option", { value: "" }, "Set my category…"), el("option", { value: "__default" }, "↺ No category of mine"), ...myCats().map((c) => el("option", { value: c }, c))));
       vis.forEach((it) => body.append(row(it)));
       g.append(body);
     }
@@ -258,7 +273,7 @@ function row(it) {
     onclick: () => { if (s !== "removed") setStatus([it.id], s === "owned" ? null : "owned"); },
     onkeydown: (e) => { if (s !== "removed" && e.target === e.currentTarget && (e.key === " " || e.key === "Enter")) { e.preventDefault(); setStatus([it.id], s === "owned" ? null : "owned"); } } },
     el("span", { class: "ck" }, "✓"), el("span", { class: "no" }, it.no || "·"), el("span", { class: "nm" }, it.name),
-    it.secret ? el("span", { class: "tag" }, "Secret") : null, it.catOv ? el("span", { class: "tag cattag" }, it.cat) : null,
+    it.secret ? el("span", { class: "tag" }, "Secret") : null, el("span", { class: "frn" }, it.fr), it.my ? el("span", { class: "tag cattag" }, it.my) : null,
     el("button", { type: "button", class: "price" + (m && m.price != null ? " set" : ""), "aria-label": "Price and quantity", onclick: (e) => { e.stopPropagation(); editBuy(it); } }, label),
     el("button", { type: "button", class: "more", "aria-label": "More actions", onclick: (e) => { e.stopPropagation(); actsOpen.has(it.id) ? actsOpen.delete(it.id) : actsOpen.add(it.id); e.currentTarget.closest(".it").classList.toggle("acts-open"); } }, "⋯"),
     el("span", { class: "acts" },
@@ -293,10 +308,11 @@ $("buy-form").addEventListener("submit", () => {
 });
 
 // ---- editing: figures, categories ----
-async function applyEdit(it, v) {                         // v: {name?, no?, cat?}  (cat "" / null = back to default)
+async function applyEdit(it, v) {          // v: {name?, no?, cat? (MY category, ""/null = none), fr?, base_cat? (own figures only)}
   if (it.custom) {
     const a = added.find((x) => x.id === it.id);
-    const row = { name: v.name !== undefined ? v.name : a.name, no: v.no !== undefined ? v.no : a.no, cat: v.cat !== undefined ? (v.cat || null) : a.cat };
+    const row = { name: v.name !== undefined ? v.name : a.name, no: v.no !== undefined ? v.no : a.no, cat: v.cat !== undefined ? (v.cat || null) : a.cat,
+      fr: v.fr !== undefined ? v.fr : a.fr, base_cat: v.base_cat !== undefined ? v.base_cat : a.base_cat };
     const { error } = await sb.from("collection_added").update(row).eq("id", it.id);
     if (error) return false; Object.assign(a, row); return true;
   }
@@ -304,8 +320,9 @@ async function applyEdit(it, v) {                         // v: {name?, no?, cat
   const rec = {
     name: v.name !== undefined ? (v.name !== it.base.name ? v.name : null) : (cur.name ?? null),
     no: v.no !== undefined ? (v.no !== it.base.no ? v.no : null) : (cur.no ?? null),
-    cat: v.cat !== undefined ? (v.cat && v.cat !== it.base.cat ? v.cat : null) : (cur.cat ?? null) };
-  const empty = rec.name == null && rec.no == null && rec.cat == null;
+    cat: v.cat !== undefined ? (v.cat || null) : (cur.cat ?? null),
+    fr: v.fr !== undefined ? (v.fr && v.fr !== it.base.fr ? v.fr : null) : (cur.fr ?? null) };
+  const empty = rec.name == null && rec.no == null && rec.cat == null && rec.fr == null;
   const { error } = empty ? await sb.from("collection_edits").delete().eq("item_id", it.id) : await sb.from("collection_edits").upsert({ item_id: it.id, ...rec }, { onConflict: "user_id,item_id" });
   if (error) return false;
   empty ? edits.delete(it.id) : edits.set(it.id, rec); return true;
@@ -313,19 +330,26 @@ async function applyEdit(it, v) {                         // v: {name?, no?, cat
 async function moveCat(list, value) {
   const res = await Promise.all(list.map((it) => applyEdit(it, { cat: value })));
   rebuild(); render();
-  toast(res.every(Boolean) ? (value ? `Moved ${list.length} to ${value}` : `Restored the original category`) : "Some changes didn't save — check your connection");
+  toast(res.every(Boolean) ? (value ? `Tagged ${list.length} figure${list.length === 1 ? "" : "s"} “${value}”` : `Cleared my category`) : "Some changes didn't save — check your connection");
 }
 let editTarget = null;                                     // figure being edited, or "new"
-function catOptions(sel, keep, defLabel) {
-  sel.textContent = ""; sel.append(el("option", { value: "" }, defLabel), ...allCats().map((c) => el("option", { value: c }, c))); sel.value = keep || "";
+function fillSel(sel, opts, keep, first) {
+  sel.textContent = ""; if (first != null) sel.append(el("option", { value: "" }, first));
+  sel.append(...opts.map((c) => el("option", { value: c }, c))); sel.value = keep || "";
 }
 function openEdit(it) {
   editTarget = it || "new";
   $("e-title").textContent = it ? "Edit figure" : "Add a figure";
   $("e-name").value = it ? it.name : ""; $("e-no").value = it ? (it.no || "") : "";
-  catOptions($("e-cat"), it && it.catOv ? it.cat : "", it ? `Original (${it.base ? it.base.cat : "series default"})` : "Default");
+  fillSel($("e-fr"), FRS, it ? it.fr : "Universal Century");
+  fillSel($("e-cat"), myCats(), it ? it.my : "", "None");
+  const own = !it || it.custom;                                          // fixed category can only be chosen for figures you add yourself
+  $("e-fixed-wrap").style.display = own ? "" : "none";
+  fillSel($("e-fixed"), CATS, it ? it.cat : (CATS.includes(cat) ? cat : "Classics"));
+  $("e-fixed-note").style.display = own ? "none" : "";
+  $("e-fixed-note").textContent = it ? `Category: ${it.cat} (fixed)` : "";
   $("e-series-wrap").style.display = it ? "none" : "";
-  $("e-series").value = it ? "" : (cat !== "all" ? "" : "My additions");
+  $("e-series").value = it ? "" : "My additions";
   $("e-reset").style.display = it && it.edited ? "" : "none";
   $("e-del").style.display = it && it.custom ? "" : "none";
   $("e-dlg").showModal(); $("e-name").focus();
@@ -335,14 +359,14 @@ $("e-cancel").addEventListener("click", () => $("e-dlg").close());
 $("e-form").addEventListener("submit", async (ev) => {
   ev.preventDefault();
   const name = $("e-name").value.trim(); if (!name) { $("e-name").focus(); return; }
-  const no = $("e-no").value.trim(), c = $("e-cat").value;
+  const no = $("e-no").value.trim(), c = $("e-cat").value, f = $("e-fr").value, fixed = $("e-fixed").value;
   if (editTarget === "new") {
-    const row = { name, no: no || null, cat: c || null, series_name: $("e-series").value.trim() || "My additions" };
+    const row = { name, no: no || null, cat: c || null, fr: f, base_cat: fixed, series_name: $("e-series").value.trim() || "My additions" };
     const { data, error } = await sb.from("collection_added").insert(row).select("id").single();
     if (error || !data) { toast("Couldn't add it — check your connection"); return; }
     added.push({ id: data.id, ...row }); rebuild(); render(); toast(`Added “${name}”`);
   } else {
-    const ok = await applyEdit(editTarget, { name, no, cat: c });
+    const ok = await applyEdit(editTarget, editTarget.custom ? { name, no, cat: c, fr: f, base_cat: fixed } : { name, no, cat: c, fr: f });
     rebuild(); render(); toast(ok ? "Saved" : "Couldn't save — check your connection");
   }
   $("e-dlg").close();
@@ -366,7 +390,7 @@ function renderCats() {
   const list = $("c-list"); list.textContent = "";
   if (!customCats.length) list.append(el("p", { class: "empty" }, "No categories of your own yet."));
   customCats.forEach((name) => {
-    const n = items.filter((i) => i.cat === name).length;
+    const n = items.filter((i) => i.my === name).length;
     const inp = el("input", { type: "text", value: name, "aria-label": "Category name", maxlength: "40" });
     const commit = async () => { const v = inp.value.trim(); if (v && v !== name) await renameCat(name, v); else inp.value = name; };
     inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); inp.blur(); } });
@@ -375,7 +399,7 @@ function renderCats() {
       el("button", { type: "button", class: "c-x", "aria-label": "Delete category", onclick: () => deleteCat(name) }, "✕")));
   });
 }
-const nameTaken = (n) => allCats().some((c) => c.toLowerCase() === n.toLowerCase());
+const nameTaken = (n) => myCats().some((c) => c.toLowerCase() === n.toLowerCase());
 async function addCat() {
   const v = $("c-new").value.trim(); if (!v) return;
   if (nameTaken(v)) { toast("That category already exists"); return; }
@@ -392,7 +416,7 @@ async function renameCat(from, to) {
   if (r.error) { toast("Couldn't rename — check your connection"); return; }
   customCats = customCats.map((c) => c === from ? to : c);
   edits.forEach((e) => { if (e.cat === from) e.cat = to; }); added.forEach((a) => { if (a.cat === from) a.cat = to; });
-  if (cat === from) cat = to;
+  if (my === from) my = to;
   rebuild(); renderCats(); render();
 }
 async function deleteCat(name) {
@@ -414,6 +438,8 @@ $("c-new").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preve
 // ---- controls ----
 $("q").addEventListener("input", (e) => { query = e.target.value.trim().toLowerCase(); render(); });
 $("cat").addEventListener("change", (e) => { cat = e.target.value; render(); });
+$("fr").addEventListener("change", (e) => { fr = e.target.value; render(); });
+$("my").addEventListener("change", (e) => { my = e.target.value; render(); });
 $("year").addEventListener("change", (e) => { year = e.target.value; render(); });
 $("status-seg").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
