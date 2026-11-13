@@ -448,5 +448,12 @@ owner-only like everything else). Tap a figure to mark it owned, ☆ for the wis
 Series headers show owned/total with a bar and have "Mark all owned" / "Clear all".
 Search by name or code, filter All / Missing / Owned / Wishlist, or jump by year.
 The top shows an owned-percentage ring plus owned, wishlist, missing and secrets owned.
+**Don't want it?** ⊘ marks a figure as skipped: it's dimmed, struck through and left out of
+the totals, so "owned of wanted" and every percentage only count figures you actually want
+("Skip all" does it for a whole series). **Spending:** on an owned figure, tap the price chip
+to record price each, quantity and an optional purchase date. The top shows total spent, items
+purchased and the average per item (currency follows the Expenses setting, ₩ by default).
+Charts: status donut, completion % by release year, spending by month (dated purchases only)
+and spending by series. Migration 0011 adds the `skip` status and the price/qty/date columns.
 To refresh the catalogue after the spreadsheet changes, regenerate `catalog.json`
 (existing marks keep working for rows whose series, number and name are unchanged).

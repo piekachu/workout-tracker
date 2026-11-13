@@ -20,11 +20,24 @@
     <section class="stats panel">
       <div id="c-ring" class="stat-ring"></div>
       <div class="stat-grid">
-        <div class="quote"><span class="q-label">Owned</span><span class="q-value" id="s-owned">–</span></div>
-        <div class="quote"><span class="q-label">Wishlist</span><span class="q-value" id="s-wish">–</span></div>
+        <div class="quote"><span class="q-label">Owned</span><span class="q-value" id="s-owned">–</span><span class="q-sub" id="s-owned-sub"></span></div>
         <div class="quote"><span class="q-label">Still missing</span><span class="q-value" id="s-miss">–</span></div>
+        <div class="quote"><span class="q-label">Wishlist</span><span class="q-value" id="s-wish">–</span></div>
+        <div class="quote"><span class="q-label">Skipped</span><span class="q-value" id="s-skip">–</span><span class="q-sub">not counted</span></div>
         <div class="quote"><span class="q-label">Secrets owned</span><span class="q-value" id="s-secret">–</span></div>
       </div>
+      <div class="stat-grid spend">
+        <div class="quote"><span class="q-label">Total spent</span><span class="q-value" id="s-spent">–</span><span class="q-sub" id="s-spent-sub"></span></div>
+        <div class="quote"><span class="q-label">Items purchased</span><span class="q-value" id="s-bought">–</span></div>
+        <div class="quote"><span class="q-label">Average per item</span><span class="q-value" id="s-avg">–</span></div>
+      </div>
+    </section>
+
+    <section class="charts">
+      <div class="panel"><div class="panel-h">Collection status</div><div class="panel-b" id="ch-status"></div></div>
+      <div class="panel"><div class="panel-h">Completion by release year <span class="meta">% of wanted</span></div><div class="panel-b" id="ch-year"></div></div>
+      <div class="panel"><div class="panel-h">Spending by month <span class="meta" id="ch-month-meta"></span></div><div class="panel-b" id="ch-month"></div></div>
+      <div class="panel"><div class="panel-h">Spent by series <span class="meta">top 8</span></div><div class="panel-b" id="ch-series"></div></div>
     </section>
 
     <div class="toolbar">
@@ -34,14 +47,26 @@
         <button type="button" data-v="missing" aria-selected="false">Missing</button>
         <button type="button" data-v="owned" aria-selected="false">Owned</button>
         <button type="button" data-v="wishlist" aria-selected="false">Wishlist</button>
+        <button type="button" data-v="skip" aria-selected="false">Skipped</button>
       </div>
       <select id="year" aria-label="Year"></select>
       <button type="button" class="tb-btn" id="toggle-all">Expand all</button>
     </div>
 
-    <p class="hint" id="hint">Tap a figure to mark it owned. ☆ puts it on your wishlist.</p>
+    <p class="hint" id="hint">Tap a figure to mark it owned. ☆ wishlist · ⊘ don't want it (left out of the totals). On owned figures, tap the price to record what you paid.</p>
     <div id="list"></div>
   </main>
+
+  <dialog id="buy-dlg">
+    <form method="dialog" id="buy-form">
+      <h2 id="buy-title">Purchase</h2>
+      <label>Price each <span id="buy-cur"></span><input id="b-price" type="number" inputmode="decimal" min="0" step="any" placeholder="0"></label>
+      <label>Quantity<input id="b-qty" type="number" inputmode="numeric" min="1" step="1" value="1"></label>
+      <label>Date bought (optional)<input id="b-date" type="date"></label>
+      <p class="buy-total" id="b-total"></p>
+      <div class="buy-actions"><button type="button" id="b-cancel">Cancel</button><button type="submit" class="primary">Save</button></div>
+    </form>
+  </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
