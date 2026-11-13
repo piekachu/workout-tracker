@@ -468,6 +468,10 @@ Clear all and Delete show an Undo toast instead of a confirm dialog.
 - **My category** — your own labels, fully customisable (see below).
 Three dropdowns filter by each (plus year, status and search); charts show progress by category,
 by series and by my category, and spending by category and by series.
+**Editable series list** (migration 0015, `collection_series`): "Edit categories" also manages the
+series — rename any of them (↺ restores a built-in name), add your own, delete the ones you made up
+(their figures go back to their original series). "Set series…" in a release header sets the series
+for the whole release. Release headers no longer show "(Bandai Webshop Exclusive)" (display only).
 To change a mapping, edit the rules in the script and run it again.
 
 **Editing and your own categories** (migration 0013: `collection_edits`, `collection_added`,

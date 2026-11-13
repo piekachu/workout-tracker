@@ -60,7 +60,7 @@
       <select id="cat" aria-label="Category"></select>
       <select id="fr" aria-label="Series"></select>
       <select id="my" aria-label="My category"></select>
-      <button type="button" class="tb-btn" id="manage-cats">My categories</button>
+      <button type="button" class="tb-btn" id="manage-cats">Edit categories</button>
       <select id="year" aria-label="Year"></select>
       <button type="button" class="tb-btn" id="toggle-all">Expand all</button>
       <button type="button" class="tb-btn add" id="add-fig">+ Add figure</button>
@@ -95,6 +95,10 @@
     <p class="hint">The fixed categories (Classics, CORE, EX, …) can't be changed. These are your own labels: add them here, then tag figures with ✎ or tag a whole release from its header.</p>
     <div id="c-list"></div>
     <div class="c-row add"><input id="c-new" type="text" maxlength="40" placeholder="New category name"><button type="button" class="tb-btn" id="c-add">Add</button></div>
+    <h2 class="sec">Series</h2>
+    <p class="hint">Rename any series, or add your own (e.g. a new anime). Pick a figure's series with ✎, or set a whole release from its header.</p>
+    <div id="s-list"></div>
+    <div class="c-row add"><input id="s-new" type="text" maxlength="60" placeholder="New series name"><button type="button" class="tb-btn" id="s-add">Add</button></div>
     <div class="buy-actions"><button type="button" class="primary" id="c-close">Done</button></div>
   </dialog>
 

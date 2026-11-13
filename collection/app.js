@@ -27,7 +27,12 @@ const money = (v) => CURS[CUR].sym + Number(v || 0).toLocaleString(CURS[CUR].loc
 
 let baseSeries = [], baseItems = [], series = [], items = [], byId = new Map();
 const edits = new Map();            // catalogue item id -> {name, no, cat} overrides (null = not overridden)
-let added = [], customCats = [];    // figures and category names the user created
+let added = [], customCats = [], seriesRows = [];   // seriesRows: {name, orig} — renamed built-in series (orig set) or series you made up (orig null)
+const renameMap = () => new Map(seriesRows.filter((r) => r.orig).map((r) => [r.orig, r.name]));
+let RN = new Map();
+const frName = (n) => RN.get(n) || n;
+const customSeries = () => seriesRows.filter((r) => !r.orig).map((r) => r.name);
+const allSeries = () => [...new Set([...FRS.map(frName), ...customSeries()])];    // figures and category names the user created
 const marks = new Map();            // item id -> { status, price, qty, on }
 const open = new Set();             // series indexes the user expanded
 let status = "all", year = "all", cat = "all", fr = "all", my = "all", query = "";
@@ -38,18 +43,18 @@ const st = (id) => (marks.get(id) || {}).status || null;
 // ---- data ----
 // Merge the static catalogue with the user's edits and additions into the working lists.
 function rebuild() {
-  series = baseSeries.slice();
+  series = baseSeries.slice(); RN = renameMap();
   const sIdx = new Map(series.map((x, i) => [x.name, i]));
   items = baseItems.map((b) => {
     const e = edits.get(b.id) || {}, sr = series[b.s];
     return { id: b.id, s: b.s, secret: b.secret, no: e.no != null ? e.no : b.no, name: e.name || b.name,
-      cat: sr.cat, fr: e.fr || b.fr, my: e.cat || null,                 // fixed category / franchise / my own category
-      base: { no: b.no || "", name: b.name, fr: b.fr }, edited: !!(e.name || e.no != null || e.cat || e.fr) };
+      cat: sr.cat, fr: e.fr || frName(b.fr), my: e.cat || null,                 // fixed category / franchise / my own category
+      base: { no: b.no || "", name: b.name, fr: frName(b.fr) }, edited: !!(e.name || e.no != null || e.cat || e.fr) };
   });
   for (const a of added) {
     let i = sIdx.get(a.series_name);
     if (i == null) { i = series.length; series.push({ name: a.series_name, date: "", year: null, cat: a.base_cat || "Classics", virtual: true }); sIdx.set(a.series_name, i); }
-    items.push({ id: a.id, s: i, secret: false, no: a.no || "", name: a.name, cat: a.base_cat || "Classics", fr: a.fr || "Other", my: a.cat || null, custom: true, base: null, edited: false });
+    items.push({ id: a.id, s: i, secret: false, no: a.no || "", name: a.name, cat: a.base_cat || "Classics", fr: a.fr || frName("Other"), my: a.cat || null, custom: true, base: null, edited: false });
   }
   byId = new Map(items.map((i) => [i.id, i]));
   fillCats();
@@ -63,7 +68,7 @@ function fillCats() {
   };
   cat = fill("cat", "All categories", CATS, cat);
   const cnt = new Map(); items.forEach((i) => cnt.set(i.fr, (cnt.get(i.fr) || 0) + 1));
-  fr = fill("fr", "All series", FRS.filter((f) => cnt.get(f)).sort((a, b) => (cnt.get(b) || 0) - (cnt.get(a) || 0)), fr);
+  fr = fill("fr", "All series", allSeries().filter((f) => cnt.get(f) || customSeries().includes(f)).sort((a, b) => (cnt.get(b) || 0) - (cnt.get(a) || 0)), fr);
   my = fill("my", "All my categories", myCats(), my, [el("option", { value: "__none" }, "No category of mine")]);
   $("series-list").textContent = "";
   $("series-list").append(...series.map((x) => el("option", { value: x.name })));
@@ -81,10 +86,10 @@ async function init() {
   $("year").append(el("option", { value: "all" }, "All years"), ...years.map((y) => el("option", { value: y }, String(y))));
   $("buy-cur").textContent = `(${CURS[CUR].sym})`;
   rebuild(); render();
-  const [ed, ad, cc] = await Promise.all([sb.from("collection_edits").select("*").limit(5000), sb.from("collection_added").select("*").order("created_at").limit(5000), sb.from("collection_cats").select("name").order("name")]);
-  if (ed.error || ad.error || cc.error) toast("Couldn't load your edits — check your connection");
+  const [ed, ad, cc, sr] = await Promise.all([sb.from("collection_edits").select("*").limit(5000), sb.from("collection_added").select("*").order("created_at").limit(5000), sb.from("collection_cats").select("name").order("name"), sb.from("collection_series").select("name,orig")]);
+  if (ed.error || ad.error || cc.error || sr.error) toast("Couldn't load your edits — check your connection");
   (ed.data || []).forEach((r) => edits.set(r.item_id, { name: r.name, no: r.no, cat: r.cat, fr: r.fr }));
-  added = ad.data || []; customCats = (cc.data || []).map((r) => r.name);
+  added = ad.data || []; customCats = (cc.data || []).map((r) => r.name); seriesRows = sr.data || [];
   rebuild(); render();
   for (let from = 0; ; from += 1000) {                 // paged: the API caps a response at 1000 rows
     const { data, error } = await sb.from("collection").select(COLS).order("item_id").range(from, from + 999);
@@ -163,7 +168,7 @@ const matches = (it) => {
   if (query && !(it.name + " " + (it.no || "")).toLowerCase().includes(query)) return false;
   return true;
 };
-const shortName = (n) => n.replace(/^Gundam Converge\s*:?\s*/, "") || n;
+const shortName = (n) => n.replace(/\s*\(Bandai Webshop Exclusive\)/gi, "").replace(/^Gundam Converge\s*:?\s*/, "").trim() || n;
 
 function summary(d) {
   const { c } = d;
@@ -256,6 +261,9 @@ function render() {
         const v = e.target.value; if (v === "") return;
         await moveCat(all, v === "__default" ? null : v); }},
         el("option", { value: "" }, "Set my category…"), el("option", { value: "__default" }, "↺ No category of mine"), ...myCats().map((c) => el("option", { value: c }, c))));
+      body.querySelector(".grp-tools").append(el("select", { class: "mv", "aria-label": "Set series for this release", onchange: async (e) => {
+        const v = e.target.value; if (v === "") return; await moveSeries(all, v === "__default" ? "" : v); }},
+        el("option", { value: "" }, "Set series…"), el("option", { value: "__default" }, "↺ Original series"), ...allSeries().map((c) => el("option", { value: c }, c))));
       vis.forEach((it) => body.append(row(it)));
       g.append(body);
     }
@@ -327,6 +335,11 @@ async function applyEdit(it, v) {          // v: {name?, no?, cat? (MY category,
   if (error) return false;
   empty ? edits.delete(it.id) : edits.set(it.id, rec); return true;
 }
+async function moveSeries(list, value) {          // "" = back to each figure's original series
+  const res = await Promise.all(list.map((it) => applyEdit(it, { fr: it.custom && !value ? frName("Other") : value })));
+  rebuild(); render();
+  toast(res.every(Boolean) ? (value ? `Moved ${list.length} to “${value}”` : "Restored the original series") : "Some changes didn't save — check your connection");
+}
 async function moveCat(list, value) {
   const res = await Promise.all(list.map((it) => applyEdit(it, { cat: value })));
   rebuild(); render();
@@ -341,7 +354,7 @@ function openEdit(it) {
   editTarget = it || "new";
   $("e-title").textContent = it ? "Edit figure" : "Add a figure";
   $("e-name").value = it ? it.name : ""; $("e-no").value = it ? (it.no || "") : "";
-  fillSel($("e-fr"), FRS, it ? it.fr : "Universal Century");
+  fillSel($("e-fr"), allSeries(), it ? it.fr : frName("Universal Century"));
   fillSel($("e-cat"), myCats(), it ? it.my : "", "None");
   const own = !it || it.custom;                                          // fixed category can only be chosen for figures you add yourself
   $("e-fixed-wrap").style.display = own ? "" : "none";
@@ -430,10 +443,63 @@ async function deleteCat(name) {
   hit.forEach(([k, e]) => { e.cat = null; if (empty.includes(k)) edits.delete(k); }); added.forEach((a) => { if (a.cat === name) a.cat = null; });
   rebuild(); renderCats(); render(); toast(`Deleted “${name}” — its figures went back to their original category`);
 }
-$("manage-cats").addEventListener("click", () => { renderCats(); $("c-dlg").showModal(); });
+$("manage-cats").addEventListener("click", () => { renderCats(); renderSeriesList(); $("c-dlg").showModal(); });
 $("c-close").addEventListener("click", () => $("c-dlg").close());
 $("c-add").addEventListener("click", addCat);
 $("c-new").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addCat(); } });
+
+// manage the series (franchise) list: rename built-in ones, add your own
+function renderSeriesList() {
+  const list = $("s-list"); list.textContent = "";
+  const cnt = new Map(); items.forEach((i) => cnt.set(i.fr, (cnt.get(i.fr) || 0) + 1));
+  allSeries().forEach((name) => {
+    const row = seriesRows.find((r) => r.name === name), custom = !!row && !row.orig, renamed = !!row && !!row.orig;
+    const inp = el("input", { type: "text", value: name, "aria-label": "Series name", maxlength: "60" });
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); inp.blur(); } });
+    inp.addEventListener("change", async () => { const v = inp.value.trim(); if (v && v !== name) await renameSeries(name, v); else inp.value = name; });
+    const n = cnt.get(name) || 0;
+    list.append(el("div", { class: "c-row" }, inp, el("span", { class: "c-n" }, `${n} figure${n === 1 ? "" : "s"}`),
+      custom ? el("button", { type: "button", class: "c-x", "aria-label": "Delete series", title: "Delete series", onclick: () => deleteSeries(name) }, "✕")
+        : renamed ? el("button", { type: "button", class: "c-x", "aria-label": "Reset name", title: "Back to “" + row.orig + "”", onclick: () => renameSeries(name, row.orig) }, "↺")
+        : el("span", { class: "c-x ph" })));
+  });
+}
+const seriesTaken = (n, except) => allSeries().some((c) => c !== except && c.toLowerCase() === n.toLowerCase());
+async function addSeries() {
+  const v = $("s-new").value.trim(); if (!v) return;
+  if (seriesTaken(v)) { toast("That series already exists"); return; }
+  const { error } = await sb.from("collection_series").insert({ name: v });
+  if (error) { toast("Couldn't add — check your connection"); return; }
+  seriesRows.push({ name: v, orig: null }); $("s-new").value = ""; rebuild(); renderSeriesList(); render();
+}
+async function renameSeries(from, to) {
+  if (seriesTaken(to, from)) { toast("That series already exists"); renderSeriesList(); return; }
+  const row = seriesRows.find((r) => r.name === from);
+  const orig = row ? row.orig : (FRS.includes(from) ? from : null);      // the built-in name this entry stands for (null = made up)
+  let r = row ? await sb.from("collection_series").delete().eq("name", from) : { error: null };
+  if (!r.error && !(orig && to === orig)) r = await sb.from("collection_series").insert({ name: to, orig });   // renaming back to the built-in name just removes the entry
+  if (!r.error) r = await sb.from("collection_edits").update({ fr: to }).eq("fr", from);
+  if (!r.error) r = await sb.from("collection_added").update({ fr: to }).eq("fr", from);
+  if (r.error) { toast("Couldn't rename — check your connection"); renderSeriesList(); return; }
+  seriesRows = seriesRows.filter((x) => x.name !== from); if (!(orig && to === orig)) seriesRows.push({ name: to, orig });
+  edits.forEach((e) => { if (e.fr === from) e.fr = to; }); added.forEach((a) => { if (a.fr === from) a.fr = to; });
+  if (fr === from) fr = to;
+  rebuild(); renderSeriesList(); render();
+}
+async function deleteSeries(name) {                      // only series you made up: their figures go back to their original series
+  let r = await sb.from("collection_series").delete().eq("name", name);
+  const hit = [...edits].filter(([, e]) => e.fr === name), empty = hit.filter(([, e]) => e.name == null && e.no == null && e.cat == null).map(([k]) => k);
+  if (!r.error && hit.length) r = await sb.from("collection_edits").update({ fr: null }).eq("fr", name);
+  if (!r.error && empty.length) r = await sb.from("collection_edits").delete().in("item_id", empty);
+  if (!r.error) r = await sb.from("collection_added").update({ fr: frName("Other") }).eq("fr", name);
+  if (r.error) { toast("Couldn't delete — check your connection"); return; }
+  seriesRows = seriesRows.filter((x) => x.name !== name);
+  hit.forEach(([k, e]) => { e.fr = null; if (empty.includes(k)) edits.delete(k); }); added.forEach((a) => { if (a.fr === name) a.fr = frName("Other"); });
+  if (fr === name) fr = "all";
+  rebuild(); renderSeriesList(); render(); toast(`Deleted “${name}” — its figures went back to their original series`);
+}
+$("s-add").addEventListener("click", addSeries);
+$("s-new").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); addSeries(); } });
 
 // ---- controls ----
 $("q").addEventListener("input", (e) => { query = e.target.value.trim().toLowerCase(); render(); });
