@@ -36,6 +36,7 @@ jobs:
           cp -r drugs _site/
           cp -r tasks _site/
           cp -r progress _site/
+          cp -r collection _site/
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:

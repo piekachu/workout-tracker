@@ -437,3 +437,16 @@ Note: opening `/vocab/` against a fresh/empty `localStorage` triggers its
 real auto-connect (see Vocab Desk above) against the live Supabase project
 — when testing changes to it locally, swap `AUTO_SYNC.slotId` for a
 throwaway value first, or you'll be reading/writing real data.
+
+## Collection (`/collection/`)
+
+A checklist for the Gundam Converge figure line, built from `Gundam_Converge_List.xlsx`
+(228 series, 753 figures). The catalogue is a static file, `collection/catalog.json`
+(ids are a hash of series + number + name, so they stay stable if the list is edited);
+only your own marks live in Supabase, in the `collection` table (migration 0010,
+owner-only like everything else). Tap a figure to mark it owned, ☆ for the wishlist.
+Series headers show owned/total with a bar and have "Mark all owned" / "Clear all".
+Search by name or code, filter All / Missing / Owned / Wishlist, or jump by year.
+The top shows an owned-percentage ring plus owned, wishlist, missing and secrets owned.
+To refresh the catalogue after the spreadsheet changes, regenerate `catalog.json`
+(existing marks keep working for rows whose series, number and name are unchanged).

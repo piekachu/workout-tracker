@@ -10,7 +10,7 @@
   if (!nav) return;
   const root = nav.dataset.root || "./";
   const ITEMS = [["", "Home"], ["tasks/", "Tasks"], ["progress/", "Progress"], ["workout/", "Workout"],
-    ["vocab/", "Vocab"], ["expenses/", "Expenses"], ["drugs/", "Drugs"]];
+    ["vocab/", "Vocab"], ["expenses/", "Expenses"], ["drugs/", "Drugs"], ["collection/", "Collection"]];
 
   const base = new URL(root, location.href).pathname;                  // e.g. /workout-tracker/ or /
   const seg = location.pathname.slice(base.length).split("/")[0];      // first folder below the root

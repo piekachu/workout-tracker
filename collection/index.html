@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Collection</title>
+  <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="../shared/charts.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<nav class="site-nav" id="site-nav" data-root="../" aria-label="Main"></nav>
+<script src="../shared/nav.js"></script>
+  <header>
+    <div class="page-eyebrow">Toy checklist</div>
+    <h1 class="page-title">Gundam Converge</h1>
+  </header>
+
+  <main>
+    <section class="stats panel">
+      <div id="c-ring" class="stat-ring"></div>
+      <div class="stat-grid">
+        <div class="quote"><span class="q-label">Owned</span><span class="q-value" id="s-owned">–</span></div>
+        <div class="quote"><span class="q-label">Wishlist</span><span class="q-value" id="s-wish">–</span></div>
+        <div class="quote"><span class="q-label">Still missing</span><span class="q-value" id="s-miss">–</span></div>
+        <div class="quote"><span class="q-label">Secrets owned</span><span class="q-value" id="s-secret">–</span></div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <input id="q" type="search" placeholder="Search name or code (e.g. Zaku, MS-06)" aria-label="Search" autocomplete="off">
+      <div class="seg" id="status-seg" role="tablist" aria-label="Show">
+        <button type="button" data-v="all" aria-selected="true">All</button>
+        <button type="button" data-v="missing" aria-selected="false">Missing</button>
+        <button type="button" data-v="owned" aria-selected="false">Owned</button>
+        <button type="button" data-v="wishlist" aria-selected="false">Wishlist</button>
+      </div>
+      <select id="year" aria-label="Year"></select>
+      <button type="button" class="tb-btn" id="toggle-all">Expand all</button>
+    </div>
+
+    <p class="hint" id="hint">Tap a figure to mark it owned. ☆ puts it on your wishlist.</p>
+    <div id="list"></div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="../shared/auth.js"></script>
+  <script src="../shared/charts.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
