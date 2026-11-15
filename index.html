@@ -175,7 +175,6 @@
       <a class="tool" href="workout/"><span class="m">W</span>Workout</a>
       <a class="tool" href="vocab/"><span class="m">V</span>Vocab</a>
       <a class="tool" href="expenses/"><span class="m">E</span>Expenses</a>
-      <a class="tool" href="drugs/"><span class="m">D</span>Drugs</a>
     </div>
     </section>
    </div>
@@ -208,19 +207,10 @@
         const { data, error } = await sb.from("workout_sessions").select("log_date, category").order("log_date", { ascending: false });
         if (error) throw error; return data || [];
       }),
-      drugLog: once(async () => {
-        const { data, error } = await sb.from("drug_log").select("studied_on");
-        if (error) throw error; return data || [];
-      }),
       vocab: once(async () => {
         const { data, error } = await sb.from("kv_store").select("data").eq("slot_id", VOCAB_SLOT_ID).maybeSingle();
         if (error) throw error; return (data && data.data) || {};
       }),
-      drugs: once(() => new Promise((resolve, reject) => {
-        const s = document.createElement("script");
-        s.src = "drugs/data.js"; s.onload = () => resolve(window.DRUGS || []); s.onerror = reject;
-        document.head.appendChild(s);
-      })),
       // today's day tasks, anything open from the last 60 days, and this week's / month's open ones
       tasks: once(async () => {
         const mon = weekStart(TODAY), first = firstOf(TODAY);

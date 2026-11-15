@@ -33,7 +33,6 @@ jobs:
           cp -r workout _site/
           cp -r vocab _site/
           cp -r expenses _site/
-          cp -r drugs _site/
           cp -r tasks _site/
           cp -r progress _site/
           cp -r collection _site/

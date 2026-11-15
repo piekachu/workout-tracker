@@ -30,11 +30,10 @@ try { const v = localStorage.getItem("progress:view"); if (["day", "week", "mont
 const rows = async (p) => { const { data, error } = await p; return error ? [] : data || []; };
 
 async function loadAll() {
-  const [tasks, habits, habitLog, drugLog, sessions, sets, exps, weights, kv] = await Promise.all([
+  const [tasks, habits, habitLog, sessions, sets, exps, weights, kv] = await Promise.all([
     rows(sb.from("tasks").select("id,title,horizon,period_start,done_at").limit(5000)),
     rows(sb.from("habits").select("id,name,archived").order("sort_order").order("id")),
     rows(sb.from("habit_log").select("habit_id,done_on").limit(20000)),
-    rows(sb.from("drug_log").select("studied_on,quiz_correct,quiz_total")),
     rows(sb.from("workout_sessions").select("id,log_date,category")),
     rows(sb.from("workout_sets").select("session_id,reps,weight_kg").limit(20000)),
     rows(sb.from("expenses").select("spent_on,amount,kind,category").limit(20000)),
@@ -42,11 +41,10 @@ async function loadAll() {
     sb.from("kv_store").select("data").eq("slot_id", VOCAB_SLOT_ID).maybeSingle().then(({ data }) => (data && data.data) || {}),
   ]);
 
-  const d = { habitsActive: habits.filter((h) => !h.archived), vocab: {}, drug: {}, sessions: {}, tasksDone: {}, tasksPlanned: {},
+  const d = { habitsActive: habits.filter((h) => !h.archived), vocab: {}, sessions: {}, tasksDone: {}, tasksPlanned: {},
     tasksDoneList: {}, tasksOpenList: {}, habitDone: {}, spent: {}, expenses: exps.filter((e) => e.kind === "expense"), weights };
 
   for (const lang of Object.values(kv.langs || {})) for (const [day, n] of Object.entries(lang.activity || {})) d.vocab[day] = (d.vocab[day] || 0) + num(n);
-  for (const r of drugLog) d.drug[r.studied_on] = { correct: num(r.quiz_correct), total: num(r.quiz_total) };
 
   const volBySession = {}, setsBySession = {};
   for (const s of sets) {
@@ -88,7 +86,6 @@ function periodLabel() {
 
 // ---------- per-day facts ----------
 const vocabOn = (d) => num(D.vocab[d]);
-const drugOn = (d) => D.drug[d] || null;
 const sessionsOn = (d) => D.sessions[d] || [];
 const customDone = (d) => D.habitsActive.filter((h) => D.habitDone[d] && D.habitDone[d].has(h.id));
 // "Daily habits" = vocab and your own habits. Workout is tracked on its own (rest days are normal).
@@ -96,20 +93,17 @@ function dayHabitPct(d) {
   const total = 1 + D.habitsActive.length;
   return ((vocabOn(d) > 0 ? 1 : 0) + customDone(d).length) / total * 100;
 }
-const quizPct = (d) => { const q = drugOn(d); return q && q.total ? (q.correct / q.total) * 100 : null; };
 
 function metrics(days) {
   const past = days.filter((d) => d <= TODAY);
   const m = { habit: past.length ? past.reduce((s, d) => s + dayHabitPct(d), 0) / past.length : 0,
-    tasksDone: 0, tasksPlanned: 0, sessions: 0, volume: 0, vocab: 0, vocabDays: 0, drugDays: 0, quiz: 0, quizN: 0, spent: 0 };
+    tasksDone: 0, tasksPlanned: 0, sessions: 0, volume: 0, vocab: 0, vocabDays: 0, spent: 0 };
   for (const d of days) {
     m.tasksDone += num(D.tasksDone[d]); m.tasksPlanned += (D.tasksPlanned[d] || []).length;
     for (const s of sessionsOn(d)) { m.sessions++; m.volume += s.volume; }
     m.vocab += vocabOn(d); if (vocabOn(d) > 0) m.vocabDays++;
-    if (drugOn(d)) m.drugDays++; const q = quizPct(d); if (q != null) { m.quiz += q; m.quizN++; }
     m.spent += num(D.spent[d]);
   }
-  m.quiz = m.quizN ? m.quiz / m.quizN : 0;
   return m;
 }
 
@@ -140,7 +134,6 @@ function renderTiles(m, p, r) {
       { value: Math.min(m.tasksDone, m.tasksPlanned), total: m.tasksPlanned || 1, big: "", aria: `${m.tasksDone} of ${m.tasksPlanned} tasks` }),
     tile("Workouts", String(m.sessions), `${m.volume.toLocaleString()} kg lifted`, delta(m.sessions, p.sessions, r.prevLabel)),
     tile("Vocab reviews", m.vocab.toLocaleString(), `${m.vocabDays} active day${m.vocabDays === 1 ? "" : "s"}`, delta(m.vocab, p.vocab, r.prevLabel)),
-    tile("Drugs studied", String(m.drugDays), m.quizN ? `${pct(m.quiz)} average quiz` : "no quizzes yet", delta(m.drugDays, p.drugDays, r.prevLabel)),
     tile("Spent", money(m.spent), "expenses only", delta(m.spent, p.spent, r.prevLabel, "", false)));
 }
 
@@ -246,16 +239,6 @@ function renderCharts(r) {
     const { host, c } = card("Vocab reviews", `${total.toLocaleString()} cards reviewed · ${scope}`);
     Charts.bar(host, { values: vals, xTick, highlight: hl, tipTitle: (i) => long(days[i]), tipValue: (i) => `${vals[i]} reviewed` });
     c.append(Charts.table(["Day", "Reviews"], days.map((d, i) => [long(d), vals[i]])));
-  }
-
-  // 6. drug quiz score
-  {
-    const vals = days.map((d) => { const q = quizPct(d); return q == null ? null : Math.round(q); });
-    const got = vals.filter((v) => v != null);
-    const { host, c } = card("Drug quiz score", got.length ? `${pct(got.reduce((a, b) => a + b, 0) / got.length)} average over ${got.length} quiz${got.length === 1 ? "" : "zes"}` : `Quiz result on the days you studied · ${scope}`);
-    Charts.line(host, { values: vals, xTick, zero: true, min: 0, max: 100, fmtTick: (v) => v + "%", emptyText: "No quizzes in this period",
-      tipTitle: (i) => long(days[i]), tipValue: (i) => `${vals[i]}% (${drugOn(days[i]).correct}/${drugOn(days[i]).total})` });
-    if (got.length) c.append(Charts.table(["Day", "Score"], days.map((d, i) => [long(d), vals[i] == null ? "—" : vals[i] + "%"])));
   }
 
   // 7. spending

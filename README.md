@@ -3,8 +3,7 @@
 A small multi-page personal site: the root (`/`) is a home page listing
 every tool on the site as a card; each tool is otherwise an independent app
 in its own folder. Today that's a workout tracker (`/workout/`), a
-vocabulary-review app (`/vocab/`), a bookkeeping page (`/expenses/`) and a
-small-molecule "drug of the day" study page (`/drugs/`), sharing one Supabase
+vocabulary-review app (`/vocab/`), a bookkeeping page (`/expenses/`) and more, sharing one Supabase
 project (separate tables) and one visual design system (`/shared/theme.css`). Static frontend
 on GitHub Pages throughout — no build step, no framework.
 
@@ -28,7 +27,7 @@ on GitHub Pages throughout — no build step, no framework.
    that's the only change needed for it to show up on the home page. If it
    has day-based activity worth showing as a 14-week strip, add an
    `activity` key too (see "14-week strip" below).
-5. `workout/`, `vocab/`, `expenses/`, `drugs/` and `shared/` each get their own `cp -r` line in
+5. `workout/`, `vocab/`, `expenses/` and `shared/` each get their own `cp -r` line in
    `.github/workflows/pages.yml`'s "Stage site files only" step. A page
    living entirely *inside* one of those (like `/workout/database/`) needs
    nothing extra there, since `cp -r workout` already copies it -- but a
@@ -210,8 +209,8 @@ streak chips. On a phone the same cards stack under the list.
 ## Progress (`/progress/`)
 
 Day / Week / Month views of how you're doing, with ‹ › to move between periods.
-Six summary tiles (daily habits %, tasks done, workouts and kg lifted, vocab
-reviews, drugs studied and average quiz, spending), each compared with the
+Five summary tiles (daily habits %, tasks done, workouts and kg lifted, vocab
+reviews, spending), each compared with the
 previous period, then charts:
 
 - **Consistency** — a habit × day grid (vocab, workout, tasks, your own habits)
@@ -219,7 +218,7 @@ previous period, then charts:
   workout is tracked separately since rest days are normal)
 - **Tasks completed**, **Vocab reviews**, **Spending** (plus a by-category breakdown)
 - **Workout volume** per session (reps × weight, kg)
-- **Drug quiz score** over time, **Body weight** (trailing 90 days)
+- **Body weight** (trailing 90 days)
 - **Habit scorecard** (one ring per habit = share of days done), **Where the money
   went** (donut by category) and **Training split** (donut by muscle group); the
   habit and task tiles carry a ring too. A category keeps one colour on every
@@ -315,34 +314,10 @@ some. Export CSV (this month / everything) from the bottom.
   model section; the page's footer says so too. If that's not acceptable,
   the fix is Supabase Auth + an `auth.uid()` RLS policy on `expenses`.
 
-## Drug of the Day (`/drugs/`)
+## Drug of the Day — removed
 
-*(Not a daily habit any more: it no longer appears on Today or in the habit scorecard, % or grid. The page, its streak data and the "Drugs studied" / quiz-score stats on Progress are unchanged.)*
-
-One small-molecule drug per day, in a fixed order starting 2026-11-04
-(day N shows `DRUGS[(N-1) mod count]`; ‹ › step back through earlier days,
-and the list at the bottom opens any drug out of order).
-
-- **Study card:** 2D structure, name/brands/class, computed properties
-  (formula, MW, cLogP, HBD/HBA, TPSA, Rule-of-5), then target & mechanism,
-  uses, pharmacokinetics, adverse effects, and a pearl. *Recall mode* blurs
-  each section until tapped, for active recall.
-- **Quiz:** 5 multiple-choice questions generated from the data (structure →
-  name, target, class, use, plus a spaced-review question on an earlier drug).
-  Finishing **today's quiz on today's drug** writes a row to `drug_log`
-  (one per day, upserted), which drives the streak and the 14-day dots;
-  practice quizzes on other drugs don't count.
-- **Content lives in `scripts/drugs_source.py`**; run
-  `python3 scripts/build_drugs.py` (needs `pip install rdkit`) to regenerate
-  `drugs/data.js` and `drugs/svg/*.svg`. The build computes every number from
-  the SMILES and **fails** if a SMILES's molecular weight disagrees with the
-  published value recorded in `EXPECTED_MW` — that's what caught wrong
-  stereochemistry/typos while this was written. To add a drug: add an entry
-  (and its expected MW), rebuild. Appending keeps earlier days' picks stable.
-- **Accuracy:** pharmacology values are approximate and written from standard
-  references by hand — treat as study notes, not clinical guidance (the page
-  says so). Structures are RDKit drawings, monochrome so they follow the
-  light/dark theme.
+The `/drugs/` page, its build scripts and its Progress tile / quiz chart were deleted from the
+site (they're still in the git history). The `drug_log` table in Supabase was left in place.
 
 ## Shared design system (`/shared/theme.css`)
 
@@ -370,7 +345,6 @@ vocab/index.html                 Vocab Desk -- self-contained (own Supabase tabl
 tasks/                           day / week / month task manager
 progress/                        day / week / month stats and charts
 expenses/                        bookkeeping page (index.html, style.css, app.js)
-drugs/                           drug-of-the-day page; data.js + svg/ are GENERATED by scripts/build_drugs.py
 shared/nav.js                    the shared top bar
 shared/charts.js / charts.css    dependency-free SVG chart kit (bars, lines, rings, donuts) used across the site
 shared/tasks-core.js             date maths + repeat logic for tasks
@@ -381,8 +355,6 @@ scripts/exercise_aliases.py      canonicalizes ~150 raw exercise-name variants i
 scripts/parse_csv.py             best-effort parser: data/*.csv -> out/*.csv (sessions + sets)
 scripts/import_data.py           loads out/*.csv into Supabase (needs the service_role key, local use only)
 scripts/seed_catalog.py          computes proposed goals from history and seeds exercise_catalog
-scripts/drugs_source.py          the drug-of-the-day content (edit this)
-scripts/build_drugs.py           RDKit build: validates SMILES vs expected MW, writes drugs/data.js + svg/
 out/                             parsed output + one-off cleanup backups (see Data cleanup above)
 ```
 
@@ -430,7 +402,6 @@ python3 -m http.server 8934
 # workout: http://localhost:8934/workout/
 # vocab:   http://localhost:8934/vocab/
 # expenses: http://localhost:8934/expenses/
-# drugs:    http://localhost:8934/drugs/
 ```
 
 No build step — it's static files talking directly to Supabase's REST API.
