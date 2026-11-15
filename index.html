@@ -267,10 +267,9 @@
     // ---------------- state ----------------
     const CORE = [
       { key: "vocab",   name: "Vocab",           href: "vocab/",   cta: "Review" },
-      { key: "drugs",   name: "Drug of the day", href: "drugs/",   cta: "Study" },
       { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
     ];
-    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, drugSet: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 } };   // core[key] = { done, sub, streak }
+    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 } };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
     const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
@@ -364,7 +363,7 @@
     function habitPct(d) {
       const ids = new Set(state.custom.map((h) => h.id)), logged = state.habitLogByDay[d] || new Set();
       let custom = 0; logged.forEach((id) => { if (ids.has(id)) custom++; });
-      return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + (state.drugSet.has(d) ? 1 : 0) + custom) / (2 + state.custom.length) * 100);
+      return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + custom) / (1 + state.custom.length) * 100);
     }
     // up/down arrow + colour; `goodUp` says whether a rise is good news (spending: no)
     function deltaOf(now, prev, goodUp = true, unit = "", fmtNum = (v) => Math.round(v * 10) / 10) {
@@ -381,7 +380,6 @@
         { l: "Habits", v: `${habitDone}/${habitTotal}`, d: deltaOf(habitPct(TODAY), habitPct(y), true, "%"), href: "progress/" },
         { l: "Vocab", v: String(state.vocabAct[TODAY] || 0), d: deltaOf(state.vocabAct[TODAY] || 0, state.vocabAct[y] || 0), href: "vocab/" },
         { l: "Vocab streak", v: `${state.core.vocab ? state.core.vocab.streak : 0}d`, href: "vocab/" },
-        { l: "Drug streak", v: `${state.core.drugs ? state.core.drugs.streak : 0}d`, href: "drugs/" },
         { l: "Workouts 7d", v: String(state.sessions7), d: deltaOf(state.sessions7, state.sessionsPrev), href: "workout/" },
         { l: "Spend 7d", v: money(state.spend.now), d: deltaOf(state.spend.now, state.spend.prev, false, "", money), href: "expenses/" },
       ];
@@ -410,7 +408,6 @@
       const chips = $("chips"); chips.innerHTML = "";
       const chip = (n, label) => chips.append(el("span", { class: "chip" }, el("b", {}, String(n)), label));
       chip(state.core.vocab ? state.core.vocab.streak : 0, "day vocab streak");
-      chip(state.core.drugs ? state.core.drugs.streak : 0, "day drug streak");
       chip(state.sessions7, state.sessions7 === 1 ? "workout this week" : "workouts this week");
       state.custom.filter((h) => h.streak >= 1).forEach((h) => chip(h.streak, `day ${h.name.toLowerCase()}`));
     }
@@ -495,18 +492,6 @@
           sub: done ? `${reviewed} reviewed today${due ? ` · ${due} still due` : ""}` : (due ? `${due} due for review` : "Nothing due — learn some new words") };
       }).catch(() => { state.core.vocab = { done: false, sub: "Couldn't load" }; });
     }
-    function loadDrugs() {
-      return Promise.all([SRC.drugLog(), SRC.drugs()]).then(([log, drugs]) => {
-        const days = new Set(log.map((r) => r.studied_on));
-        const [y, m, d] = TODAY.split("-").map(Number), [y0, m0, d0] = "2026-11-04".split("-").map(Number);
-        const n = Math.round((Date.UTC(y, m - 1, d) - Date.UTC(y0, m0 - 1, d0)) / 86400000);
-        const drug = drugs.length ? drugs[((n % drugs.length) + drugs.length) % drugs.length] : null;
-        const done = days.has(TODAY);
-        state.drugSet = days;
-        state.core.drugs = { done, streak: streakOf(days),
-          sub: drug ? (done ? `${drug.name} — quiz finished` : `Today: ${drug.name}`) : "Open to study" };
-      }).catch(() => { state.core.drugs = { done: false, sub: "Couldn't load" }; });
-    }
     function loadWorkout() {
       return SRC.sessions().then((rows) => {
         const days = new Set(rows.map((r) => r.log_date));
@@ -547,7 +532,7 @@
     function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }); }
 
     render();
-    [loadTasks, loadRecent, loadVocab, loadDrugs, loadWorkout, loadCustom, loadSpend].forEach((f) => f().then(render));
+    [loadTasks, loadRecent, loadVocab, loadWorkout, loadCustom, loadSpend].forEach((f) => f().then(render));
     window.addEventListener("resize", (() => { let w = innerWidth; return () => { if ((innerWidth < 640) !== (w < 640)) { w = innerWidth; render(); } }; })());
 
     // A tab left open past midnight should roll over to the new day.

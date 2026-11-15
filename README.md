@@ -190,10 +190,9 @@ A short, actionable list with a donut for what's left. The ring in the header
 counts **tasks left today** (overdue + today's); under the title it says how many
 habits are left. Below: a box to add a task for today, then only what's **not
 done yet** — overdue and today's tasks first, then habits: **Vocab** (done once
-you've reviewed a card; shows how many are due), **Drug of the day** (done when
-today's quiz is finished; shows the drug), **Workout** (done when a session is
+you've reviewed a card; shows how many are due), **Workout** (done when a session is
 logged; suggests the next muscle group in the Back → Chest → Shoulder/Arms →
-Legs → Whole body rotation) and your own habits (tap to check off). The three
+Legs → Whole body rotation) and your own habits (tap to check off). The two
 built-in habits are links that complete themselves when you do the thing on
 their page. Finished items collapse into "Done today (n)"; when nothing is
 left you get an all-done card. Open week and month tasks sit under "This week
@@ -215,8 +214,8 @@ Six summary tiles (daily habits %, tasks done, workouts and kg lifted, vocab
 reviews, drugs studied and average quiz, spending), each compared with the
 previous period, then charts:
 
-- **Consistency** — a habit × day grid (vocab, drug, workout, tasks, your own habits)
-- **Daily habits** — % of daily habits done each day (vocab + drug + your own;
+- **Consistency** — a habit × day grid (vocab, workout, tasks, your own habits)
+- **Daily habits** — % of daily habits done each day (vocab + your own;
   workout is tracked separately since rest days are normal)
 - **Tasks completed**, **Vocab reviews**, **Spending** (plus a by-category breakdown)
 - **Workout volume** per session (reps × weight, kg)
@@ -317,6 +316,8 @@ some. Export CSV (this month / everything) from the bottom.
   the fix is Supabase Auth + an `auth.uid()` RLS policy on `expenses`.
 
 ## Drug of the Day (`/drugs/`)
+
+*(Not a daily habit any more: it no longer appears on Today or in the habit scorecard, % or grid. The page, its streak data and the "Drugs studied" / quiz-score stats on Progress are unchanged.)*
 
 One small-molecule drug per day, in a fixed order starting 2026-11-04
 (day N shows `DRUGS[(N-1) mod count]`; ‹ › step back through earlier days,

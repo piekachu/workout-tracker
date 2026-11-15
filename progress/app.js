@@ -91,10 +91,10 @@ const vocabOn = (d) => num(D.vocab[d]);
 const drugOn = (d) => D.drug[d] || null;
 const sessionsOn = (d) => D.sessions[d] || [];
 const customDone = (d) => D.habitsActive.filter((h) => D.habitDone[d] && D.habitDone[d].has(h.id));
-// "Daily habits" = vocab, drug of the day, and your own habits. Workout is tracked on its own (rest days are normal).
+// "Daily habits" = vocab and your own habits. Workout is tracked on its own (rest days are normal).
 function dayHabitPct(d) {
-  const total = 2 + D.habitsActive.length;
-  return ((vocabOn(d) > 0 ? 1 : 0) + (drugOn(d) ? 1 : 0) + customDone(d).length) / total * 100;
+  const total = 1 + D.habitsActive.length;
+  return ((vocabOn(d) > 0 ? 1 : 0) + customDone(d).length) / total * 100;
 }
 const quizPct = (d) => { const q = drugOn(d); return q && q.total ? (q.correct / q.total) * 100 : null; };
 
@@ -149,9 +149,8 @@ function renderDetail(d) {
   if (view !== "day") return;
   const row = (on, what, info) => el("div", { class: "drow" + (on ? " on" : "") }, el("span", { class: "mark" }, on ? "✓" : "○"), el("span", { class: "what" }, what), el("span", { class: "info" }, info || ""));
   const card = el("div", { class: "detail" });
-  const q = drugOn(d), ss = sessionsOn(d);
+  const ss = sessionsOn(d);
   card.append(row(vocabOn(d) > 0, "Vocab", vocabOn(d) ? `${vocabOn(d)} reviewed` : "none"));
-  card.append(row(!!q, "Drug of the day", q ? `quiz ${q.correct}/${q.total}` : "not studied"));
   card.append(row(ss.length > 0, "Workout", ss.length ? ss.map((s) => `${s.category || "Session"} · ${s.volume.toLocaleString()} kg`).join("; ") : "rest day"));
   D.habitsActive.forEach((h) => card.append(row(!!(D.habitDone[d] && D.habitDone[d].has(h.id)), h.name)));
   (D.tasksDoneList[d] || []).forEach((t) => card.append(row(true, t.title, "task")));
@@ -183,7 +182,7 @@ function renderCharts(r) {
     const { host, c } = card("Habit scorecard", `Days you did each one · ${scope}`, true);
     host.className = "scorecard";
     const items = [
-      { label: "Vocab", on: (d) => vocabOn(d) > 0 }, { label: "Drug of the day", on: (d) => !!drugOn(d) },
+      { label: "Vocab", on: (d) => vocabOn(d) > 0 },
       { label: "Workout", on: (d) => sessionsOn(d).length > 0 }, { label: "Tasks", on: (d) => num(D.tasksDone[d]) > 0 },
       ...D.habitsActive.map((h) => ({ label: h.name, on: (d) => !!(D.habitDone[d] && D.habitDone[d].has(h.id)) })),
     ];
@@ -202,7 +201,6 @@ function renderCharts(r) {
     const { host, c } = card("Consistency", `Which habits you hit each day · ${scope}`, true);
     const rowsDef = [
       { label: "Vocab", on: (d) => vocabOn(d) > 0, tip: (d) => (vocabOn(d) ? `${vocabOn(d)} reviewed · ${long(d)}` : `Not done · ${long(d)}`) },
-      { label: "Drug", on: (d) => !!drugOn(d), tip: (d) => (drugOn(d) ? `Quiz ${drugOn(d).correct}/${drugOn(d).total} · ${long(d)}` : `Not done · ${long(d)}`) },
       { label: "Workout", on: (d) => sessionsOn(d).length > 0, tip: (d) => (sessionsOn(d).length ? `${sessionsOn(d)[0].category || "Session"} · ${long(d)}` : `Rest · ${long(d)}`) },
       { label: "Tasks", on: (d) => num(D.tasksDone[d]) > 0, tip: (d) => `${num(D.tasksDone[d])} completed · ${long(d)}` },
       ...D.habitsActive.map((h) => ({ label: h.name, on: (d) => !!(D.habitDone[d] && D.habitDone[d].has(h.id)), tip: (d) => `${D.habitDone[d] && D.habitDone[d].has(h.id) ? "Done" : "Not done"} · ${long(d)}` })),
