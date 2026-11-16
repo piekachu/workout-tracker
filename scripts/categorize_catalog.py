@@ -8,7 +8,12 @@ import json, re, collections
 P = "collection/catalog.json"
 CATS = ["Classics", "Classics Revive", "SP", "# Series", "# Series Selection", "# Plus", "CORE", "EX", "SB"]
 
+OVERRIDES = {  # exact release name -> category, for releases the rules below get "wrong"
+    "Gundam Converge Operation Jaburo (2023)": "# Series Selection",
+}
+
 def category(n):                                   # first match wins
+    if n in OVERRIDES: return OVERRIDES[n]
     if re.search(r"Converge EX \d", n): return "EX"
     if re.search(r"Converge SB\d", n): return "SB"
     if re.search(r"Converge SP\b", n): return "SP"
