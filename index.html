@@ -222,9 +222,9 @@
         if (longer.error) throw longer.error;
         return [...(days.data || []), ...(longer.data || [])];
       }),
-      // 14 days of expenses: this week vs the one before, for the ticker
+      // 60 days of expenses: this week vs the one before (ticker) and the daily-logging streak
       spend14: once(async () => {
-        const { data, error } = await sb.from("expenses").select("spent_on, amount, kind").gte("spent_on", addDaysISO(TODAY, -13));
+        const { data, error } = await sb.from("expenses").select("spent_on, amount, kind").gte("spent_on", addDaysISO(TODAY, -60));
         if (error) throw error; return data || [];
       }),
       tasksRecent: once(async () => {
@@ -258,8 +258,9 @@
     const CORE = [
       { key: "vocab",   name: "Vocab",           href: "vocab/",   cta: "Review" },
       { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
+      { key: "expenses", name: "Daily expenses",  href: "expenses/", cta: "Log" },
     ];
-    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 } };   // core[key] = { done, sub, streak }
+    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
     const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
@@ -353,7 +354,7 @@
     function habitPct(d) {
       const ids = new Set(state.custom.map((h) => h.id)), logged = state.habitLogByDay[d] || new Set();
       let custom = 0; logged.forEach((id) => { if (ids.has(id)) custom++; });
-      return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + custom) / (1 + state.custom.length) * 100);
+      return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + (state.expDays.has(d) ? 1 : 0) + custom) / (2 + state.custom.length) * 100);
     }
     // up/down arrow + colour; `goodUp` says whether a rise is good news (spending: no)
     function deltaOf(now, prev, goodUp = true, unit = "", fmtNum = (v) => Math.round(v * 10) / 10) {
@@ -511,9 +512,16 @@
     function loadSpend() {
       return SRC.spend14().then((rows) => {
         const cut = addDaysISO(TODAY, -6), sp = { now: 0, prev: 0 };
-        rows.filter((r) => r.kind === "expense").forEach((r) => { (r.spent_on >= cut ? (sp.now += Number(r.amount)) : (sp.prev += Number(r.amount))); });
+        const prevCut = addDaysISO(TODAY, -13);
+        rows.filter((r) => r.kind === "expense" && r.spent_on >= prevCut).forEach((r) => { (r.spent_on >= cut ? (sp.now += Number(r.amount)) : (sp.prev += Number(r.amount))); });
         state.spend = sp;
-      }).catch(() => {});
+        // the habit: log at least one entry (expense or income) for the day
+        const days = new Set(rows.map((r) => r.spent_on)), todays = rows.filter((r) => r.spent_on === TODAY);
+        const spentToday = todays.filter((r) => r.kind === "expense").reduce((t, r) => t + Number(r.amount), 0);
+        state.expDays = days;
+        state.core.expenses = { done: days.has(TODAY), streak: streakOf(days),
+          sub: days.has(TODAY) ? `${todays.length} logged today · ${Math.round(spentToday).toLocaleString()} spent` : "Nothing logged today" };
+      }).catch(() => { state.core.expenses = { done: false, sub: "Couldn't load" }; });
     }
     function loadRecent() {
       return SRC.tasksRecent().then((rows) => {
