@@ -34,7 +34,9 @@ const frName = (n) => RN.get(n) || n;
 const customSeries = () => seriesRows.filter((r) => !r.orig).map((r) => r.name);
 const allSeries = () => [...new Set([...FRS.map(frName), ...customSeries()])];    // figures and category names the user created
 const marks = new Map();            // item id -> { status, price, qty, on }
-const open = new Set();             // series indexes the user expanded
+const openState = new Map();       // release index -> true/false once the user has folded/unfolded it (otherwise: open only while filtering)
+const setPrices = new Map();        // release name -> {price, qty, on}  (price paid for a whole set)
+let ctx = { d: null, bySeries: [], filtering: false }, groupEls = new Map();
 let status = "all", year = "all", cat = "all", fr = "all", my = "all", query = "";
 let CATS = [], FRS = [];            // the fixed categories and the franchise list (from catalog.json)
 let ready = false;
@@ -86,10 +88,11 @@ async function init() {
   $("year").append(el("option", { value: "all" }, "All years"), ...years.map((y) => el("option", { value: y }, String(y))));
   $("buy-cur").textContent = `(${CURS[CUR].sym})`;
   rebuild(); render();
-  const [ed, ad, cc, sr] = await Promise.all([sb.from("collection_edits").select("*").limit(5000), sb.from("collection_added").select("*").order("created_at").limit(5000), sb.from("collection_cats").select("name").order("name"), sb.from("collection_series").select("name,orig")]);
+  const [ed, ad, cc, sr, sp] = await Promise.all([sb.from("collection_edits").select("*").limit(5000), sb.from("collection_added").select("*").order("created_at").limit(5000), sb.from("collection_cats").select("name").order("name"), sb.from("collection_series").select("name,orig"), sb.from("collection_sets").select("series_name,price,qty,bought_on")]);
   if (ed.error || ad.error || cc.error || sr.error) toast("Couldn't load your edits — check your connection");
   (ed.data || []).forEach((r) => edits.set(r.item_id, { name: r.name, no: r.no, cat: r.cat, fr: r.fr }));
   added = ad.data || []; customCats = (cc.data || []).map((r) => r.name); seriesRows = sr.data || [];
+  (sp.data || []).forEach((r) => setPrices.set(r.series_name, { price: Number(r.price), qty: r.qty || 1, on: r.bought_on || null }));
   rebuild(); render();
   for (let from = 0; ; from += 1000) {                 // paged: the API caps a response at 1000 rows
     const { data, error } = await sb.from("collection").select(COLS).order("item_id").range(from, from + 999);
@@ -134,17 +137,24 @@ function undoable(label, ids, next) {
 function compute() {
   const c = { total: items.length, removed: 0, owned: 0, wish: 0, skip: 0, secret: 0, qty: 0, spent: 0, priced: 0, unpriced: 0 };
   const frs = new Map(), mys = new Map(), cats = new Map(), yr = new Map(), mon = new Map(), ser = series.map(() => ({ owned: 0, tracked: 0, spent: 0 }));
+  // a price paid for a whole set: counted once in the total, spread evenly over the set's figures for the category/series charts
+  const setTotal = series.map((x) => { const sp = setPrices.get(x.name); return sp ? sp.price * sp.qty : 0; });
+  const setN = series.map(() => 0);
+  items.forEach((it) => { if (st(it.id) !== "removed") setN[it.s]++; });
+  series.forEach((x, i) => { const sp = setPrices.get(x.name); if (sp && setTotal[i] > 0) { c.spent += setTotal[i]; ser[i].spent += setTotal[i]; ser[i].setPaid = true; if (sp.on) { const k = sp.on.slice(0, 7); mon.set(k, (mon.get(k) || 0) + setTotal[i]); } } });
   for (const it of items) {
     const m = marks.get(it.id), s = m && m.status, sr = series[it.s], y = sr.year, S = ser[it.s];
     if (s === "removed") { c.removed++; continue; }
     const K = cats.get(it.cat) || cats.set(it.cat, { owned: 0, tracked: 0, spent: 0 }).get(it.cat);
     const F = frs.get(it.fr) || frs.set(it.fr, { owned: 0, tracked: 0, spent: 0 }).get(it.fr);
     const M = it.my ? (mys.get(it.my) || mys.set(it.my, { owned: 0, tracked: 0, spent: 0 }).get(it.my)) : null;
+    if (setTotal[it.s] > 0 && setN[it.s]) { const share = setTotal[it.s] / setN[it.s]; K.spent += share; F.spent += share; if (M) M.spent += share; }
     if (s !== "skip") { K.tracked++; F.tracked++; if (M) M.tracked++; }
     if (s !== "skip") { S.tracked++; if (y) { const o = yr.get(y) || { owned: 0, tracked: 0 }; o.tracked++; if (s === "owned") o.owned++; yr.set(y, o); } }
     if (s === "owned") {
       c.owned++; S.owned++; K.owned++; F.owned++; if (M) M.owned++; if (it.secret) c.secret++; c.qty += m.qty;
       if (m.price != null) { const amt = m.price * m.qty; c.spent += amt; c.priced += m.qty; S.spent += amt; K.spent += amt; F.spent += amt; if (M) M.spent += amt; if (m.on) { const k = m.on.slice(0, 7); mon.set(k, (mon.get(k) || 0) + amt); } }
+      else if (S.setPaid) c.priced += m.qty;                    // covered by the price paid for its set
       else c.unpriced += m.qty;
     } else if (s === "wishlist") c.wish++;
     else if (s === "skip") c.skip++;
@@ -232,46 +242,114 @@ function charts(d) {
 
 function render() {
   if (!items.length) return;
-  const d = compute(); summary(d); charts(d);
-  const filtering = status !== "all" || !!query || cat !== "all" || fr !== "all" || my !== "all";  // "removed" also counts, so those series open
-  const bySeries = series.map(() => []);
-  items.forEach((it) => bySeries[it.s].push(it));
-  const host = $("list"); host.textContent = "";
-  let shown = 0;
+  const d = compute(); summary(d); lastD = d;
+  if ($("charts-wrap").open) charts(d);                // a folded <details> has no width to draw into; it redraws when opened
+  renderList(d);
+}
+let lastD = null;
+$("charts-wrap").addEventListener("toggle", () => { if ($("charts-wrap").open && lastD) charts(lastD); });
+
+// ---- the release list (accordion) -------------------------------------------------
+// Folding rules: a release the user has folded/unfolded stays that way (openState wins). Releases that
+// were never touched are open only while a filter/search is active, so matches show without clicking.
+const visOf = (i) => (ctx.bySeries[i] || []).filter(matches);
+const isOpenNow = (i) => openState.has(i) ? openState.get(i) : (ctx.filtering && visOf(i).length > 0);
+function visibleSeries() {
+  const out = [];
   series.forEach((s, i) => {
     if (year !== "all" && String(s.year) !== year) return;
-    const all = bySeries[i], vis = all.filter(matches);
-    if ((filtering || status === "removed") && !vis.length) return;
+    const all = ctx.bySeries[i], vis = visOf(i);
+    if ((ctx.filtering || status === "removed") && !vis.length) return;
     if (!vis.length && all.every((x) => st(x.id) === "removed")) return;
-    shown++;
-    const S = d.ser[i], isOpen = open.has(i) || (filtering && vis.length > 0);
-    const g = el("div", { class: "grp" + (isOpen ? " open" : "") + (S.tracked > 0 && S.owned === S.tracked ? " done" : "") });
-    g.append(el("button", { type: "button", class: "grp-h", "aria-expanded": String(isOpen), onclick: () => { open.has(i) ? open.delete(i) : open.add(i); render(); } },
-      Object.assign(el("span", { class: "chev" }), { innerHTML: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M5 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' }),
-      el("span", { class: "nm" }, shortName(s.name)), el("span", { class: "cat" }, seriesCat(i, all)), S.spent ? el("span", { class: "sp" }, money(S.spent)) : null,
-      el("span", { class: "dt" }, s.date || ""), el("span", { class: "bar" }, el("i")), el("span", { class: "ct" }, S.tracked ? `${S.owned}/${S.tracked}` : "skipped")));
-    g.querySelector(".bar i").style.width = (S.tracked ? S.owned / S.tracked * 100 : 0) + "%";
-    if (isOpen) {
-      const body = el("div", { class: "grp-body" });
-      body.append(el("div", { class: "grp-tools" },
-        el("button", { type: "button", onclick: () => setStatus(all.filter((x) => !["owned", "skip", "removed"].includes(st(x.id))).map((x) => x.id), "owned") }, "Mark all owned"),
-        el("button", { type: "button", onclick: () => { const ids = all.filter((x) => !["owned", "skip", "removed"].includes(st(x.id))).map((x) => x.id); undoable(`Skipped ${ids.length}`, ids, "skip"); } }, "Skip all"),
-        el("button", { type: "button", onclick: () => { const ids = all.filter((x) => marks.has(x.id) && st(x.id) !== "removed").map((x) => x.id); undoable(`Cleared ${ids.length}`, ids, null); } }, "Clear all")));
-      body.querySelector(".grp-tools").append(el("select", { class: "mv", "aria-label": "Move series to category", onchange: async (e) => {
-        const v = e.target.value; if (v === "") return;
-        await moveCat(all, v === "__default" ? null : v); }},
-        el("option", { value: "" }, "Set my category…"), el("option", { value: "__default" }, "↺ No category of mine"), ...myCats().map((c) => el("option", { value: c }, c))));
-      body.querySelector(".grp-tools").append(el("select", { class: "mv", "aria-label": "Set series for this release", onchange: async (e) => {
-        const v = e.target.value; if (v === "") return; await moveSeries(all, v === "__default" ? "" : v); }},
-        el("option", { value: "" }, "Set series…"), el("option", { value: "__default" }, "↺ Original series"), ...allSeries().map((c) => el("option", { value: c }, c))));
-      vis.forEach((it) => body.append(row(it)));
-      g.append(body);
-    }
-    host.append(g);
+    out.push(i);
   });
-  if (!shown) host.append(el("p", { class: "empty" }, filtering ? "Nothing matches." : "No series."));
-  $("toggle-all").textContent = open.size ? "Collapse all" : "Expand all";
+  return out;
 }
+function syncFoldButton() {
+  const vis = visibleSeries(), anyOpen = vis.some(isOpenNow);
+  $("toggle-all").textContent = anyOpen ? "Collapse all" : "Expand all";
+  $("toggle-all").disabled = !vis.length;
+}
+function renderList(d) {
+  ctx = { d, filtering: status !== "all" || !!query || cat !== "all" || fr !== "all" || my !== "all", bySeries: series.map(() => []) };
+  items.forEach((it) => ctx.bySeries[it.s].push(it));
+  const host = $("list"); host.textContent = ""; groupEls = new Map();
+  const vis = visibleSeries();
+  vis.forEach((i) => { const g = buildGroup(i); groupEls.set(i, g); host.append(g); });
+  if (!vis.length) host.append(el("p", { class: "empty" }, ctx.filtering ? "Nothing matches." : "No series."));
+  syncFoldButton();
+}
+function toggleGroup(i) {                     // fold/unfold ONE release without redrawing the page (keeps scroll position)
+  openState.set(i, !isOpenNow(i));
+  const old = groupEls.get(i); if (!old) return renderList(ctx.d);
+  const g = buildGroup(i); old.replaceWith(g); groupEls.set(i, g); syncFoldButton();
+}
+function buildGroup(i) {
+  const s = series[i], all = ctx.bySeries[i], vis = visOf(i), S = ctx.d.ser[i], isOpen = isOpenNow(i);
+  const g = el("div", { class: "grp" + (isOpen ? " open" : "") + (S.tracked > 0 && S.owned === S.tracked ? " done" : "") });
+  const sp = setPrices.get(s.name);
+  g.append(el("button", { type: "button", class: "grp-h", "aria-expanded": String(isOpen), onclick: () => toggleGroup(i) },
+    Object.assign(el("span", { class: "chev" }), { innerHTML: '<svg viewBox="0 0 16 16" width="14" height="14"><path d="M5 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>' }),
+    el("span", { class: "nm" }, shortName(s.name)), el("span", { class: "cat" }, seriesCat(i, all)), S.spent ? el("span", { class: "sp" }, money(S.spent)) : null,
+    el("span", { class: "dt" }, s.date || ""), el("span", { class: "bar" }, el("i")), el("span", { class: "ct" }, S.tracked ? `${S.owned}/${S.tracked}` : "skipped")));
+  g.querySelector(".bar i").style.width = (S.tracked ? S.owned / S.tracked * 100 : 0) + "%";
+  if (isOpen) {
+    const body = el("div", { class: "grp-body" });
+    const tools = el("div", { class: "grp-tools" },
+      el("button", { type: "button", class: "setp", onclick: () => editSetPrice(i) }, sp ? `Set price · ${money(sp.price * sp.qty)}` : "+ Set price"),
+      el("button", { type: "button", onclick: () => setStatus(all.filter((x) => !["owned", "skip", "removed"].includes(st(x.id))).map((x) => x.id), "owned") }, "Mark all owned"),
+      el("button", { type: "button", onclick: () => { const ids = all.filter((x) => !["owned", "skip", "removed"].includes(st(x.id))).map((x) => x.id); undoable(`Skipped ${ids.length}`, ids, "skip"); } }, "Skip all"),
+      el("button", { type: "button", onclick: () => { const ids = all.filter((x) => marks.has(x.id) && st(x.id) !== "removed").map((x) => x.id); undoable(`Cleared ${ids.length}`, ids, null); } }, "Clear all"));
+    tools.append(el("select", { class: "mv", "aria-label": "Move series to category", onchange: async (e) => {
+      const v = e.target.value; if (v === "") return;
+      await moveCat(all, v === "__default" ? null : v); }},
+      el("option", { value: "" }, "Set my category…"), el("option", { value: "__default" }, "↺ No category of mine"), ...myCats().map((c) => el("option", { value: c }, c))));
+    tools.append(el("select", { class: "mv", "aria-label": "Set series for this release", onchange: async (e) => {
+      const v = e.target.value; if (v === "") return; await moveSeries(all, v === "__default" ? "" : v); }},
+      el("option", { value: "" }, "Set series…"), el("option", { value: "__default" }, "↺ Original series"), ...allSeries().map((c) => el("option", { value: c }, c))));
+    body.append(tools);
+    vis.forEach((it) => body.append(row(it)));
+    g.append(body);
+  }
+  return g;
+}
+
+// ---- price for a whole set --------------------------------------------------------
+let setEditing = -1;
+function editSetPrice(i) {
+  const s = series[i], sp = setPrices.get(s.name); setEditing = i;
+  $("sp-title").textContent = shortName(s.name); $("sp-cur").textContent = `(${CURS[CUR].sym})`;
+  $("sp-price").value = sp ? sp.price : ""; $("sp-qty").value = sp ? sp.qty : 1; $("sp-date").value = sp && sp.on ? sp.on : "";
+  $("sp-price").step = CUR === "KRW" ? "1" : "0.01";
+  const n = (ctx.bySeries[i] || []).filter((x) => st(x.id) !== "removed").length;
+  $("sp-own").checked = !sp; $("sp-own-n").textContent = n;
+  $("sp-clear").style.display = sp ? "" : "none"; spTotal(); $("sp-dlg").showModal();
+}
+function spTotal() {
+  const p = parseFloat($("sp-price").value), q = Math.max(1, parseInt($("sp-qty").value, 10) || 1);
+  $("sp-total").textContent = isNaN(p) ? "One price for the whole set." : `Total: ${money(p * q)}`;
+}
+$("sp-price").addEventListener("input", spTotal); $("sp-qty").addEventListener("input", spTotal);
+$("sp-cancel").addEventListener("click", () => $("sp-dlg").close());
+$("sp-form").addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+  const i = setEditing; if (i < 0) return;
+  const name = series[i].name, p = parseFloat($("sp-price").value), q = Math.max(1, parseInt($("sp-qty").value, 10) || 1), on = $("sp-date").value || null;
+  if (isNaN(p) || p < 0) { $("sp-price").focus(); return; }
+  const { error } = await sb.from("collection_sets").upsert({ series_name: name, price: p, qty: q, bought_on: on }, { onConflict: "user_id,series_name" });
+  if (error) { toast("Couldn't save — check your connection"); return; }
+  setPrices.set(name, { price: p, qty: q, on });
+  $("sp-dlg").close();
+  if ($("sp-own").checked) await setStatus((ctx.bySeries[i] || []).filter((x) => !["owned", "skip", "removed"].includes(st(x.id))).map((x) => x.id), "owned");
+  else render();
+  toast(`Set price saved: ${money(p * q)}`);
+});
+$("sp-clear").addEventListener("click", async () => {
+  const i = setEditing; if (i < 0) return; const name = series[i].name;
+  const { error } = await sb.from("collection_sets").delete().eq("series_name", name);
+  if (error) { toast("Couldn't remove — check your connection"); return; }
+  setPrices.delete(name); $("sp-dlg").close(); render(); toast("Set price removed");
+});
 
 const actsOpen = new Set();           // rows whose action buttons are shown on phones
 function row(it) {
@@ -514,9 +592,9 @@ $("status-seg").addEventListener("click", (e) => {
   render();
 });
 $("toggle-all").addEventListener("click", () => {
-  if (open.size) open.clear();
-  else series.forEach((s, i) => { if ((year === "all" || String(s.year) === year) && (cat === "all" || s.cat === cat)) open.add(i); });
-  render();
+  const vis = visibleSeries(), collapse = vis.some(isOpenNow);
+  vis.forEach((i) => openState.set(i, !collapse));
+  renderList(ctx.d);
 });
 try { if (matchMedia("(max-width: 760px)").matches) $("charts-wrap").open = false; } catch {}
 init();

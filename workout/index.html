@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Workout Tracker</title>
   <link rel="stylesheet" href="../shared/theme.css" />
+  <link rel="stylesheet" href="../shared/charts.css" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
@@ -20,194 +21,194 @@
   </header>
 
   <main class="log-grid">
-    <!-- CONSISTENCY -->
+    <!-- CONSISTENCY + HEADLINE NUMBERS -->
     <section id="consistency">
       <div class="stat-row">
-        <div class="stat">
-          <div class="stat-num" id="stat-recent">–</div>
-          <div class="stat-label">sessions, last 4 weeks</div>
-        </div>
-        <div class="stat">
-          <div class="stat-num" id="stat-streak">–</div>
-          <div class="stat-label">week streak</div>
-        </div>
+        <div class="stat"><div class="stat-num" id="stat-recent">–</div><div class="stat-label">sessions, last 4 weeks</div></div>
+        <div class="stat"><div class="stat-num" id="stat-streak">–</div><div class="stat-label">week streak</div></div>
+        <div class="stat"><div class="stat-num" id="stat-volume">–</div><div class="stat-label">kg lifted, last 4 weeks</div></div>
+        <div class="stat"><div class="stat-num" id="stat-total">–</div><div class="stat-label">sessions in total</div></div>
       </div>
-      <div class="heatmap-wrap">
-        <div id="heatmap" class="heatmap"></div>
-      </div>
+      <div class="heatmap-wrap"><div id="heatmap" class="heatmap"></div></div>
     </section>
-
-    <hr />
 
     <!-- LOG -->
     <section id="log">
-      <h2>Log today's workout</h2>
+      <h2>Log a workout</h2>
 
-      <div class="category-picker" id="category-picker"></div>
+      <!-- Any combination of groups: Back + Chest, Legs + Shoulder, … -->
+      <p class="step-label">Today I'm training <span class="step-hint">(pick any combination)</span></p>
+      <div class="group-picker" id="group-picker" role="group" aria-label="Muscle groups"></div>
 
-      <div class="category-locked" id="category-locked" hidden>
-        <span class="category-locked-label">Today's category: <strong id="category-locked-name"></strong></span>
-        <button type="button" class="link-btn small" id="change-category">Change</button>
-      </div>
+      <div id="log-form" hidden>
+        <div class="routine-row" id="routine-row" hidden>
+          <label for="routine-select">Start from a routine</label>
+          <div class="routine-pick">
+            <select id="routine-select"><option value="">Pick one…</option></select>
+            <button type="button" class="btn-ghost" id="load-routine-btn">Load</button>
+          </div>
+        </div>
 
-      <div class="routine-row" id="routine-row" hidden>
-        <span class="routine-row-label">Start from a routine:</span>
-        <select id="routine-select"><option value="">Pick one…</option></select>
-        <button type="button" class="link-btn small" id="load-routine-btn">Load</button>
-      </div>
-
-      <div id="log-form">
-        <!-- Shown only when today's date has no session yet. -->
-        <div class="field-row" id="date-time-fields">
+        <!-- Date (and optional times). Replaced by a short note once that date already has a session. -->
+        <div class="when" id="date-time-fields">
           <div class="field">
-            <label>Date</label>
+            <label for="s-date">Date</label>
             <input type="date" id="s-date" />
           </div>
           <div class="field">
-            <label>Body weight (kg)</label>
-            <div class="stepper" id="bodyweight-stepper">
-              <button type="button" class="step-btn minus" aria-label="Decrease body weight">−</button>
-              <input type="number" class="num-display" id="s-bodyweight" readonly placeholder="0" />
-              <button type="button" class="step-btn plus" aria-label="Increase body weight">+</button>
-            </div>
-          </div>
-          <div class="field">
-            <label>Start time</label>
+            <label for="s-start">Start <span class="opt">optional</span></label>
             <input type="time" id="s-start" />
           </div>
           <div class="field">
-            <label>End time</label>
+            <label for="s-end">End <span class="opt">optional</span></label>
             <input type="time" id="s-end" />
           </div>
         </div>
-        <!-- Shown instead, once a session already exists for the chosen date
-             -- no need to re-enter the date/time every time you add more
-             exercises to the same day. -->
         <div class="continuing-note" id="continuing-note" hidden>
-          <div>
-            <strong>Continuing <span id="continuing-date"></span></strong>
-            <span id="continuing-detail"></span>
-          </div>
-          <div class="field bodyweight-only">
-            <label>Body weight (kg)</label>
-            <div class="stepper" id="bodyweight-stepper-2">
-              <button type="button" class="step-btn minus" aria-label="Decrease body weight">−</button>
-              <input type="number" class="num-display" id="s-bodyweight-2" readonly placeholder="0" />
-              <button type="button" class="step-btn plus" aria-label="Increase body weight">+</button>
-            </div>
-          </div>
+          <div><strong>Adding to <span id="continuing-date"></span></strong> <span id="continuing-detail"></span></div>
           <button type="button" class="link-btn small" id="log-different-date">Log a different date instead</button>
         </div>
 
-        <!-- Exercises swipe horizontally, one per screen, instead of stacking
-             vertically -- keeps the page's scroll height capped regardless of
-             how many exercises are in today's workout. -->
-        <div class="exercise-carousel-wrap">
-          <div id="exercise-list"></div>
-          <div class="carousel-controls" id="carousel-controls" hidden></div>
-        </div>
-        <button class="link-btn" id="add-exercise">+ add exercise</button>
+        <div id="exercise-list"></div>
+        <button type="button" class="add-ex-btn" id="add-exercise">+ Add exercise</button>
 
         <div class="save-bar">
-          <button class="btn" id="save-session">Save workout</button>
-          <span class="status" id="session-status"></span>
+          <button type="button" class="btn" id="save-session">Save workout</button>
+          <span class="status" id="session-status" role="status"></span>
         </div>
       </div>
     </section>
-
-    <hr />
 
     <!-- PROGRESS -->
     <section id="progress">
       <h2>Progress</h2>
-      <div class="progress-controls">
-        <select id="progress-exercise">
-          <option value="">Select exercise…</option>
-        </select>
-      </div>
-      <p class="empty" id="progress-empty">Pick an exercise to compare it across days.</p>
-      <div id="progress-chart-wrap" hidden>
-        <div id="progress-delta" class="progress-delta"></div>
-        <div class="progress-chart-scroll">
-          <svg id="progress-chart" class="progress-chart" viewBox="0 0 600 220" preserveAspectRatio="none"></svg>
+
+      <div class="charts-grid">
+        <div class="panel wide" id="p-explorer">
+          <div class="panel-h">Exercise progress <span class="meta" id="ex-meta"></span></div>
+          <div class="panel-b">
+            <div class="explorer-controls">
+              <button type="button" class="ex-choose" id="progress-choose"><span id="progress-choose-text">Choose exercise…</span><span class="chev" aria-hidden="true">▾</span></button>
+              <div class="seg" id="metric-seg" role="tablist" aria-label="Measure">
+                <button type="button" data-m="top" aria-selected="true">Top weight</button>
+                <button type="button" data-m="e1rm" aria-selected="false">Est. 1RM</button>
+                <button type="button" data-m="vol" aria-selected="false">Volume</button>
+              </div>
+            </div>
+            <p class="empty" id="progress-empty">Pick an exercise to see how it's going over time.</p>
+            <div id="progress-chart-wrap" hidden>
+              <div id="progress-delta" class="progress-delta"></div>
+              <div id="progress-chart"></div>
+              <div id="progress-table"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel"><div class="panel-h">Sessions per week <span class="meta">last 12 weeks</span></div><div class="panel-b" id="ch-weekly"></div></div>
+        <div class="panel"><div class="panel-h">Volume per session <span class="meta">kg lifted</span></div><div class="panel-b" id="ch-volume"></div></div>
+        <div class="panel"><div class="panel-h">Muscle groups <span class="meta">last 8 weeks</span></div><div class="panel-b" id="ch-split"></div></div>
+        <div class="panel"><div class="panel-h">Personal bests <span class="meta">heaviest set, top 8</span></div><div class="panel-b" id="ch-pb"></div></div>
+
+        <div class="panel wide">
+          <div class="panel-h">Body weight <span class="meta">optional</span></div>
+          <div class="panel-b">
+            <form class="bw-form" id="bw-form">
+              <label for="bw-input" class="sr">Body weight today (kg)</label>
+              <input type="number" id="bw-input" inputmode="decimal" step="0.1" min="30" max="250" placeholder="Today, kg" />
+              <button type="submit" class="btn-ghost">Log</button>
+              <span class="status" id="bw-status" role="status"></span>
+            </form>
+            <div id="ch-bw"></div>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
-  <template id="exercise-row-template">
-    <div class="ex-row">
-      <div class="ex-head">
-        <!-- Carousel picker instead of a <select> dropdown: browse exercises
-             with the same prev/next language used for swiping between
-             exercises, rather than opening a native picker. -->
-        <div class="ex-picker">
-          <button type="button" class="carousel-arrow ex-prev" aria-label="Previous exercise choice">‹</button>
-          <div class="ex-picker-label"><span class="ex-picker-text">Select exercise…</span></div>
-          <button type="button" class="carousel-arrow ex-next" aria-label="Next exercise choice">›</button>
+  <!-- Exercise picker: a searchable sheet instead of stepping through every exercise -->
+  <dialog id="ex-sheet" class="sheet">
+    <div class="sheet-head">
+      <h3 id="sheet-title">Choose exercise</h3>
+      <button type="button" class="sheet-x" id="sheet-close" aria-label="Close">✕</button>
+    </div>
+    <input type="search" id="sheet-search" placeholder="Search exercises" autocomplete="off" />
+    <div class="seg sheet-scope" id="sheet-scope" role="tablist" aria-label="Which exercises">
+      <button type="button" data-s="today" aria-selected="true">Today's groups</button>
+      <button type="button" data-s="all" aria-selected="false">All</button>
+    </div>
+    <div id="sheet-list" class="sheet-list"></div>
+    <form class="sheet-custom" id="sheet-custom">
+      <input type="text" id="sheet-custom-name" placeholder="Not listed? Type a name" maxlength="80" />
+      <button type="submit" class="btn-ghost">Use</button>
+    </form>
+  </dialog>
+
+  <template id="ex-card-template">
+    <div class="ex-card open">
+      <div class="ex-top">
+        <button type="button" class="ex-title" aria-expanded="true">
+          <span class="ex-name">Choose exercise…</span>
+          <span class="ex-sum"></span>
+          <span class="chev" aria-hidden="true">▾</span>
+        </button>
+        <button type="button" class="ex-remove" aria-label="Remove exercise" title="Remove">✕</button>
+      </div>
+      <div class="ex-body">
+        <div class="ex-info">
+          <span class="ex-goal"></span>
+          <button type="button" class="link-btn small ex-change">Change exercise</button>
+          <button type="button" class="last-chip" hidden></button>
         </div>
-        <input class="ex-name-other" placeholder="Exercise name" hidden />
-        <span class="ex-goal"></span>
-        <button type="button" class="remove-btn" title="Remove">✕</button>
+        <div class="ex-sets"></div>
+        <button type="button" class="link-btn small add-set">+ Add set</button>
+        <input type="text" class="ex-comment" placeholder="Note (optional)" maxlength="200" />
       </div>
-      <div class="load-prev-row">
-        <button type="button" class="link-btn small load-prev-btn" hidden>↺ Load previous</button>
-        <select class="load-prev-select" hidden></select>
-      </div>
-      <div class="ex-sets"></div>
-      <button type="button" class="link-btn small add-set">+ set</button>
-      <input type="text" class="ex-comment" placeholder="Comment (optional)" inputmode="text" />
     </div>
   </template>
 
-  <template id="set-input-template">
+  <template id="set-template">
     <div class="set-row">
-      <div class="set-row-main">
+      <div class="set-main">
         <span class="set-num"></span>
         <div class="stepper" data-kind="reps">
-          <button type="button" class="step-btn big-minus" aria-label="Decrease reps by a lot">«</button>
-          <button type="button" class="step-btn minus" aria-label="Decrease reps">−</button>
-          <input type="number" class="set-reps num-display" readonly placeholder="0" />
-          <button type="button" class="step-btn plus" aria-label="Increase reps">+</button>
-          <button type="button" class="step-btn big-plus" aria-label="Increase reps by a lot">»</button>
           <span class="stepper-unit">reps</span>
+          <button type="button" class="step-btn minus" aria-label="Fewer reps">−</button>
+          <input type="number" class="set-reps num-display" readonly placeholder="0" inputmode="numeric" aria-label="Reps" />
+          <button type="button" class="step-btn plus" aria-label="More reps">+</button>
         </div>
         <div class="stepper" data-kind="weight">
-          <button type="button" class="step-btn big-minus" aria-label="Decrease weight by a lot">«</button>
-          <button type="button" class="step-btn minus" aria-label="Decrease weight">−</button>
-          <input type="number" class="set-weight num-display" readonly placeholder="0" />
-          <button type="button" class="step-btn plus" aria-label="Increase weight">+</button>
-          <button type="button" class="step-btn big-plus" aria-label="Increase weight by a lot">»</button>
           <span class="stepper-unit">kg</span>
+          <button type="button" class="step-btn minus" aria-label="Lighter">−</button>
+          <input type="number" class="set-weight num-display" readonly placeholder="0" inputmode="decimal" aria-label="Weight in kg" />
+          <button type="button" class="step-btn plus" aria-label="Heavier">+</button>
         </div>
-      </div>
-      <div class="set-drop-row">
-        <span class="drop-badge"></span>
-        <button type="button" class="link-btn small add-drop">+ drop set</button>
+        <button type="button" class="set-del" aria-label="Remove set" title="Remove set">✕</button>
       </div>
       <div class="drop-sets"></div>
+      <button type="button" class="link-btn small add-drop">+ Drop set</button>
     </div>
   </template>
 
-  <template id="drop-set-template">
+  <template id="drop-template">
     <div class="drop-row">
       <span class="drop-num"></span>
       <div class="stepper compact" data-kind="reps">
-        <button type="button" class="step-btn minus" aria-label="Decrease drop reps">−</button>
-        <input type="number" class="set-reps num-display" readonly placeholder="0" />
-        <button type="button" class="step-btn plus" aria-label="Increase drop reps">+</button>
+        <button type="button" class="step-btn minus" aria-label="Fewer reps">−</button>
+        <input type="number" class="set-reps num-display" readonly placeholder="0" inputmode="numeric" aria-label="Drop reps" />
+        <button type="button" class="step-btn plus" aria-label="More reps">+</button>
       </div>
       <div class="stepper compact" data-kind="weight">
-        <button type="button" class="step-btn minus" aria-label="Decrease drop weight">−</button>
-        <input type="number" class="set-weight num-display" readonly placeholder="0" />
-        <button type="button" class="step-btn plus" aria-label="Increase drop weight">+</button>
+        <button type="button" class="step-btn minus" aria-label="Lighter">−</button>
+        <input type="number" class="set-weight num-display" readonly placeholder="0" inputmode="decimal" aria-label="Drop weight in kg" />
+        <button type="button" class="step-btn plus" aria-label="Heavier">+</button>
       </div>
-      <button type="button" class="remove-btn remove-drop" title="Remove drop set">✕</button>
+      <button type="button" class="drop-del" aria-label="Remove drop set">✕</button>
     </div>
   </template>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="../shared/auth.js"></script>
+  <script src="../shared/charts.js"></script>
   <script src="assets/app.js"></script>
 </body>
 </html>

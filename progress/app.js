@@ -270,15 +270,19 @@ function renderCharts(r) {
   // 4b. training split by muscle group
   {
     const byGroup = {};
-    days.forEach((d) => sessionsOn(d).forEach((s) => { const k = s.category || "Other"; byGroup[k] = (byGroup[k] || 0) + 1; }));
+    // a session can cover several groups ("Back + Biceps + Chest + Triceps"): it counts once toward each
+    const GROUPS = ["Back + Biceps", "Chest + Triceps", "Shoulder + Arms", "Legs", "Whole body"];
+    const groupsOf = (label) => { const parts = (label || "").split("+").map((x) => x.trim()); const g = GROUPS.filter((x) => x.split("+").every((p) => parts.includes(p.trim()))); return g.length ? g : [label || "Other"]; };
+    let nSess = 0;
+    days.forEach((d) => sessionsOn(d).forEach((s) => { nSess++; groupsOf(s.category).forEach((k) => { byGroup[k] = (byGroup[k] || 0) + 1; }); }));
     const groups = Object.entries(byGroup).map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value);
     const total = groups.reduce((a, x) => a + x.value, 0);
-    const { host, c } = card("Training split", total ? `${total} session${total === 1 ? "" : "s"} by muscle group · ${scope}` : `Sessions by muscle group · ${scope}`);
+    const { host, c } = card("Training split", total ? `${nSess} session${nSess === 1 ? "" : "s"} by muscle group · ${scope}` : `Sessions by muscle group · ${scope}`);
     host.className = "donut-wrap";
     if (!total) { Charts.hbar(host, [], String); } else {
       const segs = groups.map((x) => ({ ...x, color: catColor(x.label, WORKOUT_SLOTS) }));
       const dh = el("div", { class: "ring-host" }); host.append(dh);
-      Charts.donut(dh, { segments: segs, size: 170, big: String(total), small: total === 1 ? "session" : "sessions", tipValue: (sg, sh) => `${sg.value} · ${Math.round(sh * 100)}%` });
+      Charts.donut(dh, { segments: segs, size: 170, big: String(nSess), small: nSess === 1 ? "session" : "sessions", tipValue: (sg, sh) => `${sg.value} · ${Math.round(sh * 100)}%` });
       host.append(Charts.legend(segs.map((x) => ({ label: x.label, color: x.color, text: `${x.value} · ${Math.round((x.value / total) * 100)}%` }))));
       c.append(Charts.table(["Group", "Sessions"], groups.map((x) => [x.label, x.value])));
     }

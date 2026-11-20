@@ -1,597 +1,331 @@
 const sb = Auth.client;
+const $ = (id) => document.getElementById(id);
 
-// Local-date (not UTC) YYYY-MM-DD -- toISOString()/new Date("YYYY-MM-DD") are both
-// UTC-based and drift a day off in timezones ahead of/behind UTC around midnight.
-function localISO(d = new Date()) {
-  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, "0"), day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
-}
+// ---------- helpers ----------
+// Local-date (not UTC) YYYY-MM-DD: toISOString()/new Date("YYYY-MM-DD") are UTC-based and drift a day.
+const localISO = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const todayISO = () => localISO();
+const addDays = (date, n) => { const d = new Date(date); d.setDate(d.getDate() + n); return d; };
+const parseISO = (iso) => { const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d); };
 const GROUPS = ["Back + Biceps", "Chest + Triceps", "Shoulder + Arms", "Legs", "Whole body"];
-// Sets tagged with this notes prefix are drop sets chained onto the set
-// before them -- a lightweight convention rather than a schema column, so
-// no migration is needed. Never collides with a real exercise-level comment
-// since drop sets are never the first set of an exercise.
-const DROP_TAG = "[drop]";
-
-function escapeHtml(s) {
-  return String(s ?? "").replace(/[&<>"']/g, (c) => ({
-    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
-  }[c]));
+const DROP_TAG = "[drop]";                      // notes prefix marking a drop set (no schema column needed)
+// Sanity limits: anything outside these is treated as a typo (stepper clamps it, charts ignore it).
+const MAX_REPS = 50, MAX_KG = 300;
+const sane = (s) => s.reps != null && s.reps > 0 && s.reps <= MAX_REPS && s.weight_kg != null && s.weight_kg >= 0 && s.weight_kg <= MAX_KG;
+const isDrop = (s) => (s.notes || "").startsWith(DROP_TAG);
+const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
+const fmtKg = (v) => (Number.isInteger(v) ? String(v) : (Math.round(v * 10) / 10).toString());
+const prettyDate = (iso) => parseISO(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+function el(tag, attrs = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") e.className = v;
+    else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v);
+  }
+  kids.flat().forEach((c) => c != null && e.append(c));
+  return e;
 }
-function addDays(date, n) {
-  const d = new Date(date);
-  d.setDate(d.getDate() + n);
-  return d;
+const escapeHtml = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// "Back + Biceps + Legs" -> ["Back + Biceps", "Legs"]  (whole-label match per group; partial labels still map sensibly)
+function splitGroups(label) {
+  const parts = (label || "").split("+").map((s) => s.trim()).filter(Boolean);
+  const out = new Set();
+  for (const g of GROUPS) {
+    const gp = g.split("+").map((s) => s.trim());
+    if (gp.every((p) => parts.includes(p))) out.add(g);
+  }
+  if (!out.size) parts.forEach((p) => { const g = GROUPS.find((x) => x.split("+").map((s) => s.trim()).includes(p)); if (g) out.add(g); });
+  return [...out];
 }
 
 // ============================================================ stepper -----
-// Big +/- buttons instead of a keyboard for entering numbers on mobile.
-// Tapping the number itself is still a (deliberate) escape hatch for exact values.
-// An optional bigStep wires a second, wider-spaced pair of buttons (».«) for
-// jumping in bigger increments -- e.g. +5kg per tap instead of +2.5kg -- for
-// exercises where you're loading whole plates rather than fine-tuning.
-function attachStepper(stepperEl, { step = 1, bigStep = null, min = 0, max = 999, decimals = 0, input } = {}) {
-  const minusBtn = stepperEl.querySelector(".minus");
-  const plusBtn = stepperEl.querySelector(".plus");
-  const bigMinusBtn = stepperEl.querySelector(".big-minus");
-  const bigPlusBtn = stepperEl.querySelector(".big-plus");
-  const inp = input || stepperEl.querySelector(".num-display");
-  const factor = 10 ** decimals;
-  const round = (n) => Math.round(n * factor) / factor;
-  const getVal = () => {
-    const v = parseFloat(inp.value);
-    return Number.isFinite(v) ? v : 0;
-  };
-  const setVal = (v) => {
-    inp.value = String(round(Math.min(max, Math.max(min, v))));
-  };
-
-  function wireRepeat(btn, dir, stepSize) {
-    if (!btn || !stepSize) return;
-    let timeout, interval, count;
-    const tick = () => {
-      const mult = count > 20 ? 4 : count > 8 ? 2 : 1;
-      setVal(getVal() + dir * stepSize * mult);
-      count++;
-    };
-    const start = (e) => {
-      e.preventDefault();
-      count = 0;
-      tick();
-      timeout = setTimeout(() => { interval = setInterval(tick, 90); }, 350);
-    };
+// −/+ buttons (hold to repeat and speed up). Tap the number to type an exact value.
+function attachStepper(stepperEl, { step = 1, min = 0, max = 999, decimals = 0, onChange } = {}) {
+  const minusBtn = stepperEl.querySelector(".minus"), plusBtn = stepperEl.querySelector(".plus");
+  const inp = stepperEl.querySelector(".num-display");
+  const factor = 10 ** decimals, round = (n) => Math.round(n * factor) / factor;
+  const getVal = () => { const v = parseFloat(inp.value); return Number.isFinite(v) ? v : 0; };
+  const setVal = (v) => { inp.value = String(round(Math.min(max, Math.max(min, v)))); if (onChange) onChange(); };
+  function wire(btn, dir) {
+    let timeout, interval, count = 0;
+    const tick = () => { setVal(getVal() + dir * step * (count > 20 ? 4 : count > 8 ? 2 : 1)); count++; };
+    const start = (e) => { e.preventDefault(); count = 0; tick(); timeout = setTimeout(() => { interval = setInterval(tick, 90); }, 350); };
     const stop = () => { clearTimeout(timeout); clearInterval(interval); };
     btn.addEventListener("pointerdown", start);
-    btn.addEventListener("pointerup", stop);
-    btn.addEventListener("pointerleave", stop);
-    btn.addEventListener("pointercancel", stop);
+    ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => btn.addEventListener(ev, stop));
+    btn.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setVal(getVal() + dir * step); } });
   }
-  wireRepeat(minusBtn, -1, step);
-  wireRepeat(plusBtn, 1, step);
-  wireRepeat(bigMinusBtn, -1, bigStep);
-  wireRepeat(bigPlusBtn, 1, bigStep);
-
-  inp.addEventListener("click", () => {
-    if (inp.readOnly) {
-      inp.readOnly = false;
-      inp.focus();
-      inp.select();
-    }
-  });
-  inp.addEventListener("blur", () => {
-    inp.readOnly = true;
-    if (inp.value !== "") setVal(getVal());
-  });
+  wire(minusBtn, -1); wire(plusBtn, 1);
+  inp.addEventListener("click", () => { if (inp.readOnly) { inp.readOnly = false; inp.focus(); inp.select(); } });
+  inp.addEventListener("blur", () => { inp.readOnly = true; if (inp.value !== "") setVal(getVal()); });
+  inp.addEventListener("input", () => { if (onChange) onChange(); });
 }
 
-// ============================================================ consistency
-async function loadConsistency() {
-  const { data, error } = await sb.from("workout_sessions").select("log_date");
-  if (error) return;
-  const dates = new Set((data || []).map((r) => r.log_date));
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayStr = localISO(today);
-
-  // last 4 weeks stat (ISO date strings sort/compare lexicographically)
-  const fourWeeksAgoStr = localISO(addDays(today, -28));
-  const recentCount = [...dates].filter((d) => d >= fourWeeksAgoStr && d <= todayStr).length;
-  document.getElementById("stat-recent").textContent = recentCount;
-
-  // current weekly streak: consecutive 7-day windows ending this week with >=1 session
-  let streak = 0;
-  for (let w = 0; ; w++) {
-    const endStr = localISO(addDays(today, -w * 7));
-    const startStr = localISO(addDays(today, -w * 7 - 6));
-    const hasSession = [...dates].some((d) => d >= startStr && d <= endStr);
-    if (!hasSession) break;
-    streak++;
-    if (streak > 104) break;
-  }
-  document.getElementById("stat-streak").textContent = streak;
-
-  // heatmap: 18 weeks, Sun-Sat columns
-  const WEEKS = 18;
-  const endOfGrid = addDays(today, 6 - today.getDay()); // extend to end of this week (Sat)
-  const startOfGrid = addDays(endOfGrid, -(WEEKS * 7 - 1));
-
-  const heatmap = document.getElementById("heatmap");
-  heatmap.innerHTML = "";
-  for (let i = 0; i < WEEKS * 7; i++) {
-    const d = addDays(startOfGrid, i);
-    const iso = localISO(d);
-    const cell = document.createElement("div");
-    cell.className = "heat-cell";
-    if (dates.has(iso)) cell.classList.add("filled");
-    if (iso === todayStr) cell.classList.add("today");
-    if (iso > todayStr) cell.style.visibility = "hidden";
-    cell.title = iso;
-    heatmap.appendChild(cell);
-  }
-}
-
-// ============================================================ catalog ----
+// ============================================================ data --------
+let HIST = [];                       // sessions, newest first: {id, log_date, category, workout_sets:[...]}
 let catalogByCategory = {};
-
+async function loadHistory() {
+  const { data, error } = await sb.from("workout_sessions")
+    .select("id, log_date, category, start_time, end_time, workout_sets(exercise, reps, weight_kg, set_number, notes)")
+    .order("log_date", { ascending: false }).order("id", { ascending: false }).limit(2000);
+  if (error) { HIST = []; return false; }
+  HIST = (data || []).map((s) => ({ ...s, workout_sets: (s.workout_sets || []).sort((a, b) => a.set_number - b.set_number) }));
+  return true;
+}
 async function loadCatalog() {
   const { data, error } = await sb.from("exercise_catalog").select("*").order("sort_order");
   if (error) return;
   catalogByCategory = {};
   GROUPS.forEach((g) => (catalogByCategory[g] = []));
-  (data || []).forEach((row) => {
-    if (!catalogByCategory[row.category]) catalogByCategory[row.category] = [];
-    catalogByCategory[row.category].push(row);
-  });
+  (data || []).forEach((r) => { (catalogByCategory[r.category] || (catalogByCategory[r.category] = [])).push(r); });
+}
+const catalogRow = (name) => { for (const rows of Object.values(catalogByCategory)) { const r = rows.find((x) => x.exercise === name); if (r) return r; } return null; };
+
+// most recent earlier session that has this exercise
+function lastTime(exercise, excludeDate) {
+  for (const s of HIST) {
+    if (s.log_date === excludeDate) continue;
+    const sets = s.workout_sets.filter((x) => x.exercise === exercise);
+    if (sets.length) return { log_date: s.log_date, sets };
+  }
+  return null;
+}
+const sessionVolume = (s) => s.workout_sets.filter(sane).reduce((a, x) => a + x.reps * x.weight_kg, 0);
+
+// ============================================================ consistency
+function renderConsistency() {
+  const dates = new Set(HIST.map((s) => s.log_date));
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const todayStr = localISO(today), fourWeeks = localISO(addDays(today, -28));
+  const recent = HIST.filter((s) => s.log_date >= fourWeeks && s.log_date <= todayStr);
+  $("stat-recent").textContent = new Set(recent.map((s) => s.log_date)).size;
+  $("stat-volume").textContent = Math.round(recent.reduce((a, s) => a + sessionVolume(s), 0)).toLocaleString();
+  $("stat-total").textContent = dates.size;
+  let streak = 0;
+  for (let w = 0; w < 105; w++) {
+    const end = localISO(addDays(today, -w * 7)), start = localISO(addDays(today, -w * 7 - 6));
+    if (![...dates].some((d) => d >= start && d <= end)) { if (w === 0) continue; break; }   // an empty current week doesn't end the streak yet
+    streak++;
+  }
+  $("stat-streak").textContent = streak;
+
+  const WEEKS = 18, endOfGrid = addDays(today, 6 - today.getDay()), startOfGrid = addDays(endOfGrid, -(WEEKS * 7 - 1));
+  const hm = $("heatmap"); hm.innerHTML = "";
+  for (let i = 0; i < WEEKS * 7; i++) {
+    const iso = localISO(addDays(startOfGrid, i));
+    const cell = el("div", { class: "heat-cell" + (dates.has(iso) ? " filled" : "") + (iso === todayStr ? " today" : ""), title: iso });
+    if (iso > todayStr) cell.style.visibility = "hidden";
+    hm.append(cell);
+  }
 }
 
-function goalText(row) {
-  if (!row) return "";
-  const parts = [row.target_sets ?? "?", row.target_reps ?? "?", row.target_weight != null ? row.target_weight : "?"];
-  return `Goal: ${parts.join("/")}`;
+// ============================================================ muscle groups
+// Pick any combination -- Back + Chest, Legs + Shoulder, … The session label is the picked groups joined
+// ("Back + Biceps + Chest + Triceps"), which the older single-group history still matches.
+const selectedGroups = new Set();
+const groupPicker = $("group-picker");
+GROUPS.forEach((g) => {
+  const b = el("button", { type: "button", class: "group-chip", "aria-pressed": "false", "data-g": g, onclick: () => toggleGroup(g) }, g);
+  groupPicker.append(b);
+});
+const sessionLabel = () => GROUPS.filter((g) => selectedGroups.has(g)).join(" + ");
+function toggleGroup(g) {
+  selectedGroups.has(g) ? selectedGroups.delete(g) : selectedGroups.add(g);
+  groupPicker.querySelectorAll(".group-chip").forEach((b) => b.setAttribute("aria-pressed", String(selectedGroups.has(b.dataset.g))));
+  const wasHidden = $("log-form").hidden;
+  $("log-form").hidden = selectedGroups.size === 0 && !$("exercise-list").children.length;
+  syncEmptyHint();
+  if (!$("log-form").hidden) refreshDateState();
+  loadRoutines();
+  if (wasHidden && !$("log-form").hidden) setTimeout(() => $("log-form").scrollIntoView({ behavior: "smooth", block: "start" }), 80);
 }
+const syncEmptyHint = () => { $("add-exercise").classList.toggle("primary", !$("exercise-list").children.length); };
 
-// ============================================================ routines ---
-// Optional feature: reads from workout_routines, which may not exist yet
-// (it needs a migration the app can't apply itself -- see
-// supabase/migrations/0004_routines.sql). Fails quiet if the table's missing
-// so the rest of the log form works exactly the same either way.
-let routinesForCategory = [];
-async function loadRoutinesForCategory(category) {
-  const row = document.getElementById("routine-row");
-  const sel = document.getElementById("routine-select");
-  routinesForCategory = [];
-  if (!category) { row.hidden = true; return; }
-  const { data, error } = await sb.from("workout_routines").select("id, name, exercises").eq("category", category).order("sort_order");
-  if (error || !data || data.length === 0) { row.hidden = true; return; }
-  routinesForCategory = data;
-  sel.innerHTML = '<option value="">Pick one…</option>' + data
-    .map((r) => `<option value="${r.id}">${escapeHtml(r.name)} (${(r.exercises || []).length})</option>`)
-    .join("");
+// ---- routines (optional: needs the workout_routines table) ----
+let routines = [];
+async function loadRoutines() {
+  const row = $("routine-row"), sel = $("routine-select"); routines = [];
+  if (!selectedGroups.size) { row.hidden = true; return; }
+  const { data, error } = await sb.from("workout_routines").select("id, name, exercises, category").in("category", [...selectedGroups]).order("sort_order");
+  if (error || !data || !data.length) { row.hidden = true; return; }
+  routines = data;
+  sel.innerHTML = '<option value="">Pick one…</option>' + data.map((r) => `<option value="${r.id}">${escapeHtml(r.name)} (${(r.exercises || []).length})</option>`).join("");
   row.hidden = false;
 }
-document.getElementById("load-routine-btn").addEventListener("click", () => {
-  const sel = document.getElementById("routine-select");
-  const routine = routinesForCategory.find((r) => String(r.id) === sel.value);
-  if (!routine || !(routine.exercises || []).length) return;
-  exerciseListEl.innerHTML = "";
-  routine.exercises.forEach((ex) => addExerciseRow(ex.exercise, ex.target_sets || 1));
-  updateCarouselControls();
-  scrollToExercise(0);
+$("load-routine-btn").addEventListener("click", () => {
+  const r = routines.find((x) => String(x.id) === $("routine-select").value);
+  if (!r || !(r.exercises || []).length) return;
+  $("exercise-list").innerHTML = "";
+  r.exercises.forEach((ex) => addExerciseCard({ exercise: ex.exercise, sets: ex.target_sets || 1, collapsed: true }));
+  openCard($("exercise-list").firstElementChild);
 });
 
-// ============================================================ category picker
-const picker = document.getElementById("category-picker");
-GROUPS.forEach((g) => {
-  const btn = document.createElement("button");
-  btn.className = "category-btn";
-  btn.textContent = g;
-  btn.dataset.category = g;
-  btn.addEventListener("click", () => selectCategory(g));
-  picker.appendChild(btn);
-});
-
-let selectedCategory = null;
-
-// Once picked, the category locks in (no accidental switching mid-entry) --
-// a deliberate "Change" tap is the only way back, and it confirms first.
-function selectCategory(category) {
-  selectedCategory = category;
-  picker.hidden = true;
-  document.getElementById("category-locked").hidden = false;
-  document.getElementById("category-locked-name").textContent = category;
-  document.getElementById("log-form").classList.add("open");
-
-  document.getElementById("exercise-list").innerHTML = ""; // no prefilled rows -- start empty
-  addExerciseRow();
-  loadRoutinesForCategory(category);
-  refreshDateState();
-
-  setTimeout(() => {
-    document.getElementById("log-form").scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 100);
+// ============================================================ exercise sheet
+const sheet = $("ex-sheet");
+let sheetOnPick = null, sheetMode = "log", sheetScope = "today";
+function openSheet({ mode, onPick, title }) {
+  sheetMode = mode; sheetOnPick = onPick;
+  sheetScope = mode === "log" && selectedGroups.size ? "today" : "all";
+  $("sheet-title").textContent = title || "Choose exercise";
+  $("sheet-scope").hidden = mode !== "log" || !selectedGroups.size;
+  $("sheet-custom").hidden = mode !== "log";
+  $("sheet-search").value = ""; $("sheet-custom-name").value = "";
+  syncScope(); renderSheet();
+  sheet.showModal();
+  if (window.matchMedia("(hover: hover)").matches) $("sheet-search").focus();   // don't pop the keyboard up on phones
 }
-
-document.getElementById("change-category").addEventListener("click", () => {
-  if (!confirm("Change today's category? This clears the exercises you've entered so far.")) return;
-  resetLogForm();
-});
-
-// ============================================================ date/time: don't ask twice
-// Same date already has a session (any category, now that saving
-// consolidates by date alone -- see the save handler)? Skip the date/start/
-// end fields entirely and just say so; only body weight stays editable.
-async function checkExistingSessionForDate(date) {
-  if (!date) return null;
-  const { data } = await sb.from("workout_sessions").select("id, category, start_time, end_time").eq("log_date", date).limit(1);
-  return data && data.length ? data[0] : null;
-}
-async function refreshDateState() {
-  const date = document.getElementById("s-date").value;
-  const existing = await checkExistingSessionForDate(date);
-  const fieldsEl = document.getElementById("date-time-fields");
-  const noteEl = document.getElementById("continuing-note");
-  if (existing) {
-    fieldsEl.hidden = true;
-    noteEl.hidden = false;
-    document.getElementById("continuing-date").textContent = date;
-    const timeRange = [existing.start_time, existing.end_time].filter(Boolean).map((t) => t.slice(0, 5)).join(" – ");
-    document.getElementById("continuing-detail").textContent =
-      ` — ${existing.category}${timeRange ? " · " + timeRange : ""}. Adding more exercises to it.`;
+function closeSheet() { if (sheet.open) sheet.close(); }
+function syncScope() { $("sheet-scope").querySelectorAll("button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.s === sheetScope))); }
+function pick(name) { const cb = sheetOnPick; closeSheet(); if (cb) cb(name); }
+function renderSheet() {
+  const q = $("sheet-search").value.trim().toLowerCase(), list = $("sheet-list"); list.textContent = "";
+  const inToday = new Set(), seen = new Set(), logged = new Set(HIST.flatMap((s) => s.workout_sets.map((x) => x.exercise)));
+  const inCard = new Set([...$("exercise-list").querySelectorAll(".ex-card")].map((c) => c.dataset.exercise).filter(Boolean));
+  const row = (name, hint, done) => el("button", { type: "button", class: "sheet-row" + (done ? " done" : ""), onclick: () => pick(name) },
+    el("span", { class: "sr-name" }, name), el("span", { class: "sr-hint" }, done ? "added" : hint || ""));
+  const hintFor = (name) => { const lt = lastTime(name, ""); if (lt) { const top = lt.sets.filter((s) => !isDrop(s)).sort((a, b) => b.weight_kg - a.weight_kg)[0]; return top ? `${fmtKg(num(top.weight_kg))}kg × ${top.reps ?? "?"} · ${prettyDate(lt.log_date)}` : prettyDate(lt.log_date); } const c = catalogRow(name); return c && c.target_weight != null ? `goal ${c.target_sets || "?"}×${c.target_reps || "?"}×${c.target_weight}` : ""; };
+  const section = (title, names, track = true) => {
+    const fresh = names.filter((n) => !(track && seen.has(n)) && (!q || n.toLowerCase().includes(q)));
+    if (!fresh.length) return;
+    list.append(el("div", { class: "sheet-group" }, title));
+    fresh.forEach((n) => { if (track) seen.add(n); list.append(row(n, hintFor(n), inCard.has(n))); });
+  };
+  const wantAll = sheetMode !== "log" || sheetScope === "all" || !!q || !selectedGroups.size;
+  if (sheetMode === "history") {
+    const byCount = new Map(); HIST.forEach((s) => s.workout_sets.forEach((x) => byCount.set(x.exercise, (byCount.get(x.exercise) || 0) + 1)));
+    section("Exercises you've logged", [...byCount.entries()].sort((a, b) => b[1] - a[1]).map(([n]) => n));
   } else {
-    fieldsEl.hidden = false;
-    noteEl.hidden = true;
+    const todayGroups = GROUPS.filter((g) => selectedGroups.has(g));
+    todayGroups.forEach((g) => (catalogByCategory[g] || []).forEach((r) => inToday.add(r.exercise)));
+    if (!q) {                                       // recent first, within today's groups
+      const recent = []; for (const s of HIST) for (const x of s.workout_sets) if (inToday.has(x.exercise) && !recent.includes(x.exercise)) recent.push(x.exercise);
+      if (sheetScope === "today" && selectedGroups.size) section("Recent", recent.slice(0, 6), false);
+    }
+    (wantAll ? [...todayGroups, ...GROUPS.filter((g) => !selectedGroups.has(g))] : todayGroups).forEach((g) => section(g, (catalogByCategory[g] || []).map((r) => r.exercise)));
+    if (wantAll) section("Logged before, not in a group", [...logged].filter((n) => !catalogRow(n)).sort());
+  }
+  if (!list.children.length) list.append(el("p", { class: "empty" }, q ? "No match — type the name below to add it." : "Nothing here yet."));
+}
+$("sheet-search").addEventListener("input", renderSheet);
+$("sheet-scope").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; sheetScope = b.dataset.s; syncScope(); renderSheet(); });
+$("sheet-close").addEventListener("click", closeSheet);
+sheet.addEventListener("click", (e) => { if (e.target === sheet) closeSheet(); });          // tap outside
+$("sheet-custom").addEventListener("submit", (e) => { e.preventDefault(); const n = $("sheet-custom-name").value.trim(); if (n) pick(n); });
+
+// ============================================================ exercise cards
+const cardTpl = $("ex-card-template"), setTpl = $("set-template"), dropTpl = $("drop-template");
+const listEl = $("exercise-list");
+
+function openCard(card, open = true) {
+  card.classList.toggle("open", open);
+  card.querySelector(".ex-title").setAttribute("aria-expanded", String(open));
+}
+function setsSummary(card) {
+  const sets = [...card.querySelectorAll(".ex-sets > .set-row")].map(readSet).filter((s) => s.reps > 0);
+  if (!sets.length) return "";
+  const top = sets.reduce((a, b) => (b.weight > a.weight ? b : a));
+  return `${sets.length} set${sets.length === 1 ? "" : "s"} · ${fmtKg(top.weight)}kg × ${top.reps}`;
+}
+const refreshSummary = (card) => { card.querySelector(".ex-sum").textContent = card.classList.contains("open") ? "" : setsSummary(card); };
+function readSet(setEl) {
+  const main = setEl.querySelector(".set-main");
+  const reps = parseInt(main.querySelector(".set-reps").value, 10) || 0, weight = parseFloat(main.querySelector(".set-weight").value) || 0;
+  const drops = [...setEl.querySelectorAll(".drop-row")].map((d) => ({ reps: parseInt(d.querySelector(".set-reps").value, 10) || 0, weight: parseFloat(d.querySelector(".set-weight").value) || 0 }));
+  return { reps, weight, drops };
+}
+
+function addDrop(setEl, vals) {
+  const drops = setEl.querySelector(".drop-sets"), node = dropTpl.content.cloneNode(true), row = node.querySelector(".drop-row");
+  row.querySelector(".drop-num").textContent = `Drop ${drops.children.length + 1}`;
+  attachStepper(row.querySelector('[data-kind="reps"]'), { step: 1, max: MAX_REPS });
+  attachStepper(row.querySelector('[data-kind="weight"]'), { step: 2.5, max: MAX_KG, decimals: 1 });
+  row.querySelector(".drop-del").addEventListener("click", () => { row.remove(); [...drops.children].forEach((r, i) => (r.querySelector(".drop-num").textContent = `Drop ${i + 1}`)); });
+  if (vals) { row.querySelector(".set-reps").value = vals.reps ?? ""; row.querySelector(".set-weight").value = vals.weight ?? ""; }
+  drops.append(node);
+}
+// A new set starts as a copy of the one before it (same reps and weight), which is what you almost always want.
+function addSet(card, vals) {
+  const sets = card.querySelector(".ex-sets"), node = setTpl.content.cloneNode(true), row = node.querySelector(".set-row");
+  const prev = sets.lastElementChild ? readSet(sets.lastElementChild) : null;
+  row.querySelector(".set-num").textContent = sets.children.length + 1;
+  const sync = () => refreshSummary(card);
+  attachStepper(row.querySelector('[data-kind="reps"]'), { step: 1, max: MAX_REPS, onChange: sync });
+  attachStepper(row.querySelector('[data-kind="weight"]'), { step: 2.5, max: MAX_KG, decimals: 1, onChange: sync });
+  const v = vals || (prev && prev.reps > 0 ? { reps: prev.reps, weight: prev.weight } : null);
+  if (v) { row.querySelector(".set-reps").value = v.reps || ""; row.querySelector(".set-weight").value = v.weight != null ? v.weight : ""; }
+  row.querySelector(".add-drop").addEventListener("click", () => addDrop(row));
+  row.querySelector(".set-del").addEventListener("click", () => {
+    if (sets.children.length <= 1) { row.querySelector(".set-reps").value = ""; row.querySelector(".set-weight").value = ""; return; }
+    row.remove(); [...sets.children].forEach((r, i) => (r.querySelector(".set-num").textContent = i + 1)); sync();
+  });
+  sets.append(node);
+  return sets.lastElementChild;
+}
+function resetSets(card, n) { card.querySelector(".ex-sets").textContent = ""; for (let i = 0; i < Math.max(1, n); i++) addSet(card); }
+
+function applyLast(card, lt) {
+  const groups = [];
+  lt.sets.forEach((s) => { if (isDrop(s) && groups.length) groups[groups.length - 1].drops.push(s); else groups.push({ main: s, drops: [] }); });
+  card.querySelector(".ex-sets").textContent = "";
+  groups.forEach((g) => {
+    const row = addSet(card, { reps: g.main.reps || 0, weight: num(g.main.weight_kg) });
+    g.drops.forEach((d) => addDrop(row, { reps: d.reps || 0, weight: num(d.weight_kg) }));
+  });
+  refreshSummary(card);
+}
+function setExercise(card, name) {
+  card.dataset.exercise = name;
+  card.querySelector(".ex-name").textContent = name;
+  card.classList.add("chosen");
+  const c = catalogRow(name), goal = card.querySelector(".ex-goal");
+  goal.textContent = c && (c.target_sets || c.target_reps || c.target_weight != null) ? `Goal ${c.target_sets ?? "?"} × ${c.target_reps ?? "?"} @ ${c.target_weight ?? "?"}kg` : "";
+  const touched = [...card.querySelectorAll(".ex-sets .set-reps")].some((i) => i.value !== "");
+  if (!touched) resetSets(card, Math.min(6, (c && c.target_sets) || 1));
+  const chip = card.querySelector(".last-chip"), lt = lastTime(name, $("s-date").value);
+  if (lt) {
+    const txt = lt.sets.filter((s) => !isDrop(s)).slice(0, 4).map((s) => `${fmtKg(num(s.weight_kg))}×${s.reps ?? "?"}`).join(", ");
+    chip.hidden = false; chip.textContent = `Last time ${prettyDate(lt.log_date)}: ${txt} — use`;
+    chip.onclick = () => applyLast(card, lt);
+  } else chip.hidden = true;
+}
+const chooseFor = (card) => openSheet({ mode: "log", onPick: (n) => setExercise(card, n) });
+function addExerciseCard({ exercise, sets, collapsed } = {}) {
+  // keep the page short: fold the other cards (their summary line stays visible)
+  [...listEl.querySelectorAll(".ex-card.open")].forEach((c) => { if (c.dataset.exercise) { openCard(c, false); refreshSummary(c); } });
+  const node = cardTpl.content.cloneNode(true), card = node.querySelector(".ex-card");
+  card.querySelector(".ex-title").addEventListener("click", () => {
+    if (!card.dataset.exercise) return chooseFor(card);                  // nothing picked yet: the title opens the picker
+    openCard(card, !card.classList.contains("open")); refreshSummary(card);
+  });
+  card.querySelector(".ex-change").addEventListener("click", () => chooseFor(card));
+  card.querySelector(".add-set").addEventListener("click", () => { addSet(card); refreshSummary(card); });
+  card.querySelector(".ex-remove").addEventListener("click", () => { card.remove(); if (!listEl.children.length && !selectedGroups.size) $("log-form").hidden = true; syncEmptyHint(); });
+  resetSets(card, sets || 1);
+  listEl.append(node);
+  const added = listEl.lastElementChild; syncEmptyHint();
+  if (exercise) { setExercise(added, exercise); if (sets) resetSets(added, sets); if (collapsed) { openCard(added, false); refreshSummary(added); } }
+  else chooseFor(added);                                                  // straight into choosing
+  return added;
+}
+$("add-exercise").addEventListener("click", () => addExerciseCard());
+
+// ============================================================ date / session state
+$("s-date").value = todayISO();
+async function refreshDateState() {
+  const date = $("s-date").value; if (!date) return;
+  const { data } = await sb.from("workout_sessions").select("id, category, start_time, end_time").eq("log_date", date).limit(1);
+  const existing = data && data.length ? data[0] : null;
+  $("date-time-fields").hidden = !!existing; $("continuing-note").hidden = !existing;
+  if (existing) {
+    $("continuing-date").textContent = date;
+    const t = [existing.start_time, existing.end_time].filter(Boolean).map((x) => x.slice(0, 5)).join(" – ");
+    $("continuing-detail").textContent = `— ${existing.category}${t ? " · " + t : ""}`;
   }
 }
-document.getElementById("s-date").addEventListener("change", refreshDateState);
-document.getElementById("log-different-date").addEventListener("click", () => {
-  // Nudge off today so this doesn't just re-trigger the same continuing-note.
-  document.getElementById("s-date").value = localISO(addDays(new Date(), -1));
-  refreshDateState();
-});
-// Two bodyweight fields exist (one in each date-area state) so exactly one
-// is ever visible; keep them mirrored so the save handler only reads one.
-function syncBodyweightFields(fromId, toId) {
-  document.getElementById(fromId).addEventListener("input", (e) => {
-    document.getElementById(toId).value = e.target.value;
-  });
-}
-syncBodyweightFields("s-bodyweight", "s-bodyweight-2");
-syncBodyweightFields("s-bodyweight-2", "s-bodyweight");
+$("s-date").addEventListener("change", refreshDateState);
+$("log-different-date").addEventListener("click", () => { $("s-date").value = localISO(addDays(new Date(), -1)); refreshDateState(); $("date-time-fields").hidden = false; $("continuing-note").hidden = true; });
 
-// ============================================================ exercise carousel
-// Exercises swipe horizontally (one per screen) instead of stacking
-// vertically, via native CSS scroll-snap on #exercise-list -- this is what
-// keeps the page's scroll height capped at the tallest single exercise
-// instead of growing with every exercise added to today's workout.
-const exerciseListEl = document.getElementById("exercise-list");
-const carouselControlsEl = document.getElementById("carousel-controls");
-
-function currentSlideIndex() {
-  const rows = [...exerciseListEl.querySelectorAll(".ex-row")];
-  if (!rows.length) return 0;
-  const w = exerciseListEl.clientWidth || 1;
-  return Math.max(0, Math.min(rows.length - 1, Math.round(exerciseListEl.scrollLeft / w)));
-}
-function scrollToExercise(i) {
-  const rows = [...exerciseListEl.querySelectorAll(".ex-row")];
-  if (!rows.length) return;
-  const idx = Math.max(0, Math.min(rows.length - 1, i));
-  exerciseListEl.scrollTo({ left: idx * exerciseListEl.clientWidth, behavior: "smooth" });
-}
-function syncActiveDot() {
-  const idx = currentSlideIndex();
-  [...carouselControlsEl.querySelectorAll(".carousel-dot")].forEach((d, i) => d.classList.toggle("active", i === idx));
-  const rows = [...exerciseListEl.querySelectorAll(".ex-row")];
-  const prevBtn = carouselControlsEl.querySelector(".carousel-arrow.prev");
-  const nextBtn = carouselControlsEl.querySelector(".carousel-arrow.next");
-  if (prevBtn) prevBtn.disabled = idx <= 0;
-  if (nextBtn) nextBtn.disabled = idx >= rows.length - 1;
-}
-function updateCarouselControls() {
-  const rows = [...exerciseListEl.querySelectorAll(".ex-row")];
-  carouselControlsEl.innerHTML = "";
-  if (rows.length <= 1) { carouselControlsEl.hidden = true; return; }
-  carouselControlsEl.hidden = false;
-
-  const prevBtn = document.createElement("button");
-  prevBtn.type = "button";
-  prevBtn.className = "carousel-arrow prev";
-  prevBtn.setAttribute("aria-label", "Previous exercise");
-  prevBtn.textContent = "‹";
-  prevBtn.addEventListener("click", () => scrollToExercise(currentSlideIndex() - 1));
-
-  const dots = document.createElement("div");
-  dots.className = "carousel-dots";
-  rows.forEach((_, i) => {
-    const dot = document.createElement("button");
-    dot.type = "button";
-    dot.className = "carousel-dot";
-    dot.setAttribute("aria-label", `Go to exercise ${i + 1}`);
-    dot.addEventListener("click", () => scrollToExercise(i));
-    dots.appendChild(dot);
-  });
-
-  const nextBtn = document.createElement("button");
-  nextBtn.type = "button";
-  nextBtn.className = "carousel-arrow next";
-  nextBtn.setAttribute("aria-label", "Next exercise");
-  nextBtn.textContent = "›";
-  nextBtn.addEventListener("click", () => scrollToExercise(currentSlideIndex() + 1));
-
-  carouselControlsEl.append(prevBtn, dots, nextBtn);
-  syncActiveDot();
-}
-let scrollRAF;
-exerciseListEl.addEventListener("scroll", () => {
-  cancelAnimationFrame(scrollRAF);
-  scrollRAF = requestAnimationFrame(syncActiveDot);
-});
-
-// ============================================================ exercise rows
-const exerciseRowTemplate = document.getElementById("exercise-row-template");
-const setInputTemplate = document.getElementById("set-input-template");
-const dropSetTemplate = document.getElementById("drop-set-template");
-const OTHER_VALUE = "__other__";
-
-// ---- drop sets: a mini reps/weight pair chained under a working set, for
-// "same exercise, drop the weight, keep going without rest." Stored as an
-// ordinary extra workout_sets row (see DROP_TAG) rather than needing a
-// schema change.
-function updateDropBadge(setRow) {
-  const badge = setRow.querySelector(".drop-badge");
-  const n = setRow.querySelectorAll(".drop-row").length;
-  badge.textContent = n > 0 ? `🔻 ${n} drop${n > 1 ? "s" : ""}` : "";
-}
-function renumberDrops(dropsContainer) {
-  [...dropsContainer.children].forEach((el, i) => {
-    el.querySelector(".drop-num").textContent = `Drop ${i + 1}`;
-  });
-}
-function addDropInput(dropsContainer) {
-  const node = dropSetTemplate.content.cloneNode(true);
-  const row = node.querySelector(".drop-row");
-  const num = dropsContainer.children.length + 1;
-  row.querySelector(".drop-num").textContent = `Drop ${num}`;
-  attachStepper(row.querySelector('.stepper[data-kind="reps"]'), { step: 1, min: 0, max: 99, decimals: 0 });
-  attachStepper(row.querySelector('.stepper[data-kind="weight"]'), { step: 2.5, min: 0, max: 400, decimals: 1 });
-  row.querySelector(".remove-drop").addEventListener("click", () => {
-    const setRow = dropsContainer.closest(".set-row");
-    row.remove();
-    renumberDrops(dropsContainer);
-    updateDropBadge(setRow);
-  });
-  dropsContainer.appendChild(node);
-  return dropsContainer.lastElementChild;
-}
-
-function addSetInput(setsContainer) {
-  const node = setInputTemplate.content.cloneNode(true);
-  const row = node.querySelector(".set-row");
-  const num = setsContainer.children.length + 1;
-  row.querySelector(".set-num").textContent = num;
-  attachStepper(row.querySelector('.stepper[data-kind="reps"]'), { step: 1, bigStep: 5, min: 0, max: 99, decimals: 0 });
-  attachStepper(row.querySelector('.stepper[data-kind="weight"]'), { step: 2.5, bigStep: 10, min: 0, max: 400, decimals: 1 });
-
-  const dropsContainer = row.querySelector(".drop-sets");
-  row.querySelector(".add-drop").addEventListener("click", () => {
-    addDropInput(dropsContainer);
-    updateDropBadge(row);
-  });
-  updateDropBadge(row);
-
-  setsContainer.appendChild(node);
-}
-
-function setSetCount(setsContainer, n) {
-  setsContainer.innerHTML = "";
-  for (let i = 0; i < n; i++) addSetInput(setsContainer);
-}
-
-// ---- load previous: pulls the most recent (or a picked-from-a-list-of-recent)
-// occurrence of this exact exercise name and pre-fills the current sets
-// (and any drop sets it had) from it, so you're not retyping last time's
-// numbers from memory.
-async function fetchPreviousInstances(exercise, excludeDate, limit = 5) {
-  if (!exercise) return [];
-  const { data, error } = await sb
-    .from("workout_sessions")
-    .select("id, log_date, workout_sets(reps, weight_kg, exercise, set_number, notes)")
-    .order("log_date", { ascending: false })
-    .order("id", { ascending: false })
-    .limit(60); // recent window scanned client-side, cheap for a personal log
-  if (error || !data) return [];
-  const out = [];
-  for (const sess of data) {
-    if (sess.log_date === excludeDate) continue;
-    const sets = (sess.workout_sets || [])
-      .filter((s) => s.exercise === exercise)
-      .sort((a, b) => a.set_number - b.set_number);
-    if (sets.length) {
-      out.push({ log_date: sess.log_date, sets });
-      if (out.length >= limit) break;
-    }
-  }
-  return out;
-}
-
-// presetExercise/presetSetCount: used when a routine is loaded, to land
-// directly on a given exercise with a given number of (empty) sets rather
-// than starting at "Select exercise…".
-function addExerciseRow(presetExercise, presetSetCount) {
-  const node = exerciseRowTemplate.content.cloneNode(true);
-  const row = node.querySelector(".ex-row");
-  const pickerLabel = row.querySelector(".ex-picker-text");
-  const prevBtn = row.querySelector(".ex-prev");
-  const nextBtn = row.querySelector(".ex-next");
-  const otherInput = row.querySelector(".ex-name-other");
-  const goalEl = row.querySelector(".ex-goal");
-  const setsContainer = row.querySelector(".ex-sets");
-  const loadPrevBtn = row.querySelector(".load-prev-btn");
-  const loadPrevSelect = row.querySelector(".load-prev-select");
-
-  // choices: every exercise in this category's catalog, then a final
-  // "Other…" slot for typing a name that isn't in the catalog.
-  const options = catalogByCategory[selectedCategory] || [];
-  const choices = options.map((o) => ({ label: o.exercise, value: o.exercise })).concat([{ label: "Other…", value: OTHER_VALUE }]);
-  let pickerIndex = -1; // -1 = nothing chosen yet ("Select exercise…")
-
-  setSetCount(setsContainer, presetSetCount || 1);
-
-  let prevInstances = [];
-  function applyPrevious(i) {
-    const inst = prevInstances[i];
-    if (!inst) return;
-    // Re-nest any drop-tagged rows under the working set that preceded them.
-    const groups = [];
-    inst.sets.forEach((s) => {
-      const isDrop = (s.notes || "").startsWith(DROP_TAG);
-      if (isDrop && groups.length) groups[groups.length - 1].drops.push(s);
-      else groups.push({ main: s, drops: [] });
-    });
-    setSetCount(setsContainer, groups.length || 1);
-    const rowEls = [...setsContainer.querySelectorAll(".set-row")];
-    groups.forEach((g, gi) => {
-      const el = rowEls[gi];
-      if (!el) return;
-      if (g.main.reps != null) el.querySelector(".set-row-main .set-reps").value = g.main.reps;
-      if (g.main.weight_kg != null) el.querySelector(".set-row-main .set-weight").value = g.main.weight_kg;
-      const dropsContainer = el.querySelector(".drop-sets");
-      g.drops.forEach((d) => {
-        addDropInput(dropsContainer);
-        const dEl = dropsContainer.lastElementChild;
-        if (d.reps != null) dEl.querySelector(".set-reps").value = d.reps;
-        if (d.weight_kg != null) dEl.querySelector(".set-weight").value = d.weight_kg;
-      });
-      updateDropBadge(el);
-    });
-  }
-  async function refreshLoadPrevious(exerciseName) {
-    if (!exerciseName) {
-      loadPrevBtn.hidden = true;
-      loadPrevSelect.hidden = true;
-      return;
-    }
-    prevInstances = await fetchPreviousInstances(exerciseName, document.getElementById("s-date").value, 5);
-    if (prevInstances.length === 0) {
-      loadPrevBtn.hidden = true;
-      loadPrevSelect.hidden = true;
-      return;
-    }
-    loadPrevBtn.hidden = false;
-    loadPrevBtn.textContent = `↺ Load previous (${prevInstances[0].log_date})`;
-    loadPrevSelect.innerHTML = prevInstances
-      .map((inst, i) => {
-        const summary = inst.sets
-          .filter((s) => !(s.notes || "").startsWith(DROP_TAG))
-          .map((s) => `${s.weight_kg ?? "?"}×${s.reps ?? "?"}`)
-          .join(", ");
-        return `<option value="${i}">${inst.log_date} — ${escapeHtml(summary)}</option>`;
-      })
-      .join("");
-    loadPrevSelect.hidden = true; // revealed once "Load previous" has been used at least once
-  }
-  loadPrevBtn.addEventListener("click", () => {
-    applyPrevious(0);
-    loadPrevSelect.value = "0";
-    if (prevInstances.length > 1) loadPrevSelect.hidden = false;
-  });
-  loadPrevSelect.addEventListener("change", () => applyPrevious(Number(loadPrevSelect.value)));
-
-  function applyPickerSelection(keepSetCount) {
-    if (pickerIndex < 0) {
-      pickerLabel.textContent = "Select exercise…";
-      otherInput.hidden = true;
-      goalEl.textContent = "";
-      return;
-    }
-    const choice = choices[pickerIndex];
-    pickerLabel.textContent = choice.label;
-    if (choice.value === OTHER_VALUE) {
-      otherInput.hidden = false;
-      otherInput.value = "";
-      otherInput.focus();
-      goalEl.textContent = "";
-      if (!keepSetCount) setSetCount(setsContainer, 1);
-      loadPrevBtn.hidden = true;
-      loadPrevSelect.hidden = true;
-      return;
-    }
-    otherInput.hidden = true;
-    const catalogRow = options.find((r) => r.exercise === choice.value);
-    goalEl.textContent = goalText(catalogRow);
-    if (!keepSetCount) setSetCount(setsContainer, catalogRow?.target_sets || 1);
-    refreshLoadPrevious(choice.value);
-  }
-  prevBtn.addEventListener("click", () => {
-    pickerIndex = pickerIndex <= 0 ? choices.length - 1 : pickerIndex - 1;
-    applyPickerSelection();
-  });
-  nextBtn.addEventListener("click", () => {
-    pickerIndex = pickerIndex >= choices.length - 1 ? 0 : pickerIndex + 1;
-    applyPickerSelection();
-  });
-  otherInput.addEventListener("blur", () => refreshLoadPrevious(otherInput.value.trim()));
-
-  row.querySelector(".add-set").addEventListener("click", () => addSetInput(setsContainer));
-  row.querySelector(".remove-btn").addEventListener("click", () => {
-    row.remove();
-    updateCarouselControls();
-  });
-
-  exerciseListEl.appendChild(node);
-  updateCarouselControls();
-  scrollToExercise(exerciseListEl.querySelectorAll(".ex-row").length - 1);
-
-  // Land on a specific exercise (routine loading) instead of "Select exercise…".
-  if (presetExercise) {
-    const idx = choices.findIndex((c) => c.value === presetExercise);
-    if (idx >= 0) {
-      pickerIndex = idx;
-      applyPickerSelection(true); // true: keep the preset set count, don't reset to the catalog default
-    } else {
-      pickerIndex = choices.length - 1; // "Other…"
-      applyPickerSelection(true);
-      otherInput.value = presetExercise;
-      otherInput.hidden = false;
-      refreshLoadPrevious(presetExercise);
-    }
-  }
-}
-
-document.getElementById("add-exercise").addEventListener("click", () => addExerciseRow());
-
-// ============================================================ save --------
-document.getElementById("s-date").value = todayISO();
-
-function resetLogForm() {
-  document.getElementById("s-date").value = todayISO();
-  document.getElementById("s-bodyweight").value = "";
-  document.getElementById("s-bodyweight-2").value = "";
-  document.getElementById("s-start").value = "";
-  document.getElementById("s-end").value = "";
-  document.getElementById("log-form").classList.remove("open");
-  document.getElementById("category-locked").hidden = true;
-  document.getElementById("routine-row").hidden = true;
-  document.getElementById("date-time-fields").hidden = false;
-  document.getElementById("continuing-note").hidden = true;
-  picker.hidden = false;
-  selectedCategory = null;
-  document.getElementById("session-status").textContent = "";
-  document.getElementById("session-status").classList.remove("error");
-}
-
-attachStepper(document.getElementById("bodyweight-stepper"), {
-  input: document.getElementById("s-bodyweight"), step: 0.5, min: 0, max: 300, decimals: 1,
-});
-attachStepper(document.getElementById("bodyweight-stepper-2"), {
-  input: document.getElementById("s-bodyweight-2"), step: 0.5, min: 0, max: 300, decimals: 1,
-});
-
-// Merges two category labels for one date-consolidated session, e.g.
-// "Back + Biceps" + "Legs" -> "Back + Biceps + Legs" -- de-duplicated, so
-// picking the same category again doesn't repeat itself in the label.
 function mergeCategoryLabel(existing, incoming) {
   if (!existing) return incoming;
   if (!incoming || existing === incoming) return existing;
@@ -599,271 +333,181 @@ function mergeCategoryLabel(existing, incoming) {
   incoming.split(" + ").forEach((p) => parts.add(p.trim()));
   return [...parts].join(" + ");
 }
+function resetLogForm() {
+  $("s-date").value = todayISO(); $("s-start").value = ""; $("s-end").value = "";
+  listEl.textContent = ""; selectedGroups.clear();
+  groupPicker.querySelectorAll(".group-chip").forEach((b) => b.setAttribute("aria-pressed", "false"));
+  $("log-form").hidden = true; $("routine-row").hidden = true;
+  $("date-time-fields").hidden = false; $("continuing-note").hidden = true;
+  $("session-status").textContent = ""; $("session-status").classList.remove("error");
+}
 
-document.getElementById("save-session").addEventListener("click", async () => {
-  const statusEl = document.getElementById("session-status");
-  const saveBtn = document.getElementById("save-session");
-  const log_date = document.getElementById("s-date").value;
-  const bodyweight = document.getElementById("s-bodyweight").value;
-  const start_time = document.getElementById("s-start").value || null;
-  const end_time = document.getElementById("s-end").value || null;
+// ============================================================ save --------
+function setStatus(msg, err) { const s = $("session-status"); s.textContent = msg; s.classList.toggle("error", !!err); }
+$("save-session").addEventListener("click", async () => {
+  const saveBtn = $("save-session"), log_date = $("s-date").value;
+  const start_time = $("s-start").value || null, end_time = $("s-end").value || null, label = sessionLabel();
+  if (!log_date) return setStatus("Pick a date.", true);
+  if (!label) return setStatus("Pick at least one muscle group above.", true);
 
-  if (!log_date || !selectedCategory) {
-    statusEl.textContent = "Date and category are required.";
-    statusEl.classList.add("error");
-    return;
-  }
-
-  // Collect sets grouped by exercise, each working set followed by any drop
-  // sets chained onto it (tagged via DROP_TAG rather than a schema column).
-  const exerciseRows = [...exerciseListEl.querySelectorAll(".ex-row")];
-  const setsByExercise = {};
-  exerciseRows.forEach((row) => {
-    const otherInput = row.querySelector(".ex-name-other");
-    const pickerLabel = row.querySelector(".ex-picker-text").textContent;
-    const exercise = (!otherInput.hidden ? otherInput.value : pickerLabel).trim();
-    if (!exercise || exercise === "Select exercise…") return;
-    const comment = row.querySelector(".ex-comment").value.trim() || null;
-
-    const collected = [];
-    [...row.querySelectorAll(".ex-sets > .set-row")].forEach((setEl) => {
-      const repsVal = setEl.querySelector(".set-row-main .set-reps").value;
-      const weightVal = setEl.querySelector(".set-row-main .set-weight").value;
-      if (repsVal !== "" || weightVal !== "") {
-        collected.push({
-          reps: repsVal !== "" ? parseInt(repsVal, 10) : null,
-          weight_kg: weightVal !== "" ? parseFloat(weightVal) : null,
-          notes: null,
-        });
-      }
-      [...setEl.querySelectorAll(".drop-row")].forEach((dropEl) => {
-        const dReps = dropEl.querySelector(".set-reps").value;
-        const dWeight = dropEl.querySelector(".set-weight").value;
-        if (dReps === "" && dWeight === "") return;
-        collected.push({
-          reps: dReps !== "" ? parseInt(dReps, 10) : null,
-          weight_kg: dWeight !== "" ? parseFloat(dWeight) : null,
-          notes: DROP_TAG,
-        });
-      });
+  // collect: per exercise, each working set then its drop sets. Empty sets (0 reps) are skipped; a blank weight is 0 kg.
+  const byExercise = {};
+  [...listEl.querySelectorAll(".ex-card")].forEach((card) => {
+    const exercise = (card.dataset.exercise || "").trim(); if (!exercise) return;
+    const comment = card.querySelector(".ex-comment").value.trim() || null, out = [];
+    [...card.querySelectorAll(".ex-sets > .set-row")].forEach((setEl) => {
+      const s = readSet(setEl);
+      if (s.reps > 0) out.push({ reps: Math.min(MAX_REPS, s.reps), weight_kg: Math.min(MAX_KG, s.weight), notes: null });
+      s.drops.forEach((d) => { if (d.reps > 0) out.push({ reps: Math.min(MAX_REPS, d.reps), weight_kg: Math.min(MAX_KG, d.weight), notes: DROP_TAG }); });
     });
-    if (collected.length === 0) return;
-    if (comment) collected[0].notes = collected[0].notes ? `${comment} ${collected[0].notes}` : comment;
-    (setsByExercise[exercise] || (setsByExercise[exercise] = [])).push(...collected);
+    if (!out.length) return;
+    if (comment) out[0].notes = out[0].notes ? `${comment} ${out[0].notes}` : comment;
+    (byExercise[exercise] || (byExercise[exercise] = [])).push(...out);
   });
+  if (!Object.keys(byExercise).length) return setStatus("Add at least one set with reps.", true);
 
-  if (Object.keys(setsByExercise).length === 0) {
-    statusEl.textContent = "Log at least one set.";
-    statusEl.classList.add("error");
-    return;
-  }
-
-  saveBtn.disabled = true;
-  saveBtn.textContent = "Saving…";
-  statusEl.classList.remove("error");
-  statusEl.textContent = "";
-
+  saveBtn.disabled = true; saveBtn.textContent = "Saving…"; setStatus("");
   try {
-    // Consolidate into today's existing session for this DATE -- regardless
-    // of category, so there's never more than one session per date. If the
-    // category differs from what's already there, the labels merge (see
-    // mergeCategoryLabel) rather than picking one arbitrarily.
-    const { data: existingSessions, error: findErr } = await sb
-      .from("workout_sessions")
-      .select("id, category, start_time, end_time")
-      .eq("log_date", log_date)
-      .limit(1);
-    if (findErr) {
-      statusEl.textContent = `Error: ${findErr.message}`;
-      statusEl.classList.add("error");
-      return;
-    }
-
-    let sessionId;
-    const isConsolidating = !!(existingSessions && existingSessions.length);
-    if (isConsolidating) {
-      sessionId = existingSessions[0].id;
-      const patch = {};
-      const existingStart = existingSessions[0].start_time;
-      const existingEnd = existingSessions[0].end_time;
-      if (start_time && (!existingStart || start_time < existingStart)) patch.start_time = start_time;
-      if (end_time && (!existingEnd || end_time > existingEnd)) patch.end_time = end_time;
-      const mergedCategory = mergeCategoryLabel(existingSessions[0].category, selectedCategory);
-      if (mergedCategory !== existingSessions[0].category) patch.category = mergedCategory;
-      if (Object.keys(patch).length) {
-        const { error: updErr } = await sb.from("workout_sessions").update(patch).eq("id", sessionId);
-        if (updErr) {
-          statusEl.textContent = `Error: ${updErr.message}`;
-          statusEl.classList.add("error");
-          return;
-        }
-      }
+    // one session per date: later saves on the same day append to it and merge the group labels
+    const { data: found, error: findErr } = await sb.from("workout_sessions").select("id, category, start_time, end_time").eq("log_date", log_date).limit(1);
+    if (findErr) return setStatus(`Error: ${findErr.message}`, true);
+    let sessionId; const merging = !!(found && found.length);
+    if (merging) {
+      sessionId = found[0].id; const patch = {};
+      if (start_time && (!found[0].start_time || start_time < found[0].start_time)) patch.start_time = start_time;
+      if (end_time && (!found[0].end_time || end_time > found[0].end_time)) patch.end_time = end_time;
+      const merged = mergeCategoryLabel(found[0].category, label); if (merged !== found[0].category) patch.category = merged;
+      if (Object.keys(patch).length) { const { error } = await sb.from("workout_sessions").update(patch).eq("id", sessionId); if (error) return setStatus(`Error: ${error.message}`, true); }
     } else {
-      const { data: session, error: sessErr } = await sb
-        .from("workout_sessions")
-        .insert({ log_date, category: selectedCategory, start_time, end_time })
-        .select()
-        .single();
-      if (sessErr) {
-        statusEl.textContent = `Error: ${sessErr.message}`;
-        statusEl.classList.add("error");
-        return;
-      }
-      sessionId = session.id;
+      const { data: sess, error } = await sb.from("workout_sessions").insert({ log_date, category: label, start_time, end_time }).select().single();
+      if (error) return setStatus(`Error: ${error.message}`, true);
+      sessionId = sess.id;
     }
-
-    // Continue set numbering per exercise rather than restarting at 1, so a
-    // second entry of the same lift later today doesn't collide with the first.
-    let startNumByExercise = {};
-    if (isConsolidating) {
-      const { data: existingSets } = await sb.from("workout_sets").select("exercise, set_number").eq("session_id", sessionId);
-      (existingSets || []).forEach((r) => {
-        startNumByExercise[r.exercise] = Math.max(startNumByExercise[r.exercise] || 0, r.set_number);
-      });
-    }
-
-    const insertRows = [];
-    Object.entries(setsByExercise).forEach(([exercise, rows]) => {
-      let n = startNumByExercise[exercise] || 0;
-      rows.forEach((r) => {
-        n++;
-        insertRows.push({ exercise, set_number: n, reps: r.reps, weight_kg: r.weight_kg, notes: r.notes, session_id: sessionId });
-      });
-    });
-
-    const { error: setsErr } = await sb.from("workout_sets").insert(insertRows);
-    if (setsErr) {
-      statusEl.textContent = `Session saved, but sets failed: ${setsErr.message}`;
-      statusEl.classList.add("error");
-      return;
-    }
-
-    if (bodyweight) {
-      await sb.from("body_weight").upsert(
-        { log_date, weight_kg: parseFloat(bodyweight) },
-        { onConflict: "log_date" }
-      );
-    }
-
-    statusEl.classList.remove("error");
-    statusEl.textContent = isConsolidating ? "Added to today's workout ✓" : "Saved ✓";
-    setTimeout(() => {
-      resetLogForm();
-      loadConsistency();
-      loadProgressExerciseOptions();
-    }, 700);
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = "Save workout";
-  }
+    const startNum = {};
+    if (merging) { const { data: ex } = await sb.from("workout_sets").select("exercise, set_number").eq("session_id", sessionId); (ex || []).forEach((r) => { startNum[r.exercise] = Math.max(startNum[r.exercise] || 0, r.set_number); }); }
+    const rows = [];
+    Object.entries(byExercise).forEach(([exercise, list]) => { let n = startNum[exercise] || 0; list.forEach((r) => rows.push({ exercise, set_number: ++n, reps: r.reps, weight_kg: r.weight_kg, notes: r.notes, session_id: sessionId })); });
+    const { error: setsErr } = await sb.from("workout_sets").insert(rows);
+    if (setsErr) return setStatus(`Session saved, but sets failed: ${setsErr.message}`, true);
+    setStatus(merging ? "Added to the day's workout ✓" : "Saved ✓");
+    setTimeout(async () => { resetLogForm(); await loadHistory(); renderAll(); }, 700);
+  } finally { saveBtn.disabled = false; saveBtn.textContent = "Save workout"; }
 });
 
-// ============================================================ progress ----
-// Comparison chart: pick an exercise, see top weight (and reps at that
-// weight) across your last several sessions with it, plus a plain-language
-// delta between the two most recent so "is this better than last time" is a
-// glance, not a memory exercise.
-async function loadProgressExerciseOptions() {
-  const sel = document.getElementById("progress-exercise");
-  const current = sel.value;
-  const { data, error } = await sb.from("workout_sets").select("exercise").limit(3000);
-  if (error || !data) return;
-  const names = [...new Set(data.map((r) => r.exercise))].sort((a, b) => a.localeCompare(b));
-  sel.innerHTML = '<option value="">Select exercise…</option>' + names.map((n) => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join("");
-  if (current && names.includes(current)) sel.value = current;
+// ============================================================ progress charts
+const C = Charts;
+function weekStartISO(iso) { const d = parseISO(iso); return localISO(addDays(d, -d.getDay())); }       // Sunday-start weeks, like the rest of the site
+
+function chartWeekly() {
+  const today = localISO(), thisWeek = weekStartISO(today), weeks = [];
+  for (let i = 11; i >= 0; i--) weeks.push(localISO(addDays(parseISO(thisWeek), -7 * i)));
+  const count = new Map(weeks.map((w) => [w, new Set()]));
+  HIST.forEach((s) => { const w = weekStartISO(s.log_date); if (count.has(w)) count.get(w).add(s.log_date); });
+  const vals = weeks.map((w) => count.get(w).size);
+  C.bar($("ch-weekly"), { labels: weeks, values: vals, height: 170, color: "var(--chart-1)", emptyText: "Log a workout to see your weekly rhythm.",
+    xTick: (i) => (i % 2 ? "" : prettyDate(weeks[i])), tipTitle: (i) => `Week of ${prettyDate(weeks[i])}`, tipValue: (i) => `${vals[i]} session${vals[i] === 1 ? "" : "s"}` });
+}
+function chartVolume() {
+  const list = HIST.filter((s) => s.workout_sets.some(sane)).slice(0, 16).reverse();
+  const vals = list.map((s) => Math.round(sessionVolume(s)));
+  C.bar($("ch-volume"), { labels: list.map((s) => s.log_date), values: vals, height: 170, color: "var(--chart-3)", emptyText: "No sessions with weights yet.",
+    xTick: (i) => (list.length > 8 && i % 2 ? "" : prettyDate(list[i].log_date)), fmtTick: (v) => C.compact(v),
+    tipTitle: (i) => `${prettyDate(list[i].log_date)} · ${list[i].category || "Workout"}`, tipValue: (i) => `${vals[i].toLocaleString()} kg` });
+}
+function chartSplit() {
+  const host = $("ch-split"); host.textContent = "";
+  const from = localISO(addDays(new Date(), -56)), by = {};
+  HIST.filter((s) => s.log_date >= from).forEach((s) => splitGroups(s.category).forEach((g) => { by[g] = (by[g] || 0) + 1; }));
+  const groups = GROUPS.filter((g) => by[g]).map((g) => ({ label: g, value: by[g], color: C.slotColor(g, C.WORKOUT_SLOTS) }));
+  const total = groups.reduce((a, g) => a + g.value, 0);
+  if (!total) { host.append(el("p", { class: "empty" }, "Nothing in the last 8 weeks yet.")); return; }
+  const dh = el("div", { class: "donut-host" }); host.append(el("div", { class: "split-row" }, dh, C.legend(groups.map((g) => ({ label: g.label, color: g.color, text: `${g.value} · ${Math.round(g.value / total * 100)}%` })))));
+  C.donut(dh, { segments: groups, size: 150, big: String(total), small: total === 1 ? "group-day" : "group-days", aria: "Sessions by muscle group", tipValue: (s, sh) => `${s.value} · ${Math.round(sh * 100)}%` });
+}
+function bestSets() {
+  const best = new Map();
+  HIST.forEach((s) => s.workout_sets.filter((x) => sane(x) && !isDrop(x) && x.weight_kg > 0).forEach((x) => {
+    const b = best.get(x.exercise);
+    if (!b || x.weight_kg > b.kg || (x.weight_kg === b.kg && x.reps > b.reps)) best.set(x.exercise, { kg: x.weight_kg, reps: x.reps, date: s.log_date });
+  }));
+  return best;
+}
+function chartPB() {
+  const host = $("ch-pb"); host.textContent = "";
+  const rows = [...bestSets()].sort((a, b) => b[1].kg - a[1].kg).slice(0, 8).map(([n, b]) => ({ label: `${n} · ${b.reps} reps`, value: b.kg }));
+  if (!rows.length) { host.append(el("p", { class: "empty" }, "Your heaviest sets will show up here.")); return; }
+  C.hbar(host, rows, (v) => `${fmtKg(v)} kg`);
 }
 
-async function loadProgressChart(exercise) {
-  const emptyEl = document.getElementById("progress-empty");
-  const wrapEl = document.getElementById("progress-chart-wrap");
-  if (!exercise) {
-    emptyEl.hidden = false;
-    wrapEl.hidden = true;
-    return;
-  }
-
-  const { data, error } = await sb
-    .from("workout_sessions")
-    .select("id, log_date, workout_sets(reps, weight_kg, exercise, set_number)")
-    .order("log_date", { ascending: false })
-    .order("id", { ascending: false })
-    .limit(100);
-  if (error || !data) {
-    emptyEl.hidden = false;
-    wrapEl.hidden = true;
-    return;
-  }
-
-  const points = [];
-  for (const sess of data) {
-    const sets = (sess.workout_sets || []).filter((s) => s.exercise === exercise && s.weight_kg != null);
-    if (!sets.length) continue;
-    const topWeight = Math.max(...sets.map((s) => s.weight_kg));
-    const bestSet = sets.filter((s) => s.weight_kg === topWeight).sort((a, b) => (b.reps || 0) - (a.reps || 0))[0];
-    points.push({ log_date: sess.log_date, topWeight, reps: bestSet?.reps ?? null });
-    if (points.length >= 10) break;
-  }
-  points.reverse(); // chronological order for the chart
-
-  if (points.length === 0) {
-    emptyEl.hidden = false;
-    wrapEl.hidden = true;
-    return;
-  }
-  emptyEl.hidden = true;
-  wrapEl.hidden = false;
-
-  renderProgressDelta(points);
-  renderProgressSvg(points);
-}
-
-function renderProgressDelta(points) {
-  const el = document.getElementById("progress-delta");
-  if (points.length < 2) {
-    el.textContent = `${points.length} session logged so far — one more and you'll see a comparison here.`;
-    return;
-  }
-  const last = points[points.length - 1];
-  const prev = points[points.length - 2];
-  const dw = last.topWeight - prev.topWeight;
-  const dr = (last.reps ?? 0) - (prev.reps ?? 0);
-  const fmt = (n, unit) => (n > 0 ? "+" : "") + (Number.isInteger(n) ? n : n.toFixed(1)) + unit;
-  el.innerHTML =
-    `Last time (<strong>${escapeHtml(prev.log_date)}</strong>): ${prev.topWeight}kg × ${prev.reps ?? "?"} ` +
-    `&nbsp;→&nbsp; This time (<strong>${escapeHtml(last.log_date)}</strong>): ${last.topWeight}kg × ${last.reps ?? "?"} ` +
-    `&nbsp; <span class="delta ${dw >= 0 ? "up" : "down"}">${fmt(dw, "kg")}</span> ` +
-    `<span class="delta ${dr >= 0 ? "up" : "down"}">${fmt(dr, " reps")}</span>`;
-}
-
-function renderProgressSvg(points) {
-  const svg = document.getElementById("progress-chart");
-  const W = 600, H = 220, PAD_X = 34, PAD_Y = 30;
-  const weights = points.map((p) => p.topWeight);
-  const minW = Math.min(...weights), maxW = Math.max(...weights);
-  const range = maxW - minW || 1;
-  const stepX = points.length > 1 ? (W - PAD_X * 2) / (points.length - 1) : 0;
-  const yFor = (w) => H - PAD_Y - ((w - minW) / range) * (H - PAD_Y * 2);
-  const xFor = (i) => (points.length > 1 ? PAD_X + i * stepX : W / 2);
-
-  const linePath = points.map((p, i) => `${i === 0 ? "M" : "L"} ${xFor(i).toFixed(1)} ${yFor(p.topWeight).toFixed(1)}`).join(" ");
-
-  let content = `
-    <line x1="${PAD_X}" y1="${H - PAD_Y}" x2="${W - PAD_X}" y2="${H - PAD_Y}" stroke="var(--border)" stroke-width="1" />
-    <path d="${linePath}" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />
-  `;
-  points.forEach((p, i) => {
-    const x = xFor(i), y = yFor(p.topWeight);
-    const isLast = i === points.length - 1;
-    content += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${isLast ? 5 : 3.5}" fill="var(--accent)" />`;
-    content += `<text x="${x.toFixed(1)}" y="${(y - 11).toFixed(1)}" font-size="11" font-weight="${isLast ? 700 : 400}" text-anchor="middle" fill="var(--text)">${p.topWeight}${p.reps != null ? "×" + p.reps : ""}</text>`;
-    content += `<text x="${x.toFixed(1)}" y="${H - PAD_Y + 16}" font-size="9" text-anchor="middle" fill="var(--text-dim)">${escapeHtml(p.log_date.slice(5))}</text>`;
+// ---- exercise explorer ----
+let exploreEx = null, metric = "top";
+const e1rm = (kg, reps) => (reps <= 1 ? kg : kg * (1 + reps / 30));          // Epley
+function exercisePoints(name) {
+  const pts = [];
+  HIST.slice().reverse().forEach((s) => {
+    const sets = s.workout_sets.filter((x) => x.exercise === name && sane(x) && !isDrop(x));
+    if (!sets.length) return;
+    const top = sets.reduce((a, b) => (b.weight_kg > a.weight_kg || (b.weight_kg === a.weight_kg && b.reps > a.reps) ? b : a));
+    const bestE = Math.max(...sets.map((x) => e1rm(x.weight_kg, x.reps)));
+    pts.push({ date: s.log_date, top: top.weight_kg, reps: top.reps, e1rm: bestE, vol: sets.reduce((a, x) => a + x.reps * x.weight_kg, 0), sets: sets.length });
   });
-  svg.innerHTML = content;
+  return pts;
 }
+function renderExplorer() {
+  const has = !!exploreEx;
+  $("progress-empty").hidden = has; $("progress-chart-wrap").hidden = !has; $("progress-empty").textContent = "Pick an exercise to see how it's going over time.";
+  $("progress-choose-text").textContent = exploreEx || "Choose exercise…";
+  if (!has) { $("ex-meta").textContent = ""; return; }
+  const pts = exercisePoints(exploreEx);
+  if (!pts.length) { $("progress-empty").hidden = false; $("progress-empty").textContent = "No valid sets logged for this exercise yet."; $("progress-chart-wrap").hidden = true; return; }
+  const shown = pts.slice(-24), key = metric === "top" ? "top" : metric === "e1rm" ? "e1rm" : "vol";
+  const vals = shown.map((p) => Math.round(p[key] * 10) / 10), unit = metric === "vol" ? "kg total" : "kg";
+  $("ex-meta").textContent = `${pts.length} session${pts.length === 1 ? "" : "s"}`;
+  const last = shown[shown.length - 1], prev = shown[shown.length - 2], d = $("progress-delta");
+  if (prev) {
+    const dv = Math.round((vals[vals.length - 1] - vals[vals.length - 2]) * 10) / 10;
+    d.innerHTML = `<strong>${prettyDate(last.date)}</strong>: ${fmtKg(last.top)}kg × ${last.reps} <span class="delta ${dv >= 0 ? "up" : "down"}">${dv > 0 ? "▲ +" : dv < 0 ? "▼ −" : "＝ "}${fmtKg(Math.abs(dv))} ${unit}</span> vs ${prettyDate(prev.date)}`;
+  } else d.textContent = "One session logged so far — one more and you'll see the trend.";
+  C.line($("progress-chart"), { values: vals, height: 190, zero: metric === "vol", emptyText: "Not enough data yet.",
+    xTick: (i) => (shown.length > 8 && i % 2 ? "" : prettyDate(shown[i].date)), fmtTick: (v) => C.compact(v),
+    tipTitle: (i) => prettyDate(shown[i].date), tipValue: (i) => `${fmtKg(vals[i])} ${unit} · top set ${fmtKg(shown[i].top)}kg × ${shown[i].reps}` });
+  $("progress-table").textContent = "";
+  $("progress-table").append(C.table(["Date", "Top set", "Est. 1RM", "Volume"], pts.slice(-8).reverse().map((p) => [prettyDate(p.date), `${fmtKg(p.top)}kg × ${p.reps}`, `${fmtKg(Math.round(p.e1rm * 10) / 10)} kg`, `${Math.round(p.vol).toLocaleString()} kg`])));
+}
+$("progress-choose").addEventListener("click", () => openSheet({ mode: "history", title: "Which exercise?", onPick: (n) => { exploreEx = n; renderExplorer(); } }));
+$("metric-seg").addEventListener("click", (e) => { const b = e.target.closest("button"); if (!b) return; metric = b.dataset.m; $("metric-seg").querySelectorAll("button").forEach((x) => x.setAttribute("aria-selected", String(x === b))); renderExplorer(); });
 
-document.getElementById("progress-exercise").addEventListener("change", (e) => loadProgressChart(e.target.value));
+// ---- body weight (optional, never asked for when logging a workout) ----
+let BW = [];
+async function loadBodyWeight() {
+  const { data } = await sb.from("body_weight").select("log_date, weight_kg").order("log_date");
+  BW = (data || []).map((r) => ({ date: r.log_date, kg: Number(r.weight_kg) })).filter((r) => r.kg >= 30 && r.kg <= 250);   // ignore typos like 0 or 0.5
+  chartBW();
+}
+function chartBW() {
+  const host = $("ch-bw");
+  if (BW.length < 2) { host.textContent = ""; host.append(el("p", { class: "empty" }, BW.length ? "Log it on a second day to see a trend." : "Totally optional — log it whenever you like and a trend line appears here.")); return; }
+  const shown = BW.slice(-60);
+  C.line(host, { values: shown.map((r) => r.kg), height: 170, xTick: (i) => (shown.length > 8 && i % Math.ceil(shown.length / 6) ? "" : prettyDate(shown[i].date)),
+    tipTitle: (i) => prettyDate(shown[i].date), tipValue: (i) => `${fmtKg(shown[i].kg)} kg` });
+}
+$("bw-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const v = parseFloat($("bw-input").value), s = $("bw-status");
+  if (!Number.isFinite(v) || v < 30 || v > 250) { s.textContent = "Enter a weight between 30 and 250 kg."; s.classList.add("error"); return; }
+  const { error } = await sb.from("body_weight").upsert({ log_date: todayISO(), weight_kg: v }, { onConflict: "log_date" });
+  s.classList.toggle("error", !!error); s.textContent = error ? "Couldn't save." : "Saved ✓";
+  if (!error) { $("bw-input").value = ""; await loadBodyWeight(); setTimeout(() => (s.textContent = ""), 2000); }
+});
+
+function renderAll() {
+  renderConsistency(); chartWeekly(); chartVolume(); chartSplit(); chartPB();
+  if (!exploreEx) { const c = new Map(); HIST.forEach((s) => s.workout_sets.forEach((x) => c.set(x.exercise, (c.get(x.exercise) || 0) + 1))); const top = [...c.entries()].sort((a, b) => b[1] - a[1])[0]; if (top) exploreEx = top[0]; }
+  renderExplorer();
+}
 
 // ============================================================ init --------
-loadConsistency();
-loadCatalog();
-loadProgressExerciseOptions();
+(async function init() {
+  await Promise.all([loadHistory(), loadCatalog()]);
+  renderAll(); loadBodyWeight();
+})();

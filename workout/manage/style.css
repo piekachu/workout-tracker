@@ -10,13 +10,15 @@
 }
 .ex-catalog-row {
   display: grid;
-  grid-template-columns: 1fr 56px 56px 68px 32px;
+  grid-template-columns: minmax(0, 1fr) 52px 52px 64px 30px;
   gap: 8px;
   align-items: center;
   padding: 6px 0;
 }
 .ex-catalog-row input {
-  min-height: 36px;
+  min-width: 0;
+  width: 100%;
+  min-height: 40px;
   padding: 6px 8px;
   font-size: 14px;
 }
@@ -27,7 +29,7 @@
 }
 .ex-catalog-head {
   display: grid;
-  grid-template-columns: 1fr 56px 56px 68px 32px;
+  grid-template-columns: minmax(0, 1fr) 52px 52px 64px 30px;
   gap: 8px;
   font-size: 0.68rem;
   color: var(--text-dim);
@@ -54,7 +56,7 @@
   gap: 8px;
   margin-top: 8px;
 }
-.ex-add-row input { flex: 1; min-height: 36px; padding: 6px 8px; font-size: 14px; }
+.ex-add-row input { flex: 1; min-width: 0; min-height: 40px; padding: 6px 8px; font-size: 14px; }
 .ex-add-row button { flex: 0 0 auto; }
 
 /* ---- migration notice ---- */
@@ -119,3 +121,15 @@
 
 .save-bar-inline { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
 .save-bar-inline .btn { width: auto; padding: 10px 20px; }
+
+/* phones: keep everything inside the screen */
+@media (max-width: 420px) {
+  .ex-catalog-row, .ex-catalog-head { grid-template-columns: minmax(0, 1fr) 44px 44px 56px 26px; gap: 6px; }
+  .ex-catalog-row input { padding: 6px 4px; text-align: center; }
+  .ex-catalog-row input:first-child { text-align: left; padding-left: 8px; }
+  .routine-card { flex-wrap: wrap; }
+  .re-ex-row { flex-wrap: wrap; row-gap: 4px; }
+  .routine-editor { padding: 12px; }
+  .save-bar-inline { flex-wrap: wrap; }
+  .migration-notice { padding: 12px; }
+}

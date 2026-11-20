@@ -1,0 +1,104 @@
+[
+ {
+  "r": {
+   "created_at": "2026-09-04T12:14:50.253552+00:00",
+   "exercise": "Seated Cable Row",
+   "exercise_raw": "Seated Cable Rows",
+   "id": 15,
+   "notes": null,
+   "reps": 40,
+   "reps_raw": "40kg",
+   "rpe": null,
+   "session_id": 1,
+   "set_number": 3,
+   "user_id": "b357032b-5f60-4a65-aaa8-7ed9a09d4b21",
+   "weight_kg": 12,
+   "weight_raw": "12 ea"
+  },
+  "t": "workout_sets"
+ },
+ {
+  "r": {
+   "created_at": "2026-09-04T12:14:50.420863+00:00",
+   "exercise": "Lateral Raises",
+   "exercise_raw": "Lateral Raises",
+   "id": 856,
+   "notes": "Plan: 3/f/4",
+   "reps": 31,
+   "reps_raw": "31/4",
+   "rpe": null,
+   "session_id": 45,
+   "set_number": 1,
+   "user_id": "b357032b-5f60-4a65-aaa8-7ed9a09d4b21",
+   "weight_kg": 4,
+   "weight_raw": "Maybe go with 6..??"
+  },
+  "t": "workout_sets"
+ },
+ {
+  "r": {
+   "created_at": "2026-09-04T12:14:50.420863+00:00",
+   "exercise": "Lateral Raises",
+   "exercise_raw": "Lateral Raises",
+   "id": 872,
+   "notes": "Plan: 2/f/4",
+   "reps": 30,
+   "reps_raw": "30",
+   "rpe": null,
+   "session_id": 50,
+   "set_number": 1,
+   "user_id": "b357032b-5f60-4a65-aaa8-7ed9a09d4b21",
+   "weight_kg": null,
+   "weight_raw": null
+  },
+  "t": "workout_sets"
+ },
+ {
+  "r": {
+   "created_at": "2026-09-13T23:34:02.304336+00:00",
+   "exercise": "T-Bar Row",
+   "exercise_raw": null,
+   "id": 1083,
+   "notes": null,
+   "reps": 0,
+   "reps_raw": null,
+   "rpe": null,
+   "session_id": 71,
+   "set_number": 4,
+   "user_id": "b357032b-5f60-4a65-aaa8-7ed9a09d4b21",
+   "weight_kg": null,
+   "weight_raw": null
+  },
+  "t": "workout_sets"
+ },
+ {
+  "r": {
+   "created_at": "2026-09-12T05:13:43.14025+00:00",
+   "id": 21,
+   "log_date": "2026-09-12",
+   "user_id": "b357032b-5f60-4a65-aaa8-7ed9a09d4b21",
+   "weight_kg": 0
+  },
+  "t": "body_weight"
+ },
+ {
+  "r": {
+   "created_at": "2026-09-13T23:34:02.425769+00:00",
+   "id": 22,
+   "log_date": "2026-09-14",
+   "user_id": "b357032b-5f60-4a65-aaa8-7ed9a09d4b21",
+   "weight_kg": 0.5
+  },
+  "t": "body_weight"
+ },
+ {
+  "r": {
+   "created_at": "2026-09-27T00:17:00.793845+00:00",
+   "id": 23,
+   "log_date": "2026-09-27",
+   "user_id": "b357032b-5f60-4a65-aaa8-7ed9a09d4b21",
+   "weight_kg": 0
+  },
+  "t": "body_weight"
+ }
+]

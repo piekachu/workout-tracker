@@ -102,6 +102,19 @@
     <div class="buy-actions"><button type="button" class="primary" id="c-close">Done</button></div>
   </dialog>
 
+  <dialog id="sp-dlg">
+    <form id="sp-form">
+      <h2 id="sp-title">Set price</h2>
+      <p class="hint">What you paid for the whole set, not per figure.</p>
+      <label>Price for the set <span id="sp-cur"></span><input id="sp-price" type="number" inputmode="decimal" min="0" step="any" placeholder="0" required></label>
+      <label>Number of sets<input id="sp-qty" type="number" inputmode="numeric" min="1" step="1" value="1"></label>
+      <label>Date bought (optional)<input id="sp-date" type="date"></label>
+      <label class="chk"><input type="checkbox" id="sp-own"> Mark all <span id="sp-own-n"></span> figures in this set as owned</label>
+      <p class="buy-total" id="sp-total"></p>
+      <div class="buy-actions"><button type="button" id="sp-clear" class="danger-b">Remove price</button><span class="spacer"></span><button type="button" id="sp-cancel">Cancel</button><button type="submit" class="primary">Save</button></div>
+    </form>
+  </dialog>
+
   <dialog id="buy-dlg">
     <form method="dialog" id="buy-form">
       <h2 id="buy-title">Purchase</h2>

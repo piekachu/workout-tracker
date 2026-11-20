@@ -156,3 +156,8 @@ dialog input { width: 100%; margin-top: 4px; }
 #c-dlg { max-height: 88vh; overflow-y: auto; }
 #c-dlg h2.sec { margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border-2); }
 .c-row .c-x.ph { display: inline-block; }
+
+.grp-tools .setp { color: var(--accent); }
+#sp-dlg label.chk { display: flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; font-family: var(--font-ui); font-size: .9rem; color: var(--text); }
+#sp-dlg label.chk input { width: auto; margin: 0; min-height: 0; }
+.grp-tools { flex-wrap: wrap; align-items: center; }

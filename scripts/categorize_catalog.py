@@ -14,6 +14,7 @@ OVERRIDES = {  # exact release name -> category, for releases the rules below ge
 
 def category(n):                                   # first match wins
     if n in OVERRIDES: return OVERRIDES[n]
+    if re.search(r"option", n, re.I): return "CORE"       # every "... Option (Parts) Set" release sits with CORE
     if re.search(r"Converge EX \d", n): return "EX"
     if re.search(r"Converge SB\d", n): return "SB"
     if re.search(r"Converge SP\b", n): return "SP"

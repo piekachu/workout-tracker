@@ -44,57 +44,35 @@ Three sub-pages under one `.sub-nav` (Log / Database / Manage):
 
 ### Log (`/workout/`)
 
-Open it and immediately see a consistency heatmap of the last ~18 weeks,
-then scroll down to log today's workout — pick a category, then add
-exercises one at a time from a carousel scoped to that category (each shows
-its proposed goal, sets/reps/weight, once picked); fill in what you actually
-did per set, plus body weight.
+Headline numbers and the consistency heatmap on top, then **Log a workout** and **Progress**
+(side by side on desktop, stacked on phones). The layout is mobile-first.
 
-- **Exercises swipe, not stack.** `#exercise-list` is a native CSS scroll-snap
-  carousel (one exercise per screen) with dot/arrow controls built in
-  `assets/app.js`; this is what keeps the page's scroll height capped at the
-  tallest single exercise instead of growing with every exercise you add.
-- **Picking an exercise is a carousel too**, not a `<select>` dropdown --
-  `‹ Exercise Name ›` with the same prev/next arrows used for swiping between
-  exercises, cycling through that category's catalog plus a final "Other…"
-  slot for typing something not in it. Starts on "Select exercise…"; nothing
-  is pre-chosen.
-- **One session per date, always.** Saving looks for an existing session on
-  `log_date` alone (not date *and* category) and appends into it, continuing
-  each exercise's `set_number` rather than restarting at 1. If the category
-  differs from what's already logged that day, the labels merge instead of
-  overwriting (`"Back + Biceps"` + `"Legs"` → `"Back + Biceps + Legs"`) --
-  see `mergeCategoryLabel`. A retroactive pass merged the historical
-  duplicates this replaced (see Data cleanup below).
-- **The date/time fields disappear once they're not needed.** If the chosen
-  date already has a session, `#date-time-fields` hides and a "Continuing
-  `<date>`" note takes its place (only body weight stays editable) -- so
-  adding a few more exercises to today's already-started workout never means
-  re-typing the date or start time. "Log a different date instead" backs out
-  of that, for logging a separate/missed day.
-- **Load previous** pulls the most recent occurrence of the selected exercise
-  (scanning the last 60 sessions client-side) and pre-fills its reps/weight;
-  a dropdown of the next few occurrences appears after first use, for
-  loading further back than "last time."
-- **Drop sets** chain onto a set via `+ drop set` — a compact mini reps/weight
-  row, with a `🔻 N drops` badge on the parent set. Stored as ordinary extra
-  `workout_sets` rows (continuing that exercise's `set_number`), tagged via
-  `notes` starting with `[drop]` rather than a schema column — see Data model.
-- **Bigger steps.** Each reps/weight stepper has a second, wider-spaced pair
-  of buttons (`«` `»`) for jumping by more per tap (default +5 reps / +10kg)
-  alongside the normal ±1 / ±2.5kg buttons — for loading plates fast rather
-  than fine-tuning.
-- **New exercise slots start at 1 set**, not a fixed default of 3 -- unless
-  the category's catalog specifies its own `target_sets` for the exercise
-  you land on, in which case that's what shows.
-- **Start from a routine**, once any exist (see Manage below) -- a picker
-  appears right under the category banner; loading one fills the whole
-  exercise carousel from it in one tap, each exercise's set count from its
-  saved target.
-- A comparison chart at the bottom: pick an exercise, see its top weight
-  (and reps at that weight) across your last several sessions as an inline
-  SVG line chart, plus a plain-language delta between the two most recent
-  ("Last time: 40kg × 8 → This time: 42.5kg × 6, +2.5kg −2 reps").
+- **Any combination of muscle groups.** Tap one or more of Back + Biceps, Chest + Triceps,
+  Shoulder + Arms, Legs, Whole body (e.g. Back + Chest, or Legs + Shoulder). The session label is
+  the groups joined (`"Back + Biceps + Chest + Triceps"`); groups can be changed any time without
+  losing the exercises already entered. Saving again on the same date merges the labels
+  (`mergeCategoryLabel`) and appends to that day's single session.
+- **Picking an exercise is a searchable sheet**, not a carousel you step through. It opens on
+  today's groups (with a *Recent* section and your last weight × reps next to each name), has
+  an *All* switch, a search box, and a "type a name" field for anything not listed.
+- **Exercise cards** stack vertically; only the newest is expanded and the others fold to a
+  one-line summary (`4 sets · 50kg × 11`). Each shows its goal and a *Last time … — use* chip that
+  fills in the previous session's sets (and drop sets) in one tap. A new set starts as a copy of
+  the one before it.
+- **Sets:** `−` / `+` steppers for reps and kg (hold to repeat and speed up, tap the number to type);
+  `+ Drop set` chains lighter drop sets under a set (stored as ordinary rows tagged `[drop]` in
+  `notes`). Empty sets (0 reps) are skipped on save and **a blank weight is saved as 0 kg**.
+  Values are clamped to sane limits (reps ≤ 50, weight ≤ 300 kg), so typos can't get in.
+- **No body weight on the log form.** It is never asked for when saving. There's an optional
+  *Body weight* box in the Progress section (accepts 30–250 kg only) with a trend line; implausible
+  historical values are ignored in the chart.
+- **Date and time** are optional extras; if the date already has a session, a short "Adding to …"
+  note replaces them.
+- **Routines** (see Manage) show up for any of the selected groups.
+- **Charts** (hand-built with `shared/charts.js`): *Exercise progress* (pick any logged exercise;
+  top weight, estimated 1RM or volume per session, with a table), *Sessions per week* (12 weeks),
+  *Volume per session*, *Muscle groups* donut (last 8 weeks; a combined session counts toward each
+  of its groups) and *Personal bests*. All charts ignore entries outside the sane limits.
 
 ### Database (`/workout/database/`)
 
@@ -123,6 +101,14 @@ button. This replaced the old scrolling "Recent" list on the Log page.
 - **`workout_routines`** — optional (see Manage above): `name`, `category`, `exercises` (jsonb array of `{exercise, target_sets}`), `sort_order`.
 
 **Categories** (fixed, in `assets/app.js`'s `GROUPS`): Back + Biceps, Chest + Triceps, Shoulder + Arms, Legs, Whole body.
+
+### Data cleanup (2026-11-20)
+
+Removed obvious typos (backup in `out/removed_abnormal_entries_2026-11-20.json`): three
+`body_weight` rows of 0 / 0.5 / 0 kg, and four sets (Seated Cable Row 40 reps @ 12 kg — reps/weight
+swapped; Lateral Raises 31 reps @ 4 kg and 30 reps with no weight; an empty 0-rep T-Bar Row set).
+Every set with reps but no weight was set to 0 kg. Heavy lateral raises (20–27.5 kg) were kept:
+they look deliberate, not typos.
 
 ### Data cleanup (2026-09-22)
 
@@ -440,6 +426,13 @@ Clear all and Delete show an Undo toast instead of a confirm dialog.
 - **My category** — your own labels, fully customisable (see below).
 Three dropdowns filter by each (plus year, status and search); charts show progress by category,
 by series and by my category, and spending by category and by series.
+**Prices for whole sets** (migration 0016, `collection_sets`): every release has a *+ Set price* button
+(price for the whole set, number of sets, date, and an optional "mark all figures owned"). It is counted once
+in *Total spent*, shown on the release header, spread evenly over the set's figures in the category/series
+spend charts, and figures covered by a set price no longer count as "owned without a price". Individual
+figure prices still work and add on top. Every release whose name contains "Option" (option parts sets)
+is in the CORE category. Releases fold/unfold on their own (filtering no longer locks them open), and
+*Expand all / Collapse all* works on whatever is currently listed.
 **Editable series list** (migration 0015, `collection_series`): "Edit categories" also manages the
 series — rename any of them (↺ restores a built-in name), add your own, delete the ones you made up
 (their figures go back to their original series). "Set series…" in a release header sets the series

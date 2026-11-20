@@ -490,7 +490,9 @@
         const done = days.has(TODAY), todays = rows.find((r) => r.log_date === TODAY);
         state.sessions7 = thisWeek;
         state.sessionsPrev = rows.filter((r) => r.log_date >= addDaysISO(TODAY, -13) && r.log_date < weekAgo).length;
-        const last = rows[0], idx = last ? WORKOUT_GROUPS.indexOf(last.category) : -1;
+        // a session can cover several groups ("Back + Biceps + Chest + Triceps"): continue the rotation after the latest group it included
+        const inLabel = (g, label) => { const parts = (label || "").split("+").map((x) => x.trim()); return g.split("+").every((p) => parts.includes(p.trim())); };
+        const last = rows[0], idx = last ? Math.max(-1, ...WORKOUT_GROUPS.map((g, i) => (inLabel(g, last.category) ? i : -1))) : -1;
         const next = WORKOUT_GROUPS[(idx + 1) % WORKOUT_GROUPS.length];
         state.core.workout = { done, streak: 0,
           sub: done ? `Logged${todays && todays.category ? " · " + todays.category : ""}` : `Next up: ${next} · ${thisWeek} this week` };
