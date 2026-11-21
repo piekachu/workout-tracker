@@ -132,3 +132,23 @@ input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px s
 .ex-col { min-width: 0; }
 #ex-donut { margin-top: 18px; }
 #daily-card { margin-top: 18px; }
+
+/* queued entries ("+ Add another") */
+.batch { margin-top: 14px; border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; }
+.batch-head { display: flex; justify-content: space-between; font-size: .85rem; opacity: .75; padding: 2px 0 6px; }
+.batch-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--border); min-width: 0; }
+.batch-row .b-main { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.batch-row em { font-style: normal; opacity: .65; font-size: .85em; }
+.batch-row .b-date { font-size: .8rem; opacity: .6; }
+.batch-row .b-del { background: none; border: 0; color: inherit; opacity: .6; font-size: 1rem; padding: 6px 8px; cursor: pointer; }
+.batch [hidden], #add-another[hidden] { display: none; }
+
+/* category editing */
+.lbl-row { display: flex; align-items: baseline; justify-content: space-between; }
+.cat-manage { margin-top: 12px; border: 1px solid var(--border); border-radius: 12px; padding: 10px 12px; }
+.cat-manage[hidden] { display: none; }
+.cat-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cat-row input, .cat-add input { flex: 1; min-width: 0; }
+.cat-add { display: flex; gap: 8px; }
+.cat-manage .b-del { background: none; border: 0; color: inherit; opacity: .6; font-size: 1rem; padding: 6px 8px; cursor: pointer; }
+.link-btn { background: none; border: 0; color: var(--accent); font: inherit; font-size: .9rem; cursor: pointer; padding: 4px 0; }

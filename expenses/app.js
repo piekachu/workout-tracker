@@ -8,12 +8,13 @@ const localISO = (d = new Date()) => `${d.getFullYear()}-${pad(d.getMonth() + 1)
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-const CATEGORIES = {
+const DEFAULT_CATEGORIES = {
   expense: ["Food", "Groceries", "Transport", "Bills", "Rent", "Health", "Shopping", "Fun", "Study", "Other"],
   income: ["Salary", "Allowance", "Gift", "Other"],
 };
+let CATEGORIES = { expense: DEFAULT_CATEGORIES.expense.slice(), income: DEFAULT_CATEGORIES.income.slice() };
 const CURRENCIES = {
-  KRW: { sym: "₩", locale: "ko-KR", digits: 0, quick: [1000, 5000, 10000] },
+  KRW: { sym: "₩", locale: "ko-KR", digits: 0, quick: [10, 100, 1000, 5000, 10000] },
   USD: { sym: "$", locale: "en-US", digits: 2, quick: [1, 5, 20] },
   EUR: { sym: "€", locale: "de-DE", digits: 2, quick: [1, 5, 20] },
   JPY: { sym: "¥", locale: "ja-JP", digits: 0, quick: [100, 500, 1000] },
@@ -25,6 +26,7 @@ const state = {
   kind: "expense",
   category: null,
   editing: null,                     // row being edited, or null
+  batch: [],                         // entries queued with "+ Add another", saved together
   currency: safeGet("expenses.currency") || "KRW",
 };
 if (!CURRENCIES[state.currency]) state.currency = "KRW";
@@ -63,6 +65,30 @@ async function loadMonth() {
   }
   state.rows = data || [];
   render();
+}
+
+// ---------- editable categories ----------
+async function loadCategories() {
+  const { data, error } = await sb.from("expense_categories").select("kind, name, sort_order").order("sort_order").order("name");
+  if (error || !data) return;                      // table missing / offline: keep the defaults
+  for (const k of ["expense", "income"]) {
+    const mine = data.filter((r) => r.kind === k).map((r) => r.name);
+    if (mine.length) CATEGORIES[k] = mine;
+  }
+  renderChips(); renderCatManage();
+}
+async function persistCats(kind) {                 // rewrite one kind's list (tiny, so simplest and safe)
+  const del = await sb.from("expense_categories").delete().eq("kind", kind);
+  if (del.error) return del.error;
+  const rows = CATEGORIES[kind].map((name, i) => ({ kind, name, sort_order: i }));
+  if (!rows.length) return null;
+  return (await sb.from("expense_categories").insert(rows)).error;
+}
+function catFail(err) { toast("Couldn't save categories"); setStatus(err.message, true); loadCategories(); }
+function renderCatManage() {
+  const box = $("cat-manage"); if (box.hidden) return;
+  $("cat-rows").innerHTML = CATEGORIES[state.kind].map((c, i) =>
+    `<div class="cat-row"><input type="text" value="${esc(c)}" maxlength="40" data-i="${i}" data-old="${esc(c)}" aria-label="Category name" /><button type="button" class="b-del" data-i="${i}" aria-label="Remove ${esc(c)}">✕</button></div>`).join("");
 }
 
 // ---------- rendering ----------
@@ -131,7 +157,7 @@ function renderQuick() {
 function setKind(kind) {
   state.kind = kind;
   document.querySelectorAll("#kind-seg button").forEach((b) => b.classList.toggle("on", b.dataset.kind === kind));
-  renderChips();
+  renderChips(); renderCatManage();
 }
 
 // ---------- form ----------
@@ -143,7 +169,7 @@ function resetForm() {
   $("entry-title").textContent = "Add";
   $("save").textContent = "Save";
   $("cancel-edit").hidden = true; $("delete").hidden = true;
-  setStatus("");
+  setStatus(""); renderBatch();
 }
 function startEdit(row) {
   state.editing = row;
@@ -156,32 +182,64 @@ function startEdit(row) {
   $("entry-title").textContent = "Edit";
   $("save").textContent = "Update";
   $("cancel-edit").hidden = false; $("delete").hidden = false;
-  setStatus("");
+  setStatus(""); renderBatch();
   $("entry").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
+// the entry currently typed in the form, or null (with a message) if it isn't valid
+function readEntry() {
+  const amount = parseAmount($("amount").value), spent_on = $("date").value;
+  if (!(amount > 0)) { setStatus("Enter an amount.", true); $("amount").focus(); return null; }
+  if (!spent_on) { setStatus("Pick a date.", true); return null; }
+  return { spent_on, amount, kind: state.kind, category: state.category || "Other", note: $("note").value.trim() || null };
+}
+
+// Queue the current entry and clear amount/note/category; date and type stay for the next one.
+function addAnother() {
+  if (state.editing) return;
+  const e = readEntry(); if (!e) return;
+  state.batch.push(e);
+  $("amount").value = ""; $("note").value = ""; state.category = null; renderChips();
+  setStatus(""); renderBatch(); $("amount").focus();
+}
+function renderBatch() {
+  const n = state.batch.length, editing = !!state.editing;
+  $("add-another").hidden = editing;
+  $("batch").hidden = !n || editing;
+  $("save").textContent = editing ? "Update" : n ? `Save all (${n}${$("amount").value.trim() ? "+1" : ""})` : "Save";
+  if (!n) return;
+  const spent = state.batch.filter((e) => e.kind === "expense").reduce((t, e) => t + e.amount, 0);
+  $("batch-count").textContent = `${n} queued`;
+  $("batch-total").textContent = `${fmt(spent)} spent`;
+  $("batch-list").innerHTML = state.batch.map((e, i) =>
+    `<div class="batch-row"><span class="b-main">${e.kind === "income" ? "+" : ""}${fmt(e.amount)} <em>${esc(e.category)}${e.note ? " · " + esc(e.note) : ""}</em></span><span class="b-date">${esc(e.spent_on.slice(5))}</span><button type="button" class="b-del" data-i="${i}" aria-label="Remove">✕</button></div>`).join("");
+}
+
 async function save() {
-  const amount = parseAmount($("amount").value);
-  const spent_on = $("date").value;
-  if (!(amount > 0)) { setStatus("Enter an amount.", true); $("amount").focus(); return; }
-  if (!spent_on) { setStatus("Pick a date.", true); return; }
-  const payload = { spent_on, amount, kind: state.kind, category: state.category || "Other", note: $("note").value.trim() || null };
+  let payloads;
+  if (state.editing) { const e = readEntry(); if (!e) return; payloads = [e]; }
+  else {
+    // queued entries, plus whatever is typed in the form right now
+    payloads = state.batch.slice();
+    if ($("amount").value.trim() || !payloads.length) { const e = readEntry(); if (!e) return; payloads.push(e); }
+  }
 
   const btn = $("save"); btn.disabled = true;
   setStatus("Saving…");
   const q = state.editing
-    ? sb.from("expenses").update(payload).eq("id", state.editing.id)
-    : sb.from("expenses").insert(payload);
+    ? sb.from("expenses").update(payloads[0]).eq("id", state.editing.id)
+    : sb.from("expenses").insert(payloads);
   const { error } = await q;
   btn.disabled = false;
   if (error) { setStatus(`Couldn't save: ${error.message}`, true); return; }
 
   const wasEdit = !!state.editing;
-  // jump to the month of the saved entry so it's visible
-  const d = new Date(spent_on + "T00:00:00");
-  state.month = monthStart(d);
+  // jump to the month of the latest saved entry so it's visible
+  const latest = payloads.map((p) => p.spent_on).sort().pop();
+  state.month = monthStart(new Date(latest + "T00:00:00"));
+  state.batch = [];
   resetForm();
-  toast(wasEdit ? "Updated" : "Saved");
+  toast(wasEdit ? "Updated" : payloads.length > 1 ? `Saved ${payloads.length} entries` : "Saved");
   await loadMonth();
 }
 
@@ -223,12 +281,50 @@ $("quick").onclick = (e) => {
   const n = (parseAmount($("amount").value) || 0) + Number(b.dataset.add);
   $("amount").value = String(n);
 };
+$("cat-edit").onclick = () => {
+  const box = $("cat-manage"); box.hidden = !box.hidden;
+  $("cat-edit").textContent = box.hidden ? "Edit" : "Done"; renderCatManage();
+};
+$("cat-add").onsubmit = async (e) => {
+  e.preventDefault();
+  const name = $("cat-new").value.trim(), list = CATEGORIES[state.kind];
+  if (!name || list.some((c) => c.toLowerCase() === name.toLowerCase())) { $("cat-new").value = ""; return; }
+  list.push(name); $("cat-new").value = ""; renderChips(); renderCatManage();
+  const err = await persistCats(state.kind); if (err) catFail(err);
+};
+$("cat-rows").onchange = async (e) => {           // rename
+  const inp = e.target.closest("input[data-old]"); if (!inp) return;
+  const kind = state.kind, list = CATEGORIES[kind], old = inp.dataset.old, name = inp.value.trim();
+  if (!name || name === old || list.some((c, i) => i !== Number(inp.dataset.i) && c.toLowerCase() === name.toLowerCase())) { inp.value = old; return; }
+  list[Number(inp.dataset.i)] = name;
+  if (state.category === old) state.category = name;
+  renderChips(); renderCatManage();
+  let err = await persistCats(kind);
+  if (!err) err = (await sb.from("expenses").update({ category: name }).eq("kind", kind).eq("category", old)).error;
+  if (err) return catFail(err);
+  toast("Renamed"); loadMonth();
+};
+$("cat-rows").onclick = async (e) => {            // remove (no popup; old entries keep their label)
+  const b = e.target.closest("button.b-del"); if (!b) return;
+  const list = CATEGORIES[state.kind];
+  if (list.length <= 1) { toast("Keep at least one category"); return; }
+  const [gone] = list.splice(Number(b.dataset.i), 1);
+  if (state.category === gone) state.category = null;
+  renderChips(); renderCatManage();
+  const err = await persistCats(state.kind); if (err) catFail(err);
+};
 $("clear-amt").onclick = () => { $("amount").value = ""; $("amount").focus(); };
 $("amount").addEventListener("input", (e) => { e.target.value = e.target.value.replace(/[^0-9.]/g, ""); });
 $("amount").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); save(); } });
 $("note").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); save(); } });
 $("save").onclick = save;
-$("cancel-edit").onclick = resetForm;
+$("add-another").onclick = addAnother;
+$("amount").addEventListener("input", renderBatch);
+$("batch-list").onclick = (e) => {
+  const b = e.target.closest("button.b-del"); if (!b) return;
+  state.batch.splice(Number(b.dataset.i), 1); renderBatch();
+};
+$("cancel-edit").onclick = () => { resetForm(); };
 $("delete").onclick = remove;
 $("list").onclick = (e) => {
   const b = e.target.closest("button.tx"); if (!b) return;
@@ -242,3 +338,4 @@ $("export-all").onclick = exportAll;
 renderQuick();
 resetForm();
 loadMonth();
+loadCategories();

@@ -131,6 +131,13 @@ input, select, textarea { font-family: inherit; font-size: 16px; /* 16px stops i
 .drop-del { background: none; border: 0; color: var(--text-dim); cursor: pointer; font-size: .8rem; height: 34px; }
 
 /* the save bar stays reachable at the bottom while you scroll through the exercises */
+.timer { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 6px 12px; padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface, transparent); }
+.timer-time { font-size: 2rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.timer.running .timer-time { color: var(--accent, inherit); }
+.timer-btns { display: flex; gap: 8px; }
+.timer-btns .btn, .timer-btns .btn-ghost { width: auto; min-width: 0; padding-left: 14px; padding-right: 14px; }
+.timer-note { grid-column: 1 / -1; font-size: .8rem; opacity: .7; }
+.timer-btns [hidden] { display: none; }
 .save-bar { position: sticky; bottom: 0; z-index: 20; margin: 18px calc(var(--page-pad) * -1) 0; padding: 12px var(--page-pad) calc(12px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .save-bar .btn { flex: 1 1 160px; width: auto; }
 

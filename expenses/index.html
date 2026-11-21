@@ -77,8 +77,16 @@
       </div>
       <div class="quick" id="quick"></div>
 
-      <label class="lbl">Category</label>
+      <div class="lbl-row"><label class="lbl">Category</label><button type="button" class="link-btn" id="cat-edit">Edit</button></div>
       <div class="chips" id="cat-chips"></div>
+      <div class="cat-manage" id="cat-manage" hidden>
+        <div id="cat-rows"></div>
+        <form class="cat-add" id="cat-add">
+          <input id="cat-new" type="text" maxlength="40" placeholder="New category" autocomplete="off" />
+          <button type="submit" class="btn">Add</button>
+        </form>
+        <p class="fineprint">Renaming also updates your past entries. Removing a category keeps old entries as they are.</p>
+      </div>
 
       <div class="row2">
         <div>
@@ -91,8 +99,14 @@
         </div>
       </div>
 
+      <div class="batch" id="batch" hidden>
+        <div class="batch-head"><span id="batch-count"></span><span id="batch-total"></span></div>
+        <div id="batch-list"></div>
+      </div>
+
       <div class="actions">
         <button type="button" class="btn primary" id="save">Save</button>
+        <button type="button" class="btn" id="add-another">+ Add another</button>
         <button type="button" class="btn" id="cancel-edit" hidden>Cancel</button>
         <button type="button" class="btn danger" id="delete" hidden>Delete</button>
       </div>
