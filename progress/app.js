@@ -41,10 +41,15 @@ async function loadAll() {
     sb.from("kv_store").select("data").eq("slot_id", VOCAB_SLOT_ID).maybeSingle().then(({ data }) => (data && data.data) || {}),
   ]);
 
-  const d = { habitsActive: habits.filter((h) => !h.archived), vocab: {}, sessions: {}, tasksDone: {}, tasksPlanned: {},
+  const d = { habitsActive: habits.filter((h) => !h.archived), vocab: {}, jp: {}, kana: {}, sessions: {}, tasksDone: {}, tasksPlanned: {},
     tasksDoneList: {}, tasksOpenList: {}, habitDone: {}, spent: {}, expenses: exps.filter((e) => e.kind === "expense"), weights };
 
-  for (const lang of Object.values(kv.langs || {})) for (const [day, n] of Object.entries(lang.activity || {})) d.vocab[day] = (d.vocab[day] || 0) + num(n);
+  // English and Japanese are tracked separately; the kana quiz is its own daily habit
+  for (const [id, lang] of Object.entries(kv.langs || {})) {
+    const into = id === "jp" ? d.jp : d.vocab;
+    for (const [day, n] of Object.entries(lang.activity || {})) into[day] = (into[day] || 0) + num(n);
+  }
+  for (const [day, k] of Object.entries(((kv.langs || {}).jp || {}).kana?.log || {})) d.kana[day] = { n: num(k.n), ok: num(k.ok), goal: num(k.goal) || 10 };
 
   const volBySession = {}, setsBySession = {};
   for (const s of sets) {
@@ -85,23 +90,27 @@ function periodLabel() {
 }
 
 // ---------- per-day facts ----------
-const vocabOn = (d) => num(D.vocab[d]);
+const vocabOn = (d) => num(D.vocab[d]);          // English reviews
+const jpOn = (d) => num(D.jp[d]);                // Japanese reviews
+const kanaN = (d) => (D.kana[d] ? D.kana[d].n : 0);
+const kanaDone = (d) => !!D.kana[d] && D.kana[d].n >= D.kana[d].goal;
 const sessionsOn = (d) => D.sessions[d] || [];
 const customDone = (d) => D.habitsActive.filter((h) => D.habitDone[d] && D.habitDone[d].has(h.id));
-// "Daily habits" = vocab and your own habits. Workout is tracked on its own (rest days are normal).
+// "Daily habits" = English vocab, Japanese vocab, the kana quiz and your own habits. Workout is tracked on its own (rest days are normal).
 function dayHabitPct(d) {
-  const total = 1 + D.habitsActive.length;
-  return ((vocabOn(d) > 0 ? 1 : 0) + customDone(d).length) / total * 100;
+  const total = 3 + D.habitsActive.length;
+  return ((vocabOn(d) > 0 ? 1 : 0) + (jpOn(d) > 0 ? 1 : 0) + (kanaDone(d) ? 1 : 0) + customDone(d).length) / total * 100;
 }
 
 function metrics(days) {
   const past = days.filter((d) => d <= TODAY);
   const m = { habit: past.length ? past.reduce((s, d) => s + dayHabitPct(d), 0) / past.length : 0,
-    tasksDone: 0, tasksPlanned: 0, sessions: 0, volume: 0, vocab: 0, vocabDays: 0, spent: 0 };
+    tasksDone: 0, tasksPlanned: 0, sessions: 0, volume: 0, vocab: 0, vocabDays: 0, jp: 0, jpDays: 0, spent: 0 };
   for (const d of days) {
     m.tasksDone += num(D.tasksDone[d]); m.tasksPlanned += (D.tasksPlanned[d] || []).length;
     for (const s of sessionsOn(d)) { m.sessions++; m.volume += s.volume; }
     m.vocab += vocabOn(d); if (vocabOn(d) > 0) m.vocabDays++;
+    m.jp += jpOn(d); if (jpOn(d) > 0) m.jpDays++;
     m.spent += num(D.spent[d]);
   }
   return m;
@@ -133,7 +142,8 @@ function renderTiles(m, p, r) {
     tile("Tasks done", String(m.tasksDone), `of ${m.tasksPlanned} planned`, delta(m.tasksDone, p.tasksDone, r.prevLabel),
       { value: Math.min(m.tasksDone, m.tasksPlanned), total: m.tasksPlanned || 1, big: "", aria: `${m.tasksDone} of ${m.tasksPlanned} tasks` }),
     tile("Workouts", String(m.sessions), `${m.volume.toLocaleString()} kg lifted`, delta(m.sessions, p.sessions, r.prevLabel)),
-    tile("Vocab reviews", m.vocab.toLocaleString(), `${m.vocabDays} active day${m.vocabDays === 1 ? "" : "s"}`, delta(m.vocab, p.vocab, r.prevLabel)),
+    tile("English reviews", m.vocab.toLocaleString(), `${m.vocabDays} active day${m.vocabDays === 1 ? "" : "s"}`, delta(m.vocab, p.vocab, r.prevLabel)),
+    tile("Japanese reviews", m.jp.toLocaleString(), `${m.jpDays} active day${m.jpDays === 1 ? "" : "s"}`, delta(m.jp, p.jp, r.prevLabel)),
     tile("Spent", money(m.spent), "expenses only", delta(m.spent, p.spent, r.prevLabel, "", false)));
 }
 
@@ -143,7 +153,9 @@ function renderDetail(d) {
   const row = (on, what, info) => el("div", { class: "drow" + (on ? " on" : "") }, el("span", { class: "mark" }, on ? "✓" : "○"), el("span", { class: "what" }, what), el("span", { class: "info" }, info || ""));
   const card = el("div", { class: "detail" });
   const ss = sessionsOn(d);
-  card.append(row(vocabOn(d) > 0, "Vocab", vocabOn(d) ? `${vocabOn(d)} reviewed` : "none"));
+  card.append(row(vocabOn(d) > 0, "English vocab", vocabOn(d) ? `${vocabOn(d)} reviewed` : "none"));
+  card.append(row(jpOn(d) > 0, "Japanese vocab", jpOn(d) ? `${jpOn(d)} reviewed` : "none"));
+  card.append(row(kanaDone(d), "Kana quiz", D.kana[d] ? `${D.kana[d].ok}/${D.kana[d].n} correct` : "none"));
   card.append(row(ss.length > 0, "Workout", ss.length ? ss.map((s) => `${s.category || "Session"} · ${s.volume.toLocaleString()} kg`).join("; ") : "rest day"));
   D.habitsActive.forEach((h) => card.append(row(!!(D.habitDone[d] && D.habitDone[d].has(h.id)), h.name)));
   (D.tasksDoneList[d] || []).forEach((t) => card.append(row(true, t.title, "task")));
@@ -175,7 +187,7 @@ function renderCharts(r) {
     const { host, c } = card("Habit scorecard", `Days you did each one · ${scope}`, true);
     host.className = "scorecard";
     const items = [
-      { label: "Vocab", on: (d) => vocabOn(d) > 0 },
+      { label: "English", on: (d) => vocabOn(d) > 0 }, { label: "Japanese", on: (d) => jpOn(d) > 0 }, { label: "Kana quiz", on: kanaDone },
       { label: "Workout", on: (d) => sessionsOn(d).length > 0 }, { label: "Tasks", on: (d) => num(D.tasksDone[d]) > 0 },
       ...D.habitsActive.map((h) => ({ label: h.name, on: (d) => !!(D.habitDone[d] && D.habitDone[d].has(h.id)) })),
     ];
@@ -193,7 +205,9 @@ function renderCharts(r) {
   {
     const { host, c } = card("Consistency", `Which habits you hit each day · ${scope}`, true);
     const rowsDef = [
-      { label: "Vocab", on: (d) => vocabOn(d) > 0, tip: (d) => (vocabOn(d) ? `${vocabOn(d)} reviewed · ${long(d)}` : `Not done · ${long(d)}`) },
+      { label: "English", on: (d) => vocabOn(d) > 0, tip: (d) => (vocabOn(d) ? `${vocabOn(d)} reviewed · ${long(d)}` : `Not done · ${long(d)}`) },
+      { label: "Japanese", on: (d) => jpOn(d) > 0, tip: (d) => (jpOn(d) ? `${jpOn(d)} reviewed · ${long(d)}` : `Not done · ${long(d)}`) },
+      { label: "Kana quiz", on: kanaDone, tip: (d) => (D.kana[d] ? `${D.kana[d].ok}/${D.kana[d].n} correct · ${long(d)}` : `Not done · ${long(d)}`) },
       { label: "Workout", on: (d) => sessionsOn(d).length > 0, tip: (d) => (sessionsOn(d).length ? `${sessionsOn(d)[0].category || "Session"} · ${long(d)}` : `Rest · ${long(d)}`) },
       { label: "Tasks", on: (d) => num(D.tasksDone[d]) > 0, tip: (d) => `${num(D.tasksDone[d])} completed · ${long(d)}` },
       ...D.habitsActive.map((h) => ({ label: h.name, on: (d) => !!(D.habitDone[d] && D.habitDone[d].has(h.id)), tip: (d) => `${D.habitDone[d] && D.habitDone[d].has(h.id) ? "Done" : "Not done"} · ${long(d)}` })),
@@ -236,9 +250,19 @@ function renderCharts(r) {
   {
     const vals = days.map((d) => vocabOn(d));
     const total = vals.reduce((a, b) => a + b, 0);
-    const { host, c } = card("Vocab reviews", `${total.toLocaleString()} cards reviewed · ${scope}`);
+    const { host, c } = card("English reviews", `${total.toLocaleString()} cards reviewed · ${scope}`);
     Charts.bar(host, { values: vals, xTick, highlight: hl, tipTitle: (i) => long(days[i]), tipValue: (i) => `${vals[i]} reviewed` });
     c.append(Charts.table(["Day", "Reviews"], days.map((d, i) => [long(d), vals[i]])));
+  }
+  {
+    const vals = days.map((d) => jpOn(d)), kv2 = days.map((d) => kanaN(d));
+    const total = vals.reduce((a, b) => a + b, 0), kt = kv2.reduce((a, b) => a + b, 0);
+    const { host, c } = card("Japanese reviews", `${total.toLocaleString()} cards reviewed · ${scope}`);
+    Charts.bar(host, { values: vals, xTick, highlight: hl, tipTitle: (i) => long(days[i]), tipValue: (i) => `${vals[i]} reviewed` });
+    c.append(Charts.table(["Day", "Reviews"], days.map((d, i) => [long(d), vals[i]])));
+    const k = card("Kana quiz", `${kt.toLocaleString()} questions answered · ${scope}`);
+    Charts.bar(k.host, { values: kv2, xTick, highlight: hl, tipTitle: (i) => long(days[i]), tipValue: (i) => `${kv2[i]} answered${D.kana[days[i]] ? `, ${D.kana[days[i]].ok} right` : ""}` });
+    k.c.append(Charts.table(["Day", "Answered"], days.map((d, i) => [long(d), kv2[i]])));
   }
 
   // 7. spending

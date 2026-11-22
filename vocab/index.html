@@ -322,6 +322,12 @@
     border-left: 2px solid var(--rule);
     line-height: 1.55;
   }
+  .kana-scope { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .kana-card { text-align: center; }
+  .kana-glyph { font-family: var(--jp-serif, var(--serif)); font-size: clamp(88px, 22vw, 150px); line-height: 1.1; margin-top: 6px; }
+  .kana-kind { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .kana-card .kana-quiz-row { justify-content: center; }
+  .kana-card .kana-quiz-in { max-width: 260px; text-align: center; }
   .kana-quiz { margin: 14px 0 6px; }
   .kana-quiz-row { display: flex; gap: 8px; margin-top: 8px; }
   .kana-quiz-in { flex: 1; min-width: 0; font-size: 20px; padding: 10px 12px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper); color: var(--ink); font-family: var(--jp-serif, var(--serif)); }
@@ -1141,7 +1147,7 @@
       <button class="theme-toggle" id="themeToggle" title="Toggle theme">◐ Theme</button>
       <div class="foot-stats" style="font-family: var(--mono); font-size: 10.5px; color: var(--faint); padding: 6px 8px; letter-spacing:.08em; line-height: 1.7;">
         Streak <span id="streak" style="color: var(--ink-2)">0</span><br>
-        Reviewed <span id="today-count" style="color: var(--ink-2)">0</span><span id="triage-foot"> · Triaged <span id="triage-today-count" style="color: var(--ink-2)">0</span></span><br>
+        Reviewed <span id="today-count" style="color: var(--ink-2)">0</span><span id="triage-foot"></span><br>
         <span id="sync-dot" style="color: var(--accent);"></span>
       </div>
     </div>
@@ -1176,9 +1182,9 @@ const BOX_LABELS = ["Inbox", "3-day", "Weekly", "3-week", "6-week", "2-month"];
 // its own progress, and its own streak — switching languages just repoints
 // every view at a different slice of `state.langs`.
 const LANGS = {
-  en: { id: "en", label: "English",  short: "EN", seedId: "seed-data-en", hasTwisters: true, hasTriage: true,
+  en: { id: "en", label: "English",  short: "EN", seedId: "seed-data-en", hasTwisters: true, hasTriage: true, hasKana: false,
         brand: "Loanword Desk", brandNative: "", tagline: "A study bench" },
-  jp: { id: "jp", label: "日本語",    short: "JP", seedId: "seed-data-jp", hasTwisters: false, hasTriage: false,
+  jp: { id: "jp", label: "日本語",    short: "JP", seedId: "seed-data-jp", hasTwisters: false, hasTriage: false, hasKana: true,
         brand: "Kotoba Desk", brandNative: "言葉デスク", tagline: "Japanese study bench" },
 };
 
@@ -1401,6 +1407,54 @@ function dayHash(s) {
 }
 // Session-scoped set of skipped card ids. Cleared on reload — a skip only
 // pushes a card out of *this* sitting, not out of the day.
+// =========================================================================
+// Kana quiz — hiragana + katakana reading, KANA_BUDGET questions a day
+// =========================================================================
+const KANA_BUDGET = 10;
+const KANA_ROWS = [  // [hiragana, romaji, other accepted spellings…]
+  ["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"],
+  ["さ","sa"],["し","shi","si"],["す","su"],["せ","se"],["そ","so"],["た","ta"],["ち","chi","ti"],["つ","tsu","tu"],["て","te"],["と","to"],
+  ["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"],["は","ha"],["ひ","hi"],["ふ","fu","hu"],["へ","he"],["ほ","ho"],
+  ["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"],["や","ya"],["ゆ","yu"],["よ","yo"],
+  ["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"],["わ","wa"],["を","wo","o"],["ん","n","nn"],
+  ["が","ga"],["ぎ","gi"],["ぐ","gu"],["げ","ge"],["ご","go"],["ざ","za"],["じ","ji","zi"],["ず","zu"],["ぜ","ze"],["ぞ","zo"],
+  ["だ","da"],["で","de"],["ど","do"],["ば","ba"],["び","bi"],["ぶ","bu"],["べ","be"],["ぼ","bo"],["ぱ","pa"],["ぴ","pi"],["ぷ","pu"],["ぺ","pe"],["ぽ","po"],
+];
+const toKata = (h) => h.replace(/[\u3041-\u3096]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60));
+const KANA_ALL = KANA_ROWS.flatMap(([h, ...r]) => [{ ch: h, script: "hira", ans: r }, { ch: toKata(h), script: "kata", ans: r }]);
+let kanaScope = "both";            // "both" | "hira" | "kata" (in-memory)
+let kanaCur = null;                // { item, result: null | { ok, typed } }
+function kanaData() {
+  const l = L(); l.kana = l.kana || { log: {}, stats: {} };
+  l.kana.log = l.kana.log || {}; l.kana.stats = l.kana.stats || {};
+  return l.kana;
+}
+function kanaToday() {
+  const k = kanaData(), t = today();
+  if (!k.log[t]) k.log[t] = { n: 0, ok: 0, goal: KANA_BUDGET };
+  return k.log[t];
+}
+const kanaDoneToday = () => { const r = kanaData().log[today()]; return r ? r.n : 0; };
+const kanaBudgetToday = () => { const r = kanaData().log[today()]; return r ? r.goal : KANA_BUDGET; };
+// weighted pick: unseen and often-missed characters come up more
+function pickKana() {
+  const k = kanaData(), pool = KANA_ALL.filter((i) => kanaScope === "both" || i.script === kanaScope);
+  const weight = (i) => { const s = k.stats[i.ch]; return !s || !s.seen ? 3 : 1 + 3 * (1 - (s.ok || 0) / s.seen); };
+  const prev = kanaCur && kanaCur.item.ch;
+  const cand = pool.filter((i) => i.ch !== prev);
+  let r = Math.random() * cand.reduce((t, i) => t + weight(i), 0);
+  for (const i of cand) { r -= weight(i); if (r <= 0) return i; }
+  return cand[cand.length - 1];
+}
+function answerKana(typed) {
+  const it = kanaCur.item, t = typed.trim().toLowerCase().replace(/\s+/g, "");
+  const ok = it.ans.includes(t);
+  const k = kanaData(), rec = kanaToday(), st = (k.stats[it.ch] = k.stats[it.ch] || { seen: 0, ok: 0 });
+  rec.n++; if (ok) rec.ok++; st.seen++; if (ok) st.ok++;
+  kanaCur.result = { ok, typed: typed.trim() };
+  saveState(); render();      // kana answers are tracked on their own — not Japanese reviews
+}
+
 const _triageSkipped = new Set();
 
 // Full unfilled list from both words and phrases — used for accurate counts.
@@ -2397,7 +2451,9 @@ views.daily = () => {
   const budgetTri   = triageBudgetToday();
   const hasTwisters = LANGS[state.currentLang].hasTwisters;
   const hasTriage   = LANGS[state.currentLang].hasTriage;
+  const hasKana     = LANGS[state.currentLang].hasKana;
   if (dailySubMode === "triage" && !hasTriage) dailySubMode = "overview";
+  if (dailySubMode === "kana" && !hasKana) dailySubMode = "overview";
 
   // If this language has no Twister tab and we're somehow parked on it
   // (e.g. left there before switching languages), fall back to Overview.
@@ -2409,6 +2465,7 @@ views.daily = () => {
     dailySubMode === "overview" ? "Your desk today" :
     dailySubMode === "review"   ? "Today's review" :
     dailySubMode === "triage"   ? "New words" :
+    dailySubMode === "kana"     ? "Kana quiz" :
     dailySubMode === "twister"  ? "Tongue twister" : "Daily"));
 
   // Sub-tab bar
@@ -2423,14 +2480,59 @@ views.daily = () => {
   bar.appendChild(mkTab("overview", "Overview"));
   bar.appendChild(mkTab("review",   "Review",     dueCount > 0 ? String(dueCount) : null));
   if (hasTriage) bar.appendChild(mkTab("triage",   "New words",  `${doneTri}/${budgetTri}`));
+  if (hasKana) bar.appendChild(mkTab("kana", "Kana quiz", `${kanaDoneToday()}/${kanaBudgetToday()}`));
   if (hasTwisters) bar.appendChild(mkTab("twister", "Twister"));
   stage.appendChild(bar);
 
   // Dispatch to the sub-view
   if (dailySubMode === "review")  return views.today();
   if (dailySubMode === "triage")  return views.triage();
+  if (dailySubMode === "kana" && hasKana) return views.kana();
   if (dailySubMode === "twister" && hasTwisters) return views.twisters();
   return views.overview();
+};
+
+// -------- Kana quiz (Japanese only) --------
+views.kana = () => {
+  const done = kanaDoneToday(), budget = kanaBudgetToday(), rec = kanaData().log[today()];
+  stage.appendChild(el("p", {class:"lede"}, done >= budget && !(kanaCur && kanaCur.result)
+    ? "Today's kana quiz is done." : `Type the romaji for each character · ${done}/${budget} today`));
+  const scopeBar = el("div", {class:"kana-scope"});
+  [["both","Both"],["hira","Hiragana"],["kata","Katakana"]].forEach(([id, label]) =>
+    scopeBar.appendChild(el("button", {class:"filter-chip", "aria-pressed": String(kanaScope === id), onclick: () => { kanaScope = id; kanaCur = null; render(); }}, label)));
+  stage.appendChild(scopeBar);
+
+  const finished = done >= budget && !(kanaCur && kanaCur.result);
+  if (finished) {
+    const pct = rec && rec.n ? Math.round(rec.ok / rec.n * 100) : 0;
+    stage.appendChild(el("div", {class:"empty-state"},
+      el("h2", {}, "Kana quiz done"),
+      el("p", {}, `${rec ? rec.ok : 0} of ${rec ? rec.n : 0} correct today (${pct}%).`),
+      el("div", {style:"display:flex; gap:8px; justify-content:center; margin-top:14px;"},
+        el("button", {class:"btn primary", onclick: () => { kanaToday().goal += KANA_BUDGET; saveState(); kanaCur = null; render(); }}, `+${KANA_BUDGET} more`),
+        el("button", {class:"btn", onclick: () => { dailySubMode = "overview"; render(); }}, "Back to overview"))));
+    return;
+  }
+  if (!kanaCur) kanaCur = { item: pickKana(), result: null };
+  const it = kanaCur.item, res = kanaCur.result;
+  const card = el("article", {class:"card kana-card"});
+  card.appendChild(el("div", {class:"kana-glyph"}, it.ch));
+  card.appendChild(el("div", {class:"kana-kind"}, it.script === "hira" ? "hiragana" : "katakana"));
+  if (!res) {
+    const inp = el("input", {type:"text", class:"kana-quiz-in", placeholder:"romaji (e.g. ka)", autocomplete:"off", autocapitalize:"off", spellcheck:"false"});
+    const check = () => { if (inp.value.trim()) answerKana(inp.value); else inp.focus(); };
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); check(); } });
+    card.appendChild(el("div", {class:"kana-quiz-row"}, inp, el("button", {class:"btn primary", type:"button", onclick: check}, "Check")));
+    setTimeout(() => inp.focus(), 0);
+  } else {
+    card.appendChild(el("div", {class: "kana-quiz-res " + (res.ok ? "ok" : "bad")},
+      res.ok ? `✓ ${it.ans[0]}` : `✗ You typed "${res.typed}" — it's ${it.ans[0]}`));
+    const next = el("button", {class:"btn primary", type:"button", onclick: () => { kanaCur = null; render(); }},
+      kanaDoneToday() >= kanaBudgetToday() ? "Finish" : "Next");
+    card.appendChild(el("div", {class:"kana-quiz-row"}, next));
+    setTimeout(() => next.focus(), 0);
+  }
+  stage.appendChild(card);
 };
 
 // -------- Overview (Daily → Overview) --------
@@ -2453,7 +2555,7 @@ views.overview = () => {
   );
   const heroRight = el("div", {style: "display: flex; flex-direction: column; gap: 14px;"});
   const hasTriage = LANGS[state.currentLang].hasTriage;
-  const tRow = el("div", {style: `display: grid; grid-template-columns: ${hasTriage ? "1fr 1fr 1fr" : "1fr 1fr"}; gap: 14px;`});
+  const tRow = el("div", {style: "display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;"});
   const miniStat = (num, label, cls) => el("div", {},
     el("div", {
       style: `font-family: var(--serif); font-weight: 400; font-size: 28px; line-height: 1; color: ${cls === "warn" ? "var(--warn)" : "var(--ink)"}; font-variant-numeric: tabular-nums;`
@@ -2466,6 +2568,7 @@ views.overview = () => {
   tRow.appendChild(miniStat(queueLen, "For review", queueLen > 0 ? "warn" : ""));
   tRow.appendChild(miniStat(`${reviewedToday}/${DAILY_BUDGET}`, "Reviewed"));
   if (hasTriage) tRow.appendChild(miniStat(`${triagedToday}/${triageBudgetToday()}`, "Defined"));
+  else tRow.appendChild(miniStat(`${kanaDoneToday()}/${kanaBudgetToday()}`, "Kana quiz"));
   heroRight.appendChild(tRow);
 
   // Quick-action row below the mini stats
@@ -2476,6 +2579,9 @@ views.overview = () => {
   if (hasTriage) qa.appendChild(el("button", {class: "btn",
     onclick: () => { dailySubMode = "triage"; render(); }},
     triageDoneToday() < triageBudgetToday() ? "Define new words" : "Add extra"));
+  if (LANGS[state.currentLang].hasKana) qa.appendChild(el("button", {class: "btn",
+    onclick: () => { dailySubMode = "kana"; render(); }},
+    kanaDoneToday() < kanaBudgetToday() ? "Kana quiz" : "Kana quiz · more"));
   if (LANGS[state.currentLang].hasTwisters) {
     qa.appendChild(el("button", {class: "btn ghost",
       onclick: () => { dailySubMode = "twister"; render(); }}, "Say the twister"));
@@ -3272,8 +3378,9 @@ function updateCounts() {
   if (lib) lib.textContent = s.total || "";
   document.getElementById("streak").textContent     = L().streak || 0;
   document.getElementById("today-count").textContent = L().activity[today()] || 0;
-  document.getElementById("triage-today-count").textContent = triageDoneToday();
-  document.getElementById("triage-foot").hidden = !LANGS[state.currentLang].hasTriage;
+  document.getElementById("triage-foot").innerHTML = LANGS[state.currentLang].hasTriage
+    ? ` · Triaged <span style="color: var(--ink-2)">${triageDoneToday()}</span>`
+    : ` · Kana <span style="color: var(--ink-2)">${kanaDoneToday()}/${kanaBudgetToday()}</span>`;
   updateSyncUI();
 
   for (const b of document.querySelectorAll("#nav button")) {
@@ -3310,7 +3417,11 @@ document.getElementById("themeToggle").addEventListener("click", () => {
 if (state.theme) document.documentElement.setAttribute("data-theme", state.theme);
 document.documentElement.setAttribute("data-lang", state.currentLang);
 // Deep link from Home: vocab/?lang=jp opens the Japanese deck
-{ const q = new URLSearchParams(location.search).get("lang"); if (q && LANGS[q] && q !== state.currentLang) switchLang(q); }
+{
+  const qs = new URLSearchParams(location.search), q = qs.get("lang");
+  if (q && LANGS[q] && q !== state.currentLang) switchLang(q);
+  if (qs.get("tab") === "kana" && LANGS[state.currentLang].hasKana) { currentMode = "daily"; dailySubMode = "kana"; render(); }
+}
 
 // Keyboard shortcuts (review only)
 document.addEventListener("keydown", (e) => {

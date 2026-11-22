@@ -23,7 +23,7 @@ main { padding: 8px var(--page-pad) calc(60px + env(safe-area-inset-bottom)); }
 /* summary tiles */
 .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 @media (min-width: 620px) { .tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 1000px) { .tiles { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
 .tile.has-ring { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; align-items: center; }
 .tile.has-ring .txt { min-width: 0; }
 .tile { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; min-width: 0; }

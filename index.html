@@ -259,10 +259,11 @@
     const CORE = [
       { key: "vocab",   name: "Vocab",           href: "vocab/",   cta: "Review" },
       { key: "japanese", name: "Japanese",       href: "vocab/?lang=jp", cta: "Study" },
+      { key: "kana",     name: "Kana quiz",      href: "vocab/?lang=jp&tab=kana", cta: "Start" },
       { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
       { key: "expenses", name: "Daily expenses",  href: "expenses/", cta: "Log" },
     ];
-    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, jpAct: {}, habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
+    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, jpAct: {}, kanaDays: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
     const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
@@ -356,7 +357,7 @@
     function habitPct(d) {
       const ids = new Set(state.custom.map((h) => h.id)), logged = state.habitLogByDay[d] || new Set();
       let custom = 0; logged.forEach((id) => { if (ids.has(id)) custom++; });
-      return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + (state.expDays.has(d) ? 1 : 0) + ((state.jpAct[d] || 0) > 0 ? 1 : 0) + custom) / (3 + state.custom.length) * 100);
+      return Math.round((((state.vocabAct[d] || 0) > 0 ? 1 : 0) + (state.expDays.has(d) ? 1 : 0) + ((state.jpAct[d] || 0) > 0 ? 1 : 0) + (state.kanaDays.has(d) ? 1 : 0) + custom) / (4 + state.custom.length) * 100);
     }
     // up/down arrow + colour; `goodUp` says whether a rise is good news (spending: no)
     function deltaOf(now, prev, goodUp = true, unit = "", fmtNum = (v) => Math.round(v * 10) / 10) {
@@ -496,6 +497,11 @@
       const cards = [].concat(l.words || [], l.phrases || []);
       const due = cards.filter((c) => c.box >= 1 && c.due && c.due <= TODAY).length, fresh = cards.filter((c) => c.box === 0).length;
       const done = (act[TODAY] || 0) > 0;
+      const klog = (l.kana && l.kana.log) || {}, kdays = new Set(), kr = klog[TODAY];
+      Object.entries(klog).forEach(([d, k]) => { if (k && k.n >= (k.goal || 10)) kdays.add(d); });
+      state.kanaDays = kdays;
+      state.core.kana = { done: kdays.has(TODAY), streak: streakOf(kdays),
+        sub: kdays.has(TODAY) ? `${kr.ok}/${kr.n} correct today` : kr && kr.n ? `${kr.n}/${kr.goal || 10} answered` : "10 questions · hiragana & katakana" };
       state.core.japanese = { done, streak: streakOf(days),
         sub: done ? `${act[TODAY]} studied today${due ? ` · ${due} still due` : ""}` : (due ? `${due} due for review` : (fresh ? `${fresh} new cards to learn` : "Add some words")) };
     }
