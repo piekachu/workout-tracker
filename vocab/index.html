@@ -323,6 +323,14 @@
     line-height: 1.55;
   }
   .kana-scope { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+  .kt-h { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 22px 0 8px; font-weight: 400; }
+  .kt-grid { display: grid; gap: 6px; }
+  .kt-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 2px; min-height: 64px; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius); color: var(--ink); cursor: pointer; font: inherit; }
+  .kt-cell:active { transform: scale(.97); }
+  .kt-cell.good { border-color: var(--accent); }
+  .kt-cell.weak { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 10%, var(--paper)); }
+  .kt-ch { font-family: var(--jp-serif, var(--serif)); font-size: clamp(18px, 4.6vw, 26px); line-height: 1.2; white-space: nowrap; }
+  .kt-ro { font-family: var(--mono); font-size: 11px; color: var(--muted); }
   .kana-card { text-align: center; }
   .kana-glyph { font-family: var(--jp-serif, var(--serif)); font-size: clamp(88px, 22vw, 150px); line-height: 1.1; margin-top: 6px; }
   .kana-kind { font-family: var(--mono); font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
@@ -2453,7 +2461,7 @@ views.daily = () => {
   const hasTriage   = LANGS[state.currentLang].hasTriage;
   const hasKana     = LANGS[state.currentLang].hasKana;
   if (dailySubMode === "triage" && !hasTriage) dailySubMode = "overview";
-  if (dailySubMode === "kana" && !hasKana) dailySubMode = "overview";
+  if ((dailySubMode === "kana" || dailySubMode === "kanatable") && !hasKana) dailySubMode = "overview";
 
   // If this language has no Twister tab and we're somehow parked on it
   // (e.g. left there before switching languages), fall back to Overview.
@@ -2466,6 +2474,7 @@ views.daily = () => {
     dailySubMode === "review"   ? "Today's review" :
     dailySubMode === "triage"   ? "New words" :
     dailySubMode === "kana"     ? "Kana quiz" :
+    dailySubMode === "kanatable" ? "Kana table" :
     dailySubMode === "twister"  ? "Tongue twister" : "Daily"));
 
   // Sub-tab bar
@@ -2481,6 +2490,7 @@ views.daily = () => {
   bar.appendChild(mkTab("review",   "Review",     dueCount > 0 ? String(dueCount) : null));
   if (hasTriage) bar.appendChild(mkTab("triage",   "New words",  `${doneTri}/${budgetTri}`));
   if (hasKana) bar.appendChild(mkTab("kana", "Kana quiz", `${kanaDoneToday()}/${kanaBudgetToday()}`));
+  if (hasKana) bar.appendChild(mkTab("kanatable", "Kana table"));
   if (hasTwisters) bar.appendChild(mkTab("twister", "Twister"));
   stage.appendChild(bar);
 
@@ -2488,8 +2498,49 @@ views.daily = () => {
   if (dailySubMode === "review")  return views.today();
   if (dailySubMode === "triage")  return views.triage();
   if (dailySubMode === "kana" && hasKana) return views.kana();
+  if (dailySubMode === "kanatable" && hasKana) return views.kanaTable();
   if (dailySubMode === "twister" && hasTwisters) return views.twisters();
   return views.overview();
+};
+
+// -------- Kana table (Japanese only) --------
+const KT_BASE = [["あ","い","う","え","お"],["か","き","く","け","こ"],["さ","し","す","せ","そ"],["た","ち","つ","て","と"],["な","に","ぬ","ね","の"],
+  ["は","ひ","ふ","へ","ほ"],["ま","み","む","め","も"],["や",null,"ゆ",null,"よ"],["ら","り","る","れ","ろ"],["わ",null,null,null,"を"],["ん"]];
+const KT_VOICED = [["が","ぎ","ぐ","げ","ご"],["ざ","じ","ず","ぜ","ぞ"],["だ","ぢ","づ","で","ど"],["ば","び","ぶ","べ","ぼ"],["ぱ","ぴ","ぷ","ぺ","ぽ"]];
+const KT_YOON = [["き","ky"],["し","sh"],["ち","ch"],["に","ny"],["ひ","hy"],["み","my"],["り","ry"],["ぎ","gy"],["じ","j"],["び","by"],["ぴ","py"]];
+const KT_ROMAJI = Object.assign({ "ぢ": "ji", "づ": "zu" }, Object.fromEntries(KANA_ROWS.map(([h, r]) => [h, r])));
+let kanaTableScope = "both";   // "both" | "hira" | "kata"
+function speakJa(t) {
+  try { const u = new SpeechSynthesisUtterance(t); u.lang = "ja-JP"; u.rate = 0.8; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch {}
+}
+views.kanaTable = () => {
+  stage.appendChild(el("p", {class:"lede"}, "Tap a character to hear it. Colour shows how you're doing in the kana quiz."));
+  const bar = el("div", {class:"kana-scope"});
+  [["both","Both"],["hira","Hiragana"],["kata","Katakana"]].forEach(([id, label]) =>
+    bar.appendChild(el("button", {class:"filter-chip", "aria-pressed": String(kanaTableScope === id), onclick: () => { kanaTableScope = id; render(); }}, label)));
+  stage.appendChild(bar);
+  const stats = (kanaData().stats) || {};
+  const cell = (h, rom, text) => {
+    const st = stats[h], acc = st && st.seen ? st.ok / st.seen : null;
+    const cls = "kt-cell" + (acc == null ? "" : acc >= 0.8 ? " good" : " weak");
+    const glyph = kanaTableScope === "hira" ? h : kanaTableScope === "kata" ? toKata(h) : h + " " + toKata(h);
+    return el("button", {class: cls, type:"button", title: acc == null ? "" : `${st.ok}/${st.seen} correct`,
+      onclick: () => speakJa(text || h)}, el("span", {class:"kt-ch"}, glyph), el("span", {class:"kt-ro"}, rom));
+  };
+  const section = (title, cols, rows) => {
+    stage.appendChild(el("h3", {class:"kt-h"}, title));
+    const grid = el("div", {class:"kt-grid", style:`grid-template-columns: repeat(${cols}, minmax(0, 1fr));`});
+    rows.forEach((row) => { for (let i = 0; i < cols; i++) grid.appendChild(row[i] ? row[i] : el("div", {class:"kt-gap"})); });
+    stage.appendChild(grid);
+  };
+  const letters = (r) => r.map((h) => (h ? cell(h, KT_ROMAJI[h]) : null));
+  section("Basic", 5, KT_BASE.map((r) => letters([...r, null, null, null, null].slice(0, 5))));
+  section("Voiced (dakuten ゛ and handakuten ゜)", 5, KT_VOICED.map(letters));
+  section("Combined sounds (yōon)", 3, KT_YOON.map(([h, pre]) => ["a","u","o"].map((v, i) => {
+    const small = ["ゃ","ゅ","ょ"][i], rom = pre + v, text = h + small;
+    const st = null, glyph = kanaTableScope === "hira" ? text : kanaTableScope === "kata" ? toKata(text) : text + " " + toKata(text);
+    return el("button", {class:"kt-cell", type:"button", onclick: () => speakJa(text)}, el("span", {class:"kt-ch"}, glyph), el("span", {class:"kt-ro"}, rom));
+  })));
 };
 
 // -------- Kana quiz (Japanese only) --------
