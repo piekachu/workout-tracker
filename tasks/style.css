@@ -319,3 +319,7 @@ textarea { resize: vertical; }
 .add-row { flex-wrap: wrap; }
 .add-row input { flex: 1 1 160px; }
 .pc-actions .pt-btn { white-space: nowrap; }
+
+.row2 { align-items: end; }
+.row2 label > span:first-child { white-space: nowrap; }
+.sheet-actions .kebab { width: 44px; height: 44px; border: 1px solid var(--border); background: var(--surface); }

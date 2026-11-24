@@ -95,7 +95,7 @@ const MAX_DEPTH = 3;
 let idx = new Map(), kidMap = new Map();
 function reindex() {
   idx = new Map(tasks.map((t) => [t.id, t])); kidMap = new Map();
-  for (const t of [...tasks].sort((x, y) => x.id - y.id)) if (t.parent_id) (kidMap.get(t.parent_id) || kidMap.set(t.parent_id, []).get(t.parent_id)).push(t);
+  for (const t of [...tasks].sort((x, y) => ((x.sort_order ?? 1e15) - (y.sort_order ?? 1e15)) || x.id - y.id)) if (t.parent_id) (kidMap.get(t.parent_id) || kidMap.set(t.parent_id, []).get(t.parent_id)).push(t);
 }
 const kids = (t) => kidMap.get(t.id) || [];
 const parentOf = (t) => (t.parent_id ? idx.get(t.parent_id) || null : null);
@@ -121,6 +121,7 @@ async function load() {
 function sorted(list) {
   return [...list].sort((a, b) =>
     (!!a.done_at - !!b.done_at) ||
+    ((a.sort_order ?? 1e15) - (b.sort_order ?? 1e15)) ||
     ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) ||
     (a.id - b.id));
 }
@@ -138,7 +139,8 @@ function taskRow(t, opts = {}) {
   if (t.start_time) bits.push(hhmm(t.start_time) + (endOf(t) ? "–" + endOf(t) : ""));
   if (t.recur) bits.push("↻ " + t.recur);
   if (isMulti(t)) { bits.push(`${fmt(t.period_start, { month: "short", day: "numeric" })} → ${fmt(endDate(t), { month: "short", day: "numeric" })}`); const d = !t.done_at && dleft(t); if (d) bits.push(d.text); }
-  const row = el("div", { class: `task${t.done_at ? " done" : ""}${colorClass(t)}`, ...colorStyle(t) },
+  const row = el("div", { class: `task${t.done_at ? " done" : ""}${colorClass(t)}`, "data-id": String(t.id), ...colorStyle(t) },
+    opts.drag && !t.done_at ? el("button", { class: "drag-h", type: "button", tabindex: "-1", "aria-label": "Drag to reorder", title: "Drag to reorder" }, "⋮⋮") : null,
     el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : hasKids ? "Done when all sub-tasks are done" : "Mark done",
       onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
     el("button", { class: "main", type: "button", onclick: () => openSheet(t) },
@@ -150,13 +152,28 @@ function taskRow(t, opts = {}) {
 function group(title, rows, opts = {}) {
   const head = el("div", { class: "group-title" + (opts.today ? " today" : "") }, el("span", {}, title),
     opts.action ? el("button", { type: "button", onclick: opts.action.fn }, opts.action.label) : null);
-  return el("section", { class: "group" }, head, ...(rows.length ? rows : [el("div", { class: "empty" }, opts.empty || "Nothing here")]));
+  const sec = el("section", { class: "group" }, head, ...(rows.length ? rows : [el("div", { class: "empty" }, opts.empty || "Nothing here")]));
+  if (opts.reorder) UI.reorder(sec, { item: ".task", onDrop: (ids) => saveOrder(ids) });
+  return sec;
+}
+// persist a manual order: sort_order = position in the list
+async function saveOrder(ids) {
+  const byId = new Map(tasks.map((x) => [String(x.id), x])), jobs = [];
+  ids.forEach((id, i) => { const x = byId.get(id), v = (i + 1) * 10; if (x && x.sort_order !== v) { x.sort_order = v; jobs.push(sb.from("tasks").update({ sort_order: v }).eq("id", x.id)); } });
+  const res = await Promise.all(jobs);
+  if (res.some((r) => r.error)) toast("Couldn't save the order");
+  render();
+}
+async function moveSibling(t, dir) {
+  const sibs = t.parent_id ? kids(parentOf(t)) : [], i = sibs.indexOf(t), j = i + dir;
+  if (i < 0 || j < 0 || j >= sibs.length) return toast(dir < 0 ? "Already first" : "Already last");
+  const ids = sibs.map((x) => String(x.id)); [ids[i], ids[j]] = [ids[j], ids[i]];
+  await saveOrder(ids);
 }
 
 function syncPasteUi() {
   const b = document.getElementById("add-paste"); if (!b) return;
   b.hidden = !canPaste(null); if (clip) b.textContent = "Paste";
-  const f = document.getElementById("f-paste"); if (f) f.hidden = !(editing && canPaste(editing));
 }
 function render() {
   syncPasteUi();
@@ -189,7 +206,7 @@ function renderDay(c) {
     const overdue = sorted(tasks.filter((t) => t.period_start && endDate(t) < TODAY && !t.done_at));
     if (overdue.length) c.append(group("Overdue", overdue.map((t) => taskRow(t, { moveToToday: true })), {}));
   }
-  c.append(group("Day", startingOn(anchor).map((t) => taskRow(t)), { today: anchor === TODAY, empty: "Nothing planned — add something below." }));
+  c.append(group("Day", startingOn(anchor).map((t) => taskRow(t, { drag: true })), { today: anchor === TODAY, reorder: true, empty: "Nothing planned — add something below." }));
   const ongoing = ongoingOn(anchor);
   if (ongoing.length) c.append(group("Ongoing", ongoing.map((t) => taskRow(t))));
   // next waiting sub-task of each open task, one tap to pull it into this day
@@ -347,10 +364,14 @@ function nodeRow(t, depth) {
     el("button", { class: "pt-title", type: "button", onclick: () => openSheet(t) }, t.title),
     el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t)].filter(Boolean).join(" · ")),
     dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null,
-    !hasKids && !t.done_at && t.period_start !== TODAY ? el("button", { class: "pt-btn", type: "button", onclick: () => schedule(t, TODAY) }, "→ Today") : null,
-    el("button", { class: "pt-btn", type: "button", "aria-label": "Copy with sub-tasks", title: "Copy", onclick: () => copyTask(t) }, "⧉"),
-    canPaste(t) ? el("button", { class: "pt-btn", type: "button", "aria-label": "Paste as sub-task", title: "Paste as sub-task", onclick: () => pasteTask(t) }, "⇩") : null,
-    depth < MAX_DEPTH ? el("button", { class: "pt-btn", type: "button", "aria-label": "Add sub-task", onclick: () => { addingUnder = addingUnder === t.id ? null : t.id; render(); } }, "＋") : null);
+    UI.kebab(() => [
+      !hasKids && !t.done_at && t.period_start !== TODAY ? { label: "Move to today", fn: () => schedule(t, TODAY) } : null,
+      depth < MAX_DEPTH ? { label: "Add sub-task", fn: () => { addingUnder = t.id; collapsed.delete(t.id); render(); } } : null,
+      { label: "Move up", fn: () => moveSibling(t, -1) }, { label: "Move down", fn: () => moveSibling(t, 1) },
+      { label: "Copy", fn: () => copyTask(t) },
+      canPaste(t) ? { label: "Paste inside", fn: () => pasteTask(t) } : null,
+      { label: "Edit", fn: () => openSheet(t) },
+      { label: "Delete", danger: true, fn: () => deleteTree(t) }], `Actions for "${t.title}"`));
   return row;
 }
 function addBox(parent, depth) {
@@ -379,9 +400,12 @@ function nestedCard(r) {
     el("div", { class: "pc-stats" }, stats),
     el("div", { class: "pc-actions" },
       next ? el("button", { type: "button", class: "pt-btn solid", onclick: () => schedule(next, TODAY) }, "Plan next → today") : null,
-      el("button", { type: "button", class: "pt-btn", onclick: () => { addingUnder = addingUnder === r.id ? null : r.id; collapsed.delete(r.id); render(); } }, "＋ Sub-task"),
-      el("button", { type: "button", class: "pt-btn", onclick: () => copyTask(r) }, "Copy"),
-      canPaste(r) ? el("button", { type: "button", class: "pt-btn", onclick: () => pasteTask(r) }, "Paste inside") : null));
+      UI.kebab(() => [
+        { label: "Add sub-task", fn: () => { addingUnder = r.id; collapsed.delete(r.id); render(); } },
+        { label: "Copy", fn: () => copyTask(r) },
+        canPaste(r) ? { label: "Paste inside", fn: () => pasteTask(r) } : null,
+        { label: "Edit", fn: () => openSheet(r) },
+        { label: "Delete", danger: true, fn: () => deleteTree(r) }], `Actions for "${r.title}"`)));
   if (open) {
     const body = el("div", { class: "pc-body" });
     if (addingUnder === r.id) body.append(addBox(r, 1));
@@ -598,13 +622,11 @@ async function pasteTask(parent) {
   if (parent) await syncUp({ id: -1, parent_id: parent.id });
   toast(failed ? "Couldn't paste everything" : `Pasted ${made} task${made === 1 ? "" : "s"}`);
 }
-$("f-copy").addEventListener("click", () => { const t = editing; if (t) copyTask(t); });
-$("f-paste").addEventListener("click", async () => { const t = editing; if (!t) return; await pasteTask(t); renderKidsList(t); });
+$("f-more-host").append(UI.kebab(() => [
+  { label: "Copy", fn: () => editing && copyTask(editing) },
+  editing && canPaste(editing) ? { label: "Paste inside", fn: async () => { const t = editing; if (t) { await pasteTask(t); renderKidsList(t); } } } : null,
+  { label: "Delete", danger: true, fn: () => { const t = editing; if (t) { closeSheet(); deleteTree(t); } } }], "More actions"));
 $("add-paste").addEventListener("click", () => pasteTask(null));
-$("f-delete").addEventListener("click", async () => {
-  const t = editing; if (!t) return;
-  closeSheet(); await deleteTree(t);
-});
 
 // ---------- navigation ----------
 function step(dir) {
