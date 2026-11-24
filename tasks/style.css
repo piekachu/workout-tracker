@@ -312,3 +312,12 @@ textarea { resize: vertical; }
 .row2 { align-items: end; }
 .row2 label > span:first-child { white-space: nowrap; }
 .sheet-actions .kebab { width: 44px; height: 44px; border: 1px solid var(--border); background: var(--surface); }
+
+/* Subtasks view: one column per task, scrolling sideways */
+#content[data-view="nested"] { display: flex !important; flex-wrap: nowrap; gap: 14px; align-items: flex-start; overflow-x: auto; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; padding: 2px 2px 16px; margin: 0 -2px; }
+#content[data-view="nested"] > .pcard, #content[data-view="nested"] > .group { flex: 0 0 min(330px, 86vw); width: min(330px, 86vw); max-width: none; margin: 0; scroll-snap-align: start; }
+#content[data-view="nested"] > .group { margin-top: 0; padding-left: 4px; border-left: 1px dashed var(--border); }
+#content[data-view="nested"] > .group .pcard { max-width: none; width: 100%; }
+#content[data-view="nested"] > .empty { flex: 1 1 auto; }
+#content[data-view="nested"] .pc-body { max-height: 70vh; overflow-y: auto; }
