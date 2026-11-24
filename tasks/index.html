@@ -23,7 +23,7 @@
           <button type="button" data-view="day">Day</button>
           <button type="button" data-view="week">Week</button>
           <button type="button" data-view="month">Month</button>
-          <button type="button" data-view="projects">Projects</button>
+          <button type="button" data-view="nested">Subtasks</button>
         </div>
         <button type="button" class="tb-btn" id="today-btn">Today</button>
         <button type="button" class="tb-icon" id="prev" aria-label="Previous"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -51,44 +51,26 @@
       <label>Title<input id="f-title" type="text" maxlength="200" required></label>
       <label>Description<textarea id="f-notes" rows="3" placeholder="What is this about? (shown on the Today page too)"></textarea></label>
       <div class="row2">
-        <label>Scope
-          <select id="f-horizon"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select>
+        <label>Start date<input id="f-date" type="date"></label>
+        <label>Duration <span class="opt">optional</span>
+          <span class="dur-field"><input id="f-dur" type="number" inputmode="numeric" min="1" max="3650" step="1" placeholder="e.g. 45">
+            <select id="f-dur-unit" aria-label="Duration unit"><option value="min">minutes</option><option value="hour">hours</option><option value="day">days</option></select></span>
         </label>
-        <label>Date<input id="f-date" type="date"></label>
       </div>
-      <div class="row2">
-        <label>Parent task
-          <select id="f-parent"></select>
-        </label>
-        <label>Starts <span class="opt">optional</span><input id="f-start-on" type="date"></label>
-      </div>
-      <div class="row2">
-        <label>Deadline <span class="opt">optional</span><input id="f-due" type="date"></label>
-        <span></span>
-      </div>
-      <label class="chk" id="f-unsched-row" hidden><input type="checkbox" id="f-unsched"> Not scheduled yet (keep in the project backlog)</label>
+      <div class="dur-chips" id="dur-chips"></div>
+      <div class="end-info" id="f-endinfo" hidden></div>
+      <label class="chk" id="f-unsched-row" hidden><input type="checkbox" id="f-unsched"> Not scheduled yet (keep it as a waiting sub-task)</label>
       <div class="row2" id="f-time-row">
-        <label>Start<input id="f-start" type="time"></label>
-        <label>End<input id="f-end" type="time"></label>
-      </div>
-      <div class="dur-row">
-        <label>Duration <span class="opt">optional, minutes</span>
-          <input id="f-dur" type="number" inputmode="numeric" min="1" max="1440" step="5" placeholder="e.g. 45">
-        </label>
-        <div class="dur-chips" id="dur-chips"><button type="button" data-m="15">15m</button><button type="button" data-m="30">30m</button><button type="button" data-m="60">1h</button><button type="button" data-m="90">1.5h</button><button type="button" data-m="120">2h</button></div>
+        <label>Start time<input id="f-start" type="time"></label>
+        <label>End time<input id="f-end" type="time"></label>
       </div>
       <div class="color-field">
         <span class="lbl">Color</span>
         <div class="swatches" id="f-colors" role="radiogroup" aria-label="Color"></div>
       </div>
-      <div class="row2">
-        <label>Priority
-          <select id="f-priority"><option value="0">Normal</option><option value="1">Medium</option><option value="2">High</option></select>
-        </label>
-        <label>Repeat
-          <select id="f-recur"><option value="">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
-        </label>
-      </div>
+      <label>Repeat
+        <select id="f-recur"><option value="">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
+      </label>
       <div class="kids-wrap" id="f-kids-wrap" hidden>
         <span class="lbl">Sub-tasks</span>
         <div id="f-kids"></div>

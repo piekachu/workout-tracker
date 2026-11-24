@@ -36,16 +36,6 @@
     <section id="log">
       <h2>Log a workout</h2>
 
-      <!-- Session timer: survives reloads; fills start/end time when you save -->
-      <div class="timer" id="timer" aria-label="Workout timer">
-        <div class="timer-time" id="timer-time" role="timer" aria-live="off">0:00</div>
-        <div class="timer-btns">
-          <button type="button" class="btn" id="timer-main">Start timer</button>
-          <button type="button" class="btn-ghost" id="timer-reset" hidden>Reset</button>
-        </div>
-        <div class="timer-note" id="timer-note">Tap start when you begin. Start and end times fill in when you save.</div>
-      </div>
-
       <!-- Any combination of groups: Back + Chest, Legs + Shoulder, … -->
       <p class="step-label">Today I'm training <span class="step-hint">(pick any combination)</span></p>
       <div class="group-picker" id="group-picker" role="group" aria-label="Muscle groups"></div>

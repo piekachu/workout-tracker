@@ -342,50 +342,11 @@ function resetLogForm() {
   $("session-status").textContent = ""; $("session-status").classList.remove("error");
 }
 
-// ============================================================ timer -------
-// state: { startedAt (clock ms of first start), acc (ms banked before the current run), runFrom (ms, or null when paused) }
-const TIMER_KEY = "workout.timer.v1";
-let timer = (() => { try { return JSON.parse(localStorage.getItem(TIMER_KEY)) || null; } catch { return null; } })();
-const saveTimer = () => { try { timer ? localStorage.setItem(TIMER_KEY, JSON.stringify(timer)) : localStorage.removeItem(TIMER_KEY); } catch {} };
-const timerMs = () => (timer ? timer.acc + (timer.runFrom ? Date.now() - timer.runFrom : 0) : 0);
-const hhmm = (ms) => { const d = new Date(ms); return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0"); };
-function fmtTimer(ms) {
-  const s = Math.floor(ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
-  return h ? `${h}:${String(m).padStart(2, "0")}:${String(r).padStart(2, "0")}` : `${m}:${String(r).padStart(2, "0")}`;
-}
-function renderTimer() {
-  const running = !!(timer && timer.runFrom);
-  $("timer-time").textContent = fmtTimer(timerMs());
-  $("timer").classList.toggle("running", running);
-  $("timer-main").textContent = !timer ? "Start timer" : running ? "Pause" : "Resume";
-  $("timer-reset").hidden = !timer;
-  $("timer-note").textContent = !timer ? "Tap start when you begin. Start and end times fill in when you save."
-    : `Started ${hhmm(timer.startedAt)}${running ? "" : " · paused"}. Saving the workout stops the timer.`;
-}
-$("timer-main").addEventListener("click", () => {
-  const now = Date.now();
-  if (!timer) timer = { startedAt: now, acc: 0, runFrom: now };
-  else if (timer.runFrom) { timer.acc += now - timer.runFrom; timer.runFrom = null; timer.pausedAt = now; }
-  else timer.runFrom = now;
-  saveTimer(); renderTimer();
-});
-$("timer-reset").addEventListener("click", () => {
-  if (timerMs() > 60000 && !$("timer-reset").dataset.armed) {   // one tap to arm, second to confirm (no popup)
-    const b = $("timer-reset"); b.dataset.armed = "1"; b.textContent = "Tap again";
-    setTimeout(() => { delete b.dataset.armed; b.textContent = "Reset"; }, 3000); return;
-  }
-  timer = null; saveTimer(); $("timer-reset").textContent = "Reset"; delete $("timer-reset").dataset.armed; renderTimer();
-});
-setInterval(() => { if (timer && timer.runFrom) $("timer-time").textContent = fmtTimer(timerMs()); }, 500);
-document.addEventListener("visibilitychange", renderTimer);
-
 // ============================================================ save --------
 function setStatus(msg, err) { const s = $("session-status"); s.textContent = msg; s.classList.toggle("error", !!err); }
 $("save-session").addEventListener("click", async () => {
   const saveBtn = $("save-session"), log_date = $("s-date").value;
-  // times typed by hand win; otherwise use the timer's first start and the moment it stopped / was saved
-  const start_time = $("s-start").value || (timer ? hhmm(timer.startedAt) : null);
-  const end_time = $("s-end").value || (timer ? hhmm(timer.runFrom ? Date.now() : timer.pausedAt) : null), label = sessionLabel();
+  const start_time = $("s-start").value || null, end_time = $("s-end").value || null, label = sessionLabel();
   if (!log_date) return setStatus("Pick a date.", true);
   if (!label) return setStatus("Pick at least one muscle group above.", true);
 
@@ -429,7 +390,6 @@ $("save-session").addEventListener("click", async () => {
     const { error: setsErr } = await sb.from("workout_sets").insert(rows);
     if (setsErr) return setStatus(`Session saved, but sets failed: ${setsErr.message}`, true);
     setStatus(merging ? "Added to the day's workout ✓" : "Saved ✓");
-    if (timer) { timer = null; saveTimer(); renderTimer(); }
     setTimeout(async () => { resetLogForm(); await loadHistory(); renderAll(); }, 700);
   } finally { saveBtn.disabled = false; saveBtn.textContent = "Save workout"; }
 });
@@ -549,5 +509,5 @@ function renderAll() {
 // ============================================================ init --------
 (async function init() {
   await Promise.all([loadHistory(), loadCatalog()]);
-  renderAll(); loadBodyWeight(); renderTimer();
+  renderAll(); loadBodyWeight();
 })();

@@ -154,6 +154,7 @@
     .erow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .erow[hidden] { display: none; }
     .esheet .opt { font-weight: 400; color: var(--text-faint); }
+    .edur { display: flex; gap: 6px; } .edur input { flex: 1 1 auto; min-width: 0; } .edur select { flex: 0 0 auto; width: auto; }
     .eswatches { display: flex; gap: 8px; flex-wrap: wrap; }
     .esw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--tc, transparent); cursor: pointer; padding: 0; color: var(--text-dim); font-size: 14px; }
     .esw.none { border-color: var(--border); background: none; min-height: 0; }
@@ -192,9 +193,9 @@
         <input id="quick-title" type="text" maxlength="200" placeholder="Add a task for today" enterkeyhint="done" aria-label="New task for today">
         <button type="submit">Add</button>
       </form>
-      <button type="button" class="pull-btn" id="pull-btn" aria-expanded="false" aria-controls="pull">From projects<span class="n" id="pull-n"></span></button>
+      <button type="button" class="pull-btn" id="pull-btn" aria-expanded="false" aria-controls="pull">Sub-tasks<span class="n" id="pull-n"></span></button>
     </div>
-    <section class="pull" id="pull" hidden aria-label="Steps from your projects"></section>
+    <section class="pull" id="pull" hidden aria-label="Waiting sub-tasks"></section>
 
     <div id="list"></div>
     </section>
@@ -256,20 +257,18 @@
       <label>Title<input id="e-title" type="text" maxlength="200" required></label>
       <label>Description<textarea id="e-notes" rows="3" placeholder="What is this about?"></textarea></label>
       <div class="erow">
-        <label>Scope<select id="e-horizon"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></label>
-        <label>Date<input id="e-date" type="date"></label>
+        <label>Start date<input id="e-date" type="date"></label>
+        <label>Duration <span class="opt">optional</span>
+          <span class="edur"><input id="e-dur" type="number" inputmode="numeric" min="1" max="3650" step="1" placeholder="e.g. 45">
+            <select id="e-unit" aria-label="Duration unit"><option value="min">minutes</option><option value="hour">hours</option><option value="day">days</option></select></span>
+        </label>
       </div>
       <div class="erow" id="e-time-row">
-        <label>Start<input id="e-start" type="time"></label>
-        <label>End<input id="e-end" type="time"></label>
+        <label>Start time<input id="e-start" type="time"></label>
+        <label>End time<input id="e-end" type="time"></label>
       </div>
-      <div class="erow">
-        <label>Duration <span class="opt">minutes</span><input id="e-dur" type="number" inputmode="numeric" min="1" max="1440" step="5" placeholder="optional"></label>
-        <label>Deadline <span class="opt">optional</span><input id="e-due" type="date"></label>
-      </div>
-      <label>Priority<select id="e-priority"><option value="0">Normal</option><option value="1">Medium</option><option value="2">High</option></select></label>
       <div><span class="opt" style="font-size:.78rem;font-weight:600;color:var(--text-dim)">Color</span><div class="eswatches" id="e-colors" role="radiogroup" aria-label="Color" style="margin-top:6px"></div></div>
-      <a class="elink" href="tasks/">Sub-tasks, parent and repeat: open in Tasks →</a>
+      <a class="elink" href="tasks/">Sub-tasks and repeat: open in Tasks →</a>
       <div class="eactions">
         <button type="button" class="danger" id="e-delete">Delete</button>
         <span class="sp"></span>
@@ -310,22 +309,29 @@
         const { data, error } = await sb.from("kv_store").select("data").eq("slot_id", VOCAB_SLOT_ID).maybeSingle();
         if (error) throw error; return (data && data.data) || {};
       }),
-      // today's day tasks, anything open from the last 60 days, and this week's / month's open ones
+      // tasks that started today or in the last 60 days, plus multi-day tasks still running
       tasks: once(async () => {
-        const mon = weekStart(TODAY), first = firstOf(TODAY);
-        const [days, longer] = await Promise.all([
-          sb.from("tasks").select("*").eq("horizon", "day").lte("period_start", TODAY).gte("period_start", addDaysISO(TODAY, -60)),
-          sb.from("tasks").select("*").in("horizon", ["week", "month"]).in("period_start", [mon, first]),
+        const [recent, spans] = await Promise.all([
+          sb.from("tasks").select("*").not("period_start", "is", null).lte("period_start", TODAY).gte("period_start", addDaysISO(TODAY, -60)),
+          sb.from("tasks").select("*").gt("duration_days", 1).lte("period_start", TODAY).gte("period_start", addDaysISO(TODAY, -400)),
         ]);
-        if (days.error) throw days.error;
-        if (longer.error) throw longer.error;
-        const rows = [...(days.data || []), ...(longer.data || [])];
-        // sub-tasks show which project they belong to
+        if (recent.error) throw recent.error;
+        if (spans.error) throw spans.error;
+        const byId = new Map();
+        [...(recent.data || []), ...(spans.data || [])].forEach((r) => byId.set(r.id, r));
+        const rows = [...byId.values()];
+        // sub-tasks show which task they belong to; tasks with sub-tasks show their progress
         const pids = [...new Set(rows.map((r) => r.parent_id).filter(Boolean))];
         if (pids.length) {
           const { data } = await sb.from("tasks").select("id, title, color").in("id", pids);
           const info = new Map((data || []).map((p) => [p.id, p]));
           rows.forEach((r) => { if (r.parent_id) { const p = info.get(r.parent_id); r._parent = p ? p.title : ""; r._pcolor = p ? p.color : null; } });
+        }
+        if (rows.length) {
+          const { data: ks } = await sb.from("tasks").select("id, parent_id, done_at").in("parent_id", rows.map((r) => r.id));
+          const cnt = new Map();
+          (ks || []).forEach((k) => { const c = cnt.get(k.parent_id) || { done: 0, total: 0 }; c.total++; if (k.done_at) c.done++; cnt.set(k.parent_id, c); });
+          rows.forEach((r) => { if (cnt.has(r.id)) r._kids = cnt.get(r.id); });
         }
         return rows;
       }),
@@ -388,7 +394,7 @@
     ];
     const state = { core: {}, tasks: null, backlog: [], custom: [], vocabAct: {}, jpAct: {}, kanaDays: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
-    const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
+    const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
 
     // ---------------- rendering ----------------
@@ -396,6 +402,22 @@
     const colorOf = (t) => (COLORS[t.color] ? t.color : COLORS[t._pcolor] ? t._pcolor : null);
     const fmtDur = (m) => { const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; };
     const dayDiff = (iso) => Math.round((new Date(iso + "T00:00") - new Date(TODAY + "T00:00")) / 86400000);
+    // a task starts on period_start and lasts duration_days (default 1); the last day is its deadline
+    const spanDays = (t) => Math.max(1, t.duration_days || 1);
+    const isMulti = (t) => spanDays(t) > 1;
+    const endDate = (t) => (t.period_start ? addDaysISO(t.period_start, spanDays(t) - 1) : null);
+    function timeLeftToday(t) {
+      const now = new Date(), end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0);
+      if (t.end_time) { const [h, m] = t.end_time.split(":").map(Number); end.setHours(h, m, 0, 0); }
+      const min = Math.floor((end - now) / 60000);
+      return min <= 0 ? "time's up" : (min >= 60 ? `${Math.floor(min / 60)}h ${min % 60}m` : `${min}m`) + " left";
+    }
+    function dleft(t) {
+      if (!isMulti(t)) return null;
+      const n = dayDiff(endDate(t));
+      return { n, text: n > 0 ? `D-${n}` : n === 0 ? `D-Day · ${timeLeftToday(t)}` : `D+${-n}`, cls: n < 0 ? " alert" : n <= 3 ? " soon" : "" };
+    }
+    const shortDate = (iso) => new Date(iso + "T00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
     function endOf(t) {
       if (t.end_time) return t.end_time.slice(0, 5);
       if (t.start_time && t.duration_min) { const [h, m] = t.start_time.slice(0, 5).split(":").map(Number), x = h * 60 + m + t.duration_min; return x >= 1440 ? "23:59" : `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; }
@@ -404,14 +426,15 @@
     function taskItem(t, tag) {
       const chips = [], c = colorOf(t);
       if (tag === "overdue") chips.push(el("span", { class: "tchip alert" }, "overdue"));
-      else if (tag) chips.push(el("span", { class: "tchip" }, tag === "week" ? "this week" : tag === "month" ? "this month" : tag));
+      if (isMulti(t)) chips.push(el("span", { class: "tchip" }, `${shortDate(t.period_start)} → ${shortDate(endDate(t))}`));
       if (t.start_time) chips.push(el("span", { class: "tchip" }, "🕐 " + timeOf(t) + (endOf(t) ? "–" + endOf(t) : "")));
       if (t.duration_min) chips.push(el("span", { class: "tchip" }, "⏳ " + fmtDur(t.duration_min)));
+      if (t._kids) chips.push(el("span", { class: "tchip" }, `${t._kids.done}/${t._kids.total} sub-tasks`));
       if (t._parent) chips.push(el("span", { class: "tchip proj" }, "↳ " + t._parent));
-      if (t.due_on && !t.done_at) { const n = dayDiff(t.due_on); chips.push(el("span", { class: "tchip" + (n < 0 ? " alert" : n <= 3 ? " soon" : "") }, n > 0 ? `D-${n}` : n === 0 ? "D-Day" : `D+${-n}`)); }
+      if (!t.done_at) { const d = dleft(t); if (d) chips.push(el("span", { class: "tchip" + d.cls }, d.text)); }
       const desc = t.notes ? el("div", { class: "desc", title: "Click to expand" }, t.notes) : "";
       if (desc) desc.addEventListener("click", () => desc.classList.toggle("open"));
-      return el("div", { class: `item task-card p${t.priority}${t.done_at ? " done" : ""}${c ? " tinted" : ""}`, ...(c ? { style: `--tc: ${COLORS[c]}` } : {}) },
+      return el("div", { class: `item task-card${t.done_at ? " done" : ""}${c ? " tinted" : ""}`, ...(c ? { style: `--tc: ${COLORS[c]}` } : {}) },
         el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
         el("div", { class: "body" }, el("div", { class: "name" }, t.title), desc, chips.length ? el("div", { class: "tchips" }, chips) : ""),
         el("button", { class: "edit", type: "button", "aria-label": `Edit "${t.title}"`, title: "Edit task", onclick: () => openEdit(t) }, "✎"),
@@ -433,22 +456,22 @@
 
     function render() {
       const T = state.tasks || [];
-      const overdue = T.filter((t) => t.horizon === "day" && t.period_start < TODAY && !t.done_at).sort(byOrder);
-      const today = T.filter((t) => t.horizon === "day" && t.period_start === TODAY).sort(byOrder);
-      const later = T.filter((t) => t.horizon !== "day" && !t.done_at).sort(byOrder);
+      const overdue = T.filter((t) => t.period_start && endDate(t) < TODAY && !t.done_at).sort(byOrder);
+      const today = T.filter((t) => t.period_start === TODAY).sort(byOrder);
+      const ongoing = T.filter((t) => isMulti(t) && t.period_start < TODAY && endDate(t) >= TODAY && !t.done_at).sort(byOrder);
       const coreReady = CORE.every((c) => state.core[c.key]);
 
-      const pendingTasks = [...overdue, ...today.filter((t) => !t.done_at)];
+      const pendingTasks = [...overdue, ...today.filter((t) => !t.done_at), ...ongoing];
       const doneTasks = today.filter((t) => t.done_at);
       const pendingCore = CORE.filter((c) => state.core[c.key] && !state.core[c.key].done);
       const doneCore = CORE.filter((c) => state.core[c.key] && state.core[c.key].done);
       const pendingHabits = state.custom.filter((h) => !h.done), doneHabits = state.custom.filter((h) => h.done);
 
-      const total = overdue.length + today.length + CORE.length + state.custom.length;
+      const total = overdue.length + today.length + ongoing.length + CORE.length + state.custom.length;
       const doneN = doneTasks.length + doneCore.length + doneHabits.length;
       const left = total - doneN;
       const ready = state.tasks !== null && coreReady;
-      const taskTotal = overdue.length + today.length, taskLeft = taskTotal - doneTasks.length;
+      const taskTotal = overdue.length + today.length + ongoing.length, taskLeft = taskTotal - doneTasks.length;
       const habitTotal = CORE.length + state.custom.length, habitDone = doneCore.length + doneHabits.length;
       const size = window.innerWidth < 640 ? 92 : 112;
       Charts.ring($("hero-ring"), { value: taskTotal ? doneTasks.length : 1, total: taskTotal || 1, size,
@@ -458,28 +481,28 @@
         const stat = (n, label) => hs.append(el("span", { class: "hstat" }, el("b", {}, String(n)), label));
         stat(taskLeft, taskLeft === 1 ? "task left" : "tasks left");
         stat(habitTotal - habitDone, habitTotal - habitDone === 1 ? "habit left" : "habits left");
-        if (state.backlog.length) stat(state.backlog.length, "project steps waiting");
+        if (state.backlog.length) stat(state.backlog.length, state.backlog.length === 1 ? "sub-task waiting" : "sub-tasks waiting");
       }
       if (ready) renderInsights({ doneN, total, habitDone, habitTotal, taskLeft });
 
       // ----- tasks (left column) -----
       const list = $("list"); list.innerHTML = "";
-      if (pendingTasks.length) {
+      if (overdue.length || today.some((t) => !t.done_at)) {
         list.append(el("div", { class: "sect" }, "Today"));
         overdue.forEach((t) => list.append(taskItem(t, "overdue")));
         today.filter((t) => !t.done_at).forEach((t) => list.append(taskItem(t)));
-      } else if (ready) {
+      } else if (ready && !ongoing.length) {
         list.append(el("div", { class: "sect" }, "Today"));
         list.append(doneTasks.length || !state.backlog.length
           ? el("div", { class: "quiet" }, doneTasks.length ? "All of today's tasks are done." : "No tasks for today — add one above.")
-          : el("div", { class: "quiet" }, "Nothing planned. Pull a step from one of your projects, or add a task above."));
+          : el("div", { class: "quiet" }, "Nothing planned. Pull a waiting sub-task, or add a task above."));
       }
       if (ready && !pendingTasks.length && !pendingCore.length && !pendingHabits.length) {
         list.append(el("div", { class: "allgood" }, el("b", {}, "All done for today"), el("span", {}, "Nice work. Check Progress to see how the week is going.")));
       }
-      if (later.length) {
-        list.append(el("div", { class: "sect" }, "This week & month"));
-        later.forEach((t) => list.append(taskItem(t, t.horizon)));
+      if (ongoing.length) {
+        list.append(el("div", { class: "sect" }, "Ongoing"));
+        ongoing.forEach((t) => list.append(taskItem(t)));
       }
       if (doneTasks.length) {
         const box = el("details", { class: "done-box" }, el("summary", {}, `Done today (${doneTasks.length})`));
@@ -570,12 +593,12 @@
       if (!pullOpen) return;
       box.innerHTML = "";
       if (!state.backlog.length) {
-        box.append(el("div", { class: "quiet" }, "No project steps are waiting. Add sub-tasks to a project in Tasks → Projects and they'll show up here."));
+        box.append(el("div", { class: "quiet" }, "No sub-tasks are waiting. Add sub-tasks to a task in Tasks and the ones without a date show up here."));
         return;
       }
       const groups = new Map();
       for (const t of state.backlog) (groups.get(t._rootId) || groups.set(t._rootId, { name: t._root || "Project", items: [] }).get(t._rootId)).items.push(t);
-      box.append(el("div", { class: "pull-head" }, el("span", {}, "Pull into today"),
+      box.append(el("div", { class: "pull-head" }, el("span", {}, "Pull sub-tasks into today"),
         el("button", { type: "button", class: "mini-btn solid", onclick: pullNextEach }, "+ Next step of each")));
       for (const g of groups.values()) {
         box.append(el("div", { class: "pull-proj" }, g.name));
@@ -583,7 +606,7 @@
           el("div", { class: "t" }, t.title, (t._parent && t._parent !== g.name) || t.duration_min
             ? el("small", {}, [t._parent && t._parent !== g.name ? "↳ " + t._parent : "", t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ")) : ""),
           el("button", { type: "button", class: "mini-btn", onclick: () => pullToday(t) }, "+ Today"))));
-        if (g.items.length > 4) box.append(el("div", { class: "quiet" }, `+ ${g.items.length - 4} more in Tasks → Projects`));
+        if (g.items.length > 4) box.append(el("div", { class: "quiet" }, `+ ${g.items.length - 4} more in Tasks → Subtasks`));
       }
     }
     async function pullToday(t, quiet) {
@@ -610,13 +633,16 @@
       box.append(el("button", { type: "button", class: "esw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setEColor("") }, "∅"));
       for (const [n, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "esw", "data-c": n, role: "radio", "aria-label": n, title: n, style: `--tc: ${hex}`, onclick: () => setEColor(n) }));
     }
-    const syncETime = () => { $("e-time-row").hidden = $("e-horizon").value !== "day"; };
-    $("e-horizon").addEventListener("change", syncETime);
+    const EDUR_MAX = { min: 1440, hour: 24, day: 3650 };
+    const syncETime = () => { const u = $("e-unit").value; $("e-dur").max = EDUR_MAX[u]; $("e-time-row").hidden = u === "day"; };
+    $("e-unit").addEventListener("change", syncETime);
     function openEdit(t) {
       editingT = t;
-      $("e-title").value = t.title; $("e-notes").value = t.notes || ""; $("e-horizon").value = t.horizon; $("e-date").value = t.period_start || TODAY;
+      $("e-title").value = t.title; $("e-notes").value = t.notes || ""; $("e-date").value = t.period_start || TODAY;
       $("e-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("e-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
-      $("e-dur").value = t.duration_min || ""; $("e-due").value = t.due_on || ""; $("e-priority").value = String(t.priority || 0);
+      if (t.duration_days) { $("e-unit").value = "day"; $("e-dur").value = t.duration_days; }
+      else if (t.duration_min && t.duration_min >= 60 && t.duration_min % 60 === 0) { $("e-unit").value = "hour"; $("e-dur").value = t.duration_min / 60; }
+      else { $("e-unit").value = "min"; $("e-dur").value = t.duration_min || ""; }
       setEColor(t.color || ""); syncETime(); $("esheet").hidden = false; $("e-title").focus();
     }
     const closeEdit = () => { $("esheet").hidden = true; editingT = null; };
@@ -627,14 +653,18 @@
     $("eform").addEventListener("submit", async (e) => {
       e.preventDefault();
       const t = editingT; if (!t) return;
-      const horizon = $("e-horizon").value, timed = horizon === "day", date = $("e-date").value;
-      const start = timed ? $("e-start").value || null : null, end = timed ? $("e-end").value || null : null;
-      if (!date) return toast("Pick a date");
+      const unit = $("e-unit").value, v = Number($("e-dur").value), date = $("e-date").value;
+      const start = unit === "day" ? null : $("e-start").value || null, end = unit === "day" ? null : $("e-end").value || null;
+      if (!date) return toast("Pick a start date");
       if (end && !start) return toast("Add a start time too");
       if (start && end && end <= start) return toast("End must be after start");
-      const patch = { title: $("e-title").value.trim(), notes: $("e-notes").value.trim() || null, horizon, period_start: TasksCore.periodStart(horizon, date),
-        start_time: start, end_time: end, duration_min: Math.round(Number($("e-dur").value)) || null, due_on: $("e-due").value || null,
-        priority: Number($("e-priority").value), color: eColor || null };
+      let duration_min = null, duration_days = null;
+      if (v > 0) {
+        if (unit === "day") duration_days = Math.round(v);
+        else { duration_min = Math.round(unit === "hour" ? v * 60 : v); if (duration_min > 1440) return toast("Up to 24 hours in one day — use days for longer"); }
+      }
+      const patch = { title: $("e-title").value.trim(), notes: $("e-notes").value.trim() || null, horizon: "day", period_start: date,
+        start_time: start, end_time: end, duration_min, duration_days: duration_days > 1 ? duration_days : null, color: eColor || null };
       if (!patch.title) return;
       const { data, error } = await sb.from("tasks").update(patch).eq("id", t.id).select().single();
       if (error) return toast("Couldn't save — check your connection");

@@ -8,7 +8,7 @@ const TODAY = localISO(new Date());
 
 const fmt = (iso, opts) => parse(iso).toLocaleDateString(undefined, opts);
 function periodLabel(view, anchor) {
-  if (view === "projects") return "Projects";
+  if (view === "nested") return "Tasks with sub-tasks";
   if (view === "day") return fmt(anchor, { weekday: "short", month: "short", day: "numeric" }) + (anchor === TODAY ? " · Today" : "");
   if (view === "week") {
     const mon = weekStart(anchor), sun = addDays(mon, 6);
@@ -51,13 +51,30 @@ function toast(msg, action) {
 let tasks = [];
 let view = "day";
 let anchor = TODAY;
-try { const v = localStorage.getItem("tasks:view"); if (["day", "week", "month", "projects"].includes(v)) view = v; } catch {}
+try { const v = localStorage.getItem("tasks:view"); if (["day", "week", "month", "nested"].includes(v)) view = v; } catch {}
 
-// ---------- D-day counter + work timer ----------
-function dday(iso) {
-  const n = Math.round((parse(iso) - parse(TODAY)) / 86400000);
-  return { n, text: n > 0 ? `D-${n}` : n === 0 ? "D-Day" : `D+${-n}`, cls: n < 0 ? "late" : n <= 3 ? "soon" : "" };
+// ---------- spans + D-day counter ----------
+// A task starts on period_start and lasts duration_days (default 1). The last day of that span is its deadline.
+const spanDays = (t) => Math.max(1, t.duration_days || 1);
+const isMulti = (t) => spanDays(t) > 1;
+const endDate = (t) => (t.period_start ? addDays(t.period_start, spanDays(t) - 1) : null);
+const covers = (t, iso) => !!t.period_start && t.period_start <= iso && endDate(t) >= iso;
+const dayGap = (iso) => Math.round((parse(iso) - parse(TODAY)) / 86400000);
+// time left today, to the task's end time if it has one, otherwise to midnight
+function timeLeftToday(t) {
+  const now = new Date(), end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0);
+  if (t.end_time) { const [h, m] = t.end_time.split(":").map(Number); end.setHours(h, m, 0, 0); }
+  const min = Math.floor((end - now) / 60000);
+  if (min <= 0) return "time's up";
+  return (min >= 60 ? `${Math.floor(min / 60)}h ${min % 60}m` : `${min}m`) + " left";
 }
+// D-5 until the last day, then "D-Day · 3h 20m left", then D+1 once it's past. Only for tasks that last several days.
+function dleft(t) {
+  if (!isMulti(t) || !t.period_start) return null;
+  const n = dayGap(endDate(t));
+  return { n, text: n > 0 ? `D-${n}` : n === 0 ? `D-Day · ${timeLeftToday(t)}` : `D+${-n}`, cls: n < 0 ? "late" : n <= 3 ? "soon" : "" };
+}
+const durLabel = (t) => (t.duration_days ? `${t.duration_days} day${t.duration_days === 1 ? "" : "s"}` : t.duration_min ? fmtDur(t.duration_min) : "");
 // ---------- hierarchy ----------
 // A task can sit under another one (max 3 levels). Sub-tasks may be unscheduled (period_start = null): the project's backlog.
 const MAX_DEPTH = 3;
@@ -73,7 +90,7 @@ const heightOf = (t) => 1 + Math.max(0, ...kids(t).map(heightOf));
 const leaves = (t) => (kids(t).length ? kids(t).flatMap(leaves) : [t]);
 function crumb(t) { const out = []; let p = parentOf(t); while (p && out.length < 10) { out.unshift(p.title); p = parentOf(p); } return out.join(" › "); }
 function effColor(t) { let x = t, n = 0; while (x && n++ < 10) { if (x.color && COLORS[x.color]) return x.color; x = parentOf(x); } return null; }
-// done / total leaves and minutes (planned = leaves with a duration)
+// done / total leaves (and the minutes their durations add up to)
 function progressOf(t) {
   const L = leaves(t);
   return { total: L.length, done: L.filter((x) => x.done_at).length,
@@ -87,14 +104,15 @@ async function load() {
   render();
 }
 
-// open first, then timed, then priority, then creation order
+// open first, then timed, then creation order
 function sorted(list) {
   return [...list].sort((a, b) =>
     (!!a.done_at - !!b.done_at) ||
     ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) ||
-    (b.priority - a.priority) || (a.id - b.id));
+    (a.id - b.id));
 }
-const inPeriod = (horizon, start) => sorted(tasks.filter((t) => t.horizon === horizon && t.period_start === start));
+const startingOn = (iso) => sorted(tasks.filter((t) => t.period_start === iso));
+const ongoingOn = (iso) => sorted(tasks.filter((t) => isMulti(t) && covers(t, iso) && t.period_start < iso));
 
 // ---------- rendering ----------
 function taskRow(t, opts = {}) {
@@ -104,11 +122,10 @@ function taskRow(t, opts = {}) {
   if (hasKids) { const p = progressOf(t); bits.push(`${p.done}/${p.total} sub-tasks`); }
   if (!t.period_start) bits.push("backlog");
   if (t.start_time) bits.push(hhmm(t.start_time) + (endOf(t) ? "–" + endOf(t) : ""));
-  if (t.duration_min) bits.push(fmtDur(t.duration_min));
-  if (opts.showHorizon && t.horizon !== "day") bits.push(t.horizon === "week" ? "this week" : "this month");
+  if (t.duration_min || t.duration_days) bits.push(durLabel(t));
   if (t.recur) bits.push("↻ " + t.recur);
-  if (t.due_on) bits.push((t.done_at ? "" : dday(t.due_on).text + " · ") + fmt(t.due_on, { month: "short", day: "numeric" }));
-  const row = el("div", { class: `task p${t.priority}${t.done_at ? " done" : ""}${colorClass(t)}`, ...colorStyle(t) },
+  if (isMulti(t)) { bits.push(`${fmt(t.period_start, { month: "short", day: "numeric" })} → ${fmt(endDate(t), { month: "short", day: "numeric" })}`); const d = !t.done_at && dleft(t); if (d) bits.push(d.text); }
+  const row = el("div", { class: `task${t.done_at ? " done" : ""}${colorClass(t)}`, ...colorStyle(t) },
     el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : hasKids ? "Done when all sub-tasks are done" : "Mark done",
       onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
     el("button", { class: "main", type: "button", onclick: () => openSheet(t) },
@@ -126,15 +143,15 @@ function group(title, rows, opts = {}) {
 function render() {
   reindex();
   document.querySelectorAll("#view-btns button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
-  for (const id of ["prev", "next", "today-btn"]) $(id).hidden = view === "projects";
+  for (const id of ["prev", "next", "today-btn"]) $(id).hidden = view === "nested";
   $("period-label").textContent = periodLabel(view, anchor);
-  $("add-title").placeholder = view === "projects" ? "New project" : `Add a task for ${view === "day" ? (anchor === TODAY ? "today" : "this day") : "this " + view}`;
+  $("add-title").placeholder = view === "nested" ? "New task (then add sub-tasks)" : view === "day" ? `Add a task for ${anchor === TODAY ? "today" : "this day"}` : "Add a task";
   renderRings();
   const c = $("content"); c.innerHTML = ""; c.dataset.view = view;
-  if (view === "day") renderDay(c); else if (view === "week") renderWeek(c); else if (view === "projects") renderProjects(c); else renderMonth(c);
+  if (view === "day") renderDay(c); else if (view === "week") renderWeek(c); else if (view === "nested") renderNested(c); else renderMonth(c);
 }
 
-// done / total for tasks anchored in a period (day tasks by date, week tasks by the week's Sunday, month tasks by the 1st)
+// done / total for tasks that start in a period
 function periodStats(from, to) {
   const t = tasks.filter((x) => x.period_start && x.period_start >= from && x.period_start <= to && !kids(x).length);
   return { done: t.filter((x) => x.done_at).length, total: t.length };
@@ -150,27 +167,25 @@ function renderRings() {
 
 function renderDay(c) {
   if (anchor === TODAY) {
-    const overdue = sorted(tasks.filter((t) => t.horizon === "day" && t.period_start < TODAY && !t.done_at));
+    const overdue = sorted(tasks.filter((t) => t.period_start && endDate(t) < TODAY && !t.done_at));
     if (overdue.length) c.append(group("Overdue", overdue.map((t) => taskRow(t, { moveToToday: true })), {}));
   }
-  c.append(group("Day", inPeriod("day", anchor).map((t) => taskRow(t)), { today: anchor === TODAY, empty: "Nothing planned — add something below." }));
-  // next backlog step of each open project, one tap to pull it into this day
+  c.append(group("Day", startingOn(anchor).map((t) => taskRow(t)), { today: anchor === TODAY, empty: "Nothing planned — add something below." }));
+  const ongoing = ongoingOn(anchor);
+  if (ongoing.length) c.append(group("Ongoing", ongoing.map((t) => taskRow(t))));
+  // next waiting sub-task of each open task, one tap to pull it into this day
   const picks = tasks.filter((r) => !r.parent_id && kids(r).length && !r.done_at)
     .map((r) => leaves(r).filter((l) => !l.period_start && !l.done_at)[0]).filter(Boolean).slice(0, 6);
-  if (picks.length) c.append(group("From projects", picks.map((t) => taskRow(t, { plan: { label: "+ Add to day", fn: () => schedule(t, anchor) } })), {}));
-  const wk = inPeriod("week", weekStart(anchor)), mo = inPeriod("month", firstOf(anchor));
-  if (wk.length) c.append(group("This week", wk.map((t) => taskRow(t))));
-  if (mo.length) c.append(group("This month", mo.map((t) => taskRow(t))));
+  if (picks.length) c.append(group("From sub-tasks", picks.map((t) => taskRow(t, { plan: { label: "+ Add to day", fn: () => schedule(t, anchor) } })), {}));
 }
 
 function renderWeek(c) {
-  const mon = weekStart(anchor);
-  c.append(group("This week", inPeriod("week", mon).map((t) => taskRow(t)), { empty: "No week-level tasks." }));
-  const mo = inPeriod("month", firstOf(mon));
-  if (mo.length) c.append(group("This month", mo.map((t) => taskRow(t))));
+  const mon = weekStart(anchor), sun = addDays(mon, 6);
+  const spanning = sorted(tasks.filter((t) => isMulti(t) && t.period_start <= sun && endDate(t) >= mon));
+  if (spanning.length) c.append(group("Spanning this week", spanning.map((t) => taskRow(t))));
   for (let i = 0; i < 7; i++) {
     const day = addDays(mon, i);
-    const rows = inPeriod("day", day).map((t) => taskRow(t));
+    const rows = startingOn(day).filter((t) => !isMulti(t)).map((t) => taskRow(t));
     c.append(group(fmt(day, { weekday: "short", month: "short", day: "numeric" }), rows,
       { today: day === TODAY, empty: "—", action: { label: "Open ›", fn: () => { view = "day"; anchor = day; render(); } } }));
   }
@@ -179,34 +194,26 @@ function renderWeek(c) {
 // ---------- drag and drop in the month grid ----------
 // A day chip dropped on another day changes its date; a week bar dropped anywhere in
 // another week's row changes its week. The edit sheet stays the keyboard/phone route.
-let drag = null;   // { id, kind } while something is being dragged
-function dragAttrs(t, kind) {
+let drag = null;   // { id } while something is being dragged
+function dragAttrs(t) {
   return { draggable: "true",
-    ondragstart: (e) => { drag = { id: t.id, kind }; e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(t.id)); e.currentTarget.classList.add("dragging"); },
+    ondragstart: (e) => { drag = { id: t.id }; e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(t.id)); e.currentTarget.classList.add("dragging"); },
     ondragend: () => { drag = null; clearDrop(); } };
 }
-function clearDrop() { document.querySelectorAll(".drop, .drop-week, .dragging").forEach((n) => n.classList.remove("drop", "drop-week", "dragging")); }
-function acceptDrops(nodes, iso, row, weekOnly = false) {
-  const mark = () => { clearDrop(); if (drag.kind === "week") row.classList.add("drop-week"); else nodes.forEach((n) => n.classList.add("drop")); };
+function clearDrop() { document.querySelectorAll(".drop, .dragging").forEach((n) => n.classList.remove("drop", "dragging")); }
+function acceptDrops(nodes, iso) {
   for (const n of nodes) {
-    n.addEventListener("dragover", (e) => {
-      if (!drag || (weekOnly && drag.kind !== "week")) return;     // the bar area only takes week bars
-      e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "move"; mark();
-    });
-    n.addEventListener("drop", (e) => {
-      if (!drag || (weekOnly && drag.kind !== "week")) return;
-      e.preventDefault(); e.stopPropagation(); const d = drag; drag = null; clearDrop(); moveTask(d, iso);
-    });
+    n.addEventListener("dragover", (e) => { if (!drag) return; e.preventDefault(); e.stopPropagation(); e.dataTransfer.dropEffect = "move"; clearDrop(); nodes.forEach((x) => x.classList.add("drop")); });
+    n.addEventListener("drop", (e) => { if (!drag) return; e.preventDefault(); e.stopPropagation(); const d = drag; drag = null; clearDrop(); moveTask(d, iso); });
   }
 }
+// dropping a task on a day makes that its start date (a multi-day task keeps its length)
 async function moveTask(d, iso) {
-  const t = tasks.find((x) => x.id === d.id); if (!t) return;
-  const target = d.kind === "week" ? weekStart(iso) : iso;
-  if (target === t.period_start) return;
-  const prev = t.period_start; t.period_start = target; render();
-  const { error } = await sb.from("tasks").update({ period_start: target }).eq("id", t.id);
+  const t = tasks.find((x) => x.id === d.id); if (!t || iso === t.period_start) return;
+  const prev = t.period_start; t.period_start = iso; render();
+  const { error } = await sb.from("tasks").update({ period_start: iso }).eq("id", t.id);
   if (error) { t.period_start = prev; render(); toast("Couldn't move it"); return; }
-  toast(d.kind === "week" ? `Moved to the week of ${fmt(target, { month: "short", day: "numeric" })}` : `Moved to ${fmt(target, { weekday: "short", month: "short", day: "numeric" })}`);
+  toast(`Moved to ${fmt(iso, { weekday: "short", month: "short", day: "numeric" })}`);
 }
 
 // ISO week number of the week containing `iso`. A Sunday-start week gets the number of its Monday, as Notion Calendar does.
@@ -216,8 +223,8 @@ function isoWeek(iso) {
   return 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7);
 }
 
-// Notion-Calendar-style month: week rows with a week number, date numbers on top,
-// week tasks as bars across the row, day tasks as tinted chips, "N more" when it overflows.
+// Month grid: week rows with a week number, date numbers on top. A task that lasts several days is a bar
+// across the days it covers; a one-day task is a tinted chip; "N more" when a day overflows.
 function renderMonth(c) {
   const first = firstOf(anchor), last = addDays(addMonths(first, 1), -1), month = first.slice(0, 7);
   const taskLabel = (t) => [t.start_time ? t.start_time.slice(0, 5) : "", t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ");
@@ -227,15 +234,12 @@ function renderMonth(c) {
   // the round check marks a task done without opening it
   const check = (t) => el("button", { type: "button", class: "mck", "aria-label": t.done_at ? "Mark not done" : "Mark done", "aria-pressed": String(!!t.done_at),
     onclick: (e) => { e.stopPropagation(); toggle(t); }, onkeydown: (e) => e.stopPropagation() }, "✓");
-  const bar = (t, extra) => el("div", { ...press(t), ...colorStyle(t), class: "mbar" + (extra ? " " + extra : "") + colorClass(t) + (t.done_at ? " done" : ""),
-    ...(t.horizon === "week" ? dragAttrs(t, "week") : {}) }, check(t), el("span", { class: "tt" }, t.title),
-    t.duration_min ? el("span", { class: "tm" }, fmtDur(t.duration_min)) : null);
-  const chip = (t) => el("div", { ...press(t), ...colorStyle(t), class: `mchip c${t.priority}${colorClass(t)}${t.done_at ? " done" : ""}`, ...dragAttrs(t, "day") },
+  const bar = (t, c1, c2) => { const d = !t.done_at && dleft(t);
+    return el("div", { ...press(t), ...colorStyle(t), ...dragAttrs(t), class: "mbar" + colorClass(t) + (t.done_at ? " done" : ""), style: `${colorStyle(t).style || ""}; grid-column: ${c1 + 1} / ${c2 + 2}` },
+      check(t), el("span", { class: "tt" }, t.title), el("span", { class: "tm" }, d ? d.text.split(" · ")[0] : durLabel(t))); };
+  const chip = (t) => el("div", { ...press(t), ...colorStyle(t), ...dragAttrs(t), class: `mchip${colorClass(t)}${t.done_at ? " done" : ""}` },
     check(t), taskLabel(t) ? el("span", { class: "tm" }, taskLabel(t)) : null, el("span", { class: "tt" }, t.title));
   const goDay = (iso) => { view = "day"; anchor = iso; render(); };
-
-  const monthTasks = inPeriod("month", first);
-  if (monthTasks.length) c.append(el("div", { class: "mcal-month" }, ...monthTasks.map((t) => bar(t, "mo"))));
 
   const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const todayIdx = parse(TODAY).getDay();
@@ -244,11 +248,18 @@ function renderMonth(c) {
   const grid = el("div", { class: "mcal" }, head);
 
   for (let m = weekStart(first); m <= last; m = addDays(m, 7)) {
-    const wkTasks = inPeriod("week", m);
+    const m6 = addDays(m, 6);
+    const spans = sorted(tasks.filter((t) => isMulti(t) && t.period_start <= m6 && endDate(t) >= m));
     const dates = el("div", { class: "mcal-dates" }), chips = el("div", { class: "mcal-chips" }), dayTargets = [];
-    const maxChips = Math.max(2, 4 - Math.min(wkTasks.length, 2));
+    const bars = el("div", { class: "mcal-bars" });
+    spans.forEach((t) => {
+      const c1 = t.period_start > m ? Math.round((parse(t.period_start) - parse(m)) / 86400000) : 0;
+      const e = endDate(t), c2 = e < m6 ? Math.round((parse(e) - parse(m)) / 86400000) : 6;
+      bars.append(bar(t, c1, c2));
+    });
+    const maxChips = Math.max(2, 4 - Math.min(spans.length, 2));
     for (let i = 0; i < 7; i++) {
-      const iso = addDays(m, i), inMonth = iso.slice(0, 7) === month, list = inPeriod("day", iso);
+      const iso = addDays(m, i), inMonth = iso.slice(0, 7) === month, list = startingOn(iso).filter((t) => !isMulti(t));
       const showMonth = iso.slice(8) === "01";
       const dateBtn = el("button", { type: "button", class: (iso === TODAY ? "today " : "") + (inMonth ? "" : "out"), "aria-label": iso, onclick: () => goDay(iso) },
         showMonth ? el("span", { class: "m" }, fmt(iso, { month: "short" })) : null, el("span", { class: "d" }, String(parse(iso).getDate())));
@@ -259,31 +270,34 @@ function renderMonth(c) {
       list.slice(0, visible).forEach((t) => col.append(chip(t)));
       if (list.length > visible) col.append(el("button", { type: "button", class: "mmore", onclick: () => goDay(iso) }, `${list.length - visible} more`));
       const dots = el("div", { class: "mdots", onclick: () => goDay(iso) });
-      list.slice(0, 6).forEach((t) => dots.append(el("i", { ...colorStyle(t), class: `c${t.priority}${colorClass(t)}${t.done_at ? " done" : ""}` })));
+      list.slice(0, 6).forEach((t) => dots.append(el("i", { ...colorStyle(t), class: `${colorClass(t).trim()}${t.done_at ? " done" : ""}` })));
       col.append(dots);
       chips.append(col);
     }
-    const body = el("div", { class: "mcal-body" }, dates, ...wkTasks.map((t) => bar(t)), chips);
+    const body = el("div", { class: "mcal-body" }, dates, bars, chips);
     const weekRow = el("div", { class: "mcal-week" }, el("div", { class: "wk" }, String(isoWeek(addDays(m, 1)))), body);
-    dayTargets.forEach(([nodes, iso]) => acceptDrops(nodes, iso, weekRow));
-    acceptDrops([body], m, weekRow, true);   // a week bar can also be dropped on the bar area itself
+    dayTargets.forEach(([nodes, iso]) => acceptDrops(nodes, iso));
     grid.append(weekRow);
   }
   c.append(grid);
 }
 
-// ---------- projects view ----------
-const collapsed = new Set();      // project ids folded shut
+// ---------- tasks with sub-tasks ----------
+const collapsed = new Set();      // task ids folded shut
 let addingUnder = null;           // node id with an open inline "add sub-task" box
-function whenLabel(t) { return t.period_start ? fmt(t.period_start, { month: "short", day: "numeric" }) + (t.horizon !== "day" ? ` · ${t.horizon}` : "") : "Backlog"; }
+function whenLabel(t) {
+  if (!t.period_start) return "Waiting";
+  const d = (x) => fmt(x, { month: "short", day: "numeric" });
+  return isMulti(t) ? `${d(t.period_start)} → ${d(endDate(t))}` : d(t.period_start);
+}
 function nodeRow(t, depth) {
-  const hasKids = kids(t).length, p = hasKids ? progressOf(t) : null;
+  const hasKids = kids(t).length, p = hasKids ? progressOf(t) : null, dl = !t.done_at && dleft(t);
   const row = el("div", { class: "pnode" + (t.done_at ? " done" : "") + colorClass(t), ...colorStyle(t), style: `${colorStyle(t).style || ""}; --depth: ${depth}` },
     el("button", { class: "tick sm", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done",
       onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
     el("button", { class: "pt-title", type: "button", onclick: () => openSheet(t) }, t.title),
-    el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t), t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ")),
-    t.due_on && !t.done_at ? el("span", { class: "dd " + dday(t.due_on).cls }, dday(t.due_on).text) : null,
+    el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t), durLabel(t)].filter(Boolean).join(" · ")),
+    dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null,
     !hasKids && !t.done_at && t.period_start !== TODAY ? el("button", { class: "pt-btn", type: "button", onclick: () => schedule(t, TODAY) }, "→ Today") : null,
     depth < MAX_DEPTH ? el("button", { class: "pt-btn", type: "button", "aria-label": "Add sub-task", onclick: () => { addingUnder = addingUnder === t.id ? null : t.id; render(); } }, "＋") : null);
   return row;
@@ -298,28 +312,20 @@ function treeRows(t, depth, out) {
   for (const k of kids(t)) { out.push(nodeRow(k, depth)); if (addingUnder === k.id) out.push(addBox(k, depth + 1)); treeRows(k, depth + 1, out); }
   return out;
 }
-function projectCard(r) {
+function nestedCard(r) {
   const hasKids = kids(r).length, p = progressOf(r), open = !collapsed.has(r.id), pct = p.total && hasKids ? Math.round(p.done / p.total * 100) : (r.done_at ? 100 : 0);
-  const stats = [hasKids ? `${p.done}/${p.total} done` : "no sub-tasks yet",
-    p.planMin ? `${fmtDur(p.doneMin)} of ${fmtDur(p.planMin)} planned` : "", r.duration_min ? `budget ${fmtDur(r.duration_min)}` : ""].filter(Boolean).join(" · ");
-  const over = r.duration_min && p.planMin > r.duration_min;
+  const stats = [hasKids ? `${p.done}/${p.total} done` : "no sub-tasks yet", p.planMin ? `${fmtDur(p.doneMin)} of ${fmtDur(p.planMin)} planned` : ""].filter(Boolean).join(" · ");
   const next = leaves(r).filter((l) => !l.done_at && (!l.period_start || l.period_start > TODAY))[0];
-  const dd = r.due_on && !r.done_at ? dday(r.due_on) : null;
-  const short = (d) => fmt(d, { month: "short", day: "numeric" });
-  let span = "";
-  if (r.start_on || r.due_on) {
-    span = (r.start_on ? short(r.start_on) : "…") + " → " + (r.due_on ? short(r.due_on) : "…");
-    if (r.start_on && r.start_on > TODAY) span += ` · starts in ${Math.round((parse(r.start_on) - parse(TODAY)) / 86400000)}d`;
-    else if (r.start_on && r.due_on) { const tot = Math.round((parse(r.due_on) - parse(r.start_on)) / 86400000) + 1, day = Math.round((parse(TODAY) - parse(r.start_on)) / 86400000) + 1; if (day <= tot && !r.done_at) span += ` · day ${day} of ${tot}`; }
-  }
+  const dl = !r.done_at && dleft(r);
+  const span = r.period_start ? whenLabel(r) + (isMulti(r) ? ` · ${durLabel(r)}` : "") : "";
   const card = el("section", { class: "pcard" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) },
     el("div", { class: "pc-head" },
       el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: () => { open ? collapsed.add(r.id) : collapsed.delete(r.id); render(); } }, open ? "▾" : "▸"),
       el("button", { class: "pc-title", type: "button", onclick: () => openSheet(r) }, r.title),
-      dd ? el("span", { class: "dd big " + dd.cls, title: "Deadline " + r.due_on }, dd.text) : null),
+      dl ? el("span", { class: "dd big " + dl.cls, title: "Ends " + endDate(r) }, dl.text) : null),
     el("div", { class: "pbar", role: "progressbar", "aria-valuenow": String(pct), "aria-valuemin": "0", "aria-valuemax": "100" }, el("i", { style: `width:${pct}%` })),
     span ? el("div", { class: "pc-span" }, span) : null,
-    el("div", { class: "pc-stats" + (over ? " warn" : "") }, stats + (over ? " — over budget" : "")),
+    el("div", { class: "pc-stats" }, stats),
     el("div", { class: "pc-actions" },
       next ? el("button", { type: "button", class: "pt-btn solid", onclick: () => schedule(next, TODAY) }, "Plan next → today") : null,
       el("button", { type: "button", class: "pt-btn", onclick: () => { addingUnder = addingUnder === r.id ? null : r.id; collapsed.delete(r.id); render(); } }, "＋ Sub-task")));
@@ -327,18 +333,17 @@ function projectCard(r) {
     const body = el("div", { class: "pc-body" });
     if (addingUnder === r.id) body.append(addBox(r, 1));
     treeRows(r, 1, []).forEach((n) => body.append(n));
-    if (!hasKids && addingUnder !== r.id) body.append(el("div", { class: "empty" }, "No sub-tasks yet — add the first step."));
     card.append(body);
   }
   return card;
 }
-function renderProjects(c) {
-  const roots = tasks.filter((t) => !t.parent_id && (kids(t).length || t.horizon !== "day"));
-  const byDue = (x, y) => (x.due_on || "9") < (y.due_on || "9") ? -1 : (x.due_on || "9") > (y.due_on || "9") ? 1 : x.id - y.id;
-  const openOnes = roots.filter((t) => !t.done_at).sort(byDue), doneOnes = roots.filter((t) => t.done_at);
-  if (!roots.length) c.append(el("div", { class: "empty" }, "No projects yet. Add one above, then add sub-tasks to it."));
-  openOnes.forEach((r) => c.append(projectCard(r)));
-  if (doneOnes.length) c.append(group("Completed", doneOnes.map((r) => projectCard(r)), {}));
+function renderNested(c) {
+  const roots = tasks.filter((t) => !t.parent_id && kids(t).length);
+  const byEnd = (x, y) => (endDate(x) || "9") < (endDate(y) || "9") ? -1 : (endDate(x) || "9") > (endDate(y) || "9") ? 1 : x.id - y.id;
+  const openOnes = roots.filter((t) => !t.done_at).sort(byEnd), doneOnes = roots.filter((t) => t.done_at);
+  if (!roots.length) c.append(el("div", { class: "empty" }, "No tasks have sub-tasks yet. Add a task above and break it into steps, or open any task and add sub-tasks."));
+  openOnes.forEach((r) => c.append(nestedCard(r)));
+  if (doneOnes.length) c.append(group("Completed", doneOnes.map((r) => nestedCard(r)), {}));
 }
 
 // ---------- mutations ----------
@@ -355,13 +360,13 @@ async function syncUp(t) {
   if (!t.parent_id) return;
   const changed = await TasksCore.syncParents(sb, t);
   for (const ch of changed) { const p = idx.get(ch.id); if (p) p.done_at = ch.done_at; }
-  if (changed.length) { render(); toast(changed[0].done_at ? "Project step complete — parent task done too" : "Parent task reopened"); }
+  if (changed.length) { render(); toast(changed[0].done_at ? "Step complete — parent task done too" : "Parent task reopened"); }
 }
 // put a task (usually a backlog sub-task) on a specific day
 async function schedule(t, iso) {
-  const prev = { horizon: t.horizon, period_start: t.period_start };
-  t.horizon = "day"; t.period_start = iso; render();
-  const { error } = await sb.from("tasks").update({ horizon: "day", period_start: iso }).eq("id", t.id);
+  const prev = { period_start: t.period_start };
+  t.period_start = iso; render();
+  const { error } = await sb.from("tasks").update({ period_start: iso }).eq("id", t.id);
   if (error) { Object.assign(t, prev); render(); toast("Couldn't plan it"); return; }
   toast(iso === TODAY ? "Added to today" : `Planned for ${fmt(iso, { weekday: "short", month: "short", day: "numeric" })}`);
 }
@@ -384,63 +389,58 @@ $("add-form").addEventListener("submit", async (e) => {
   const input = $("add-title"), title = input.value.trim();
   if (!title) return;
   input.disabled = true;
-  const row = view === "projects" ? { title, horizon: "month", period_start: firstOf(TODAY) } : { title, horizon: view, period_start: periodStart(view, anchor) };
-  const { data, error } = await sb.from("tasks").insert(row).select().single();
+  const inWeek = weekStart(anchor) <= TODAY && TODAY <= addDays(weekStart(anchor), 6), inMonth = anchor.slice(0, 7) === TODAY.slice(0, 7);
+  const start = view === "day" ? anchor : view === "week" ? (inWeek ? TODAY : weekStart(anchor)) : view === "month" ? (inMonth ? TODAY : firstOf(anchor)) : TODAY;
+  const { data, error } = await sb.from("tasks").insert({ title, horizon: "day", period_start: start }).select().single();
   input.disabled = false;
   if (error) { toast("Couldn't add it"); return; }
-  tasks.push(data); input.value = ""; render(); input.focus();
+  tasks.push(data); input.value = ""; render();
+  if (view === "nested") openSheet(data); else input.focus();      // in this view the next step is adding its sub-tasks
 });
 
 // ---------- edit sheet ----------
-let editing = null;
-function syncTimeRow() { $("f-time-row").hidden = $("f-horizon").value !== "day"; }
-function openSheet(t) {
-  editing = t;
-  $("f-title").value = t.title; $("f-notes").value = t.notes || "";
-  $("f-horizon").value = t.horizon; $("f-date").value = t.period_start;
-  $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
-  $("f-dur").value = t.duration_min || ""; setColor(t.color || "");
-  $("f-due").value = t.due_on || ""; $("f-start-on").value = t.start_on || ""; fillParentSelect(t); $("f-unsched").checked = !t.period_start;
-  syncParentUi(); renderKidsList(t);
-  $("f-priority").value = String(t.priority); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
-  syncTimeRow(); $("sheet").hidden = false;
+let editing = null, sheetColor = "";
+const DUR_CHIPS = { min: [[15, "15m"], [30, "30m"], [45, "45m"], [60, "1h"]], hour: [[1, "1h"], [2, "2h"], [3, "3h"], [4, "4h"]], day: [[1, "1 day"], [3, "3 days"], [7, "1 week"], [14, "2 weeks"], [30, "30 days"]] };
+function syncDurUi() {
+  const u = $("f-dur-unit").value;
+  $("f-dur").max = u === "day" ? 3650 : u === "hour" ? 24 : 1440;
+  $("dur-chips").innerHTML = ""; DUR_CHIPS[u].forEach(([v, label]) => $("dur-chips").append(el("button", { type: "button", "data-v": String(v) }, label)));
+  $("f-time-row").hidden = u === "day";                 // clock times only make sense inside a single day
+  const n = Number($("f-dur").value), d = $("f-date").value;
+  const info = $("f-endinfo");
+  if (u === "day" && n >= 1 && d && !$("f-date").disabled) {
+    const end = addDays(d, Math.round(n) - 1), g = dayGap(end);
+    info.textContent = `Ends ${fmt(end, { weekday: "short", month: "short", day: "numeric" })} · ${g > 0 ? "D-" + g : g === 0 ? "D-Day" : "D+" + -g}`; info.hidden = false;
+  } else info.hidden = true;
 }
-// colour swatches + duration presets in the edit sheet
-let sheetColor = "";
 function setColor(c) {
   sheetColor = c;
   document.querySelectorAll("#f-colors button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.c === c)));
+}
+function openSheet(t) {
+  editing = t;
+  $("f-title").value = t.title; $("f-notes").value = t.notes || "";
+  $("f-date").value = t.period_start || "";
+  $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
+  if (t.duration_days) { $("f-dur-unit").value = "day"; $("f-dur").value = t.duration_days; }
+  else if (t.duration_min && t.duration_min >= 60 && t.duration_min % 60 === 0) { $("f-dur-unit").value = "hour"; $("f-dur").value = t.duration_min / 60; }
+  else { $("f-dur-unit").value = "min"; $("f-dur").value = t.duration_min || ""; }
+  setColor(t.color || ""); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
+  $("f-unsched-row").hidden = !t.parent_id; $("f-unsched").checked = !!t.parent_id && !t.period_start; $("f-date").disabled = $("f-unsched").checked;
+  renderKidsList(t); syncDurUi(); $("sheet").hidden = false;
 }
 {
   const box = $("f-colors");
   box.append(el("button", { type: "button", class: "sw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setColor("") }, "∅"));
   for (const [name, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "sw", "data-c": name, role: "radio", "aria-label": name, title: name,
     style: `--tc: ${hex}`, onclick: () => setColor(name) }));
-  $("dur-chips").addEventListener("click", (e) => { const b = e.target.closest("button[data-m]"); if (b) $("f-dur").value = b.dataset.m; });
+  $("dur-chips").addEventListener("click", (e) => { const b = e.target.closest("button[data-v]"); if (b) { $("f-dur").value = b.dataset.v; syncDurUi(); } });
 }
 const closeSheet = () => { $("sheet").hidden = true; editing = null; };
-$("f-horizon").addEventListener("change", syncTimeRow);
-
-// parent picker: anything that isn't this task or inside it, as long as 3 levels still hold
-function fillParentSelect(t) {
-  const sel = $("f-parent"); sel.innerHTML = ""; sel.append(new Option("None (top level)", ""));
-  const room = MAX_DEPTH - heightOf(t);                 // deepest allowed depth for the new parent
-  const walk = (n, d) => {
-    if (n.id === t.id) return;
-    if (d <= room) sel.append(new Option("\u00a0\u00a0".repeat(d - 1) + (d > 1 ? "↳ " : "") + n.title, String(n.id)));
-    kids(n).forEach((k) => walk(k, d + 1));
-  };
-  tasks.filter((n) => !n.parent_id).sort((x, y) => x.id - y.id).forEach((n) => walk(n, 1));
-  sel.value = t.parent_id ? String(t.parent_id) : "";
-}
-function syncParentUi() {
-  const has = !!$("f-parent").value;
-  $("f-unsched-row").hidden = !has;
-  if (!has) $("f-unsched").checked = false;
-  $("f-date").disabled = $("f-unsched").checked;
-}
-$("f-parent").addEventListener("change", syncParentUi);
-$("f-unsched").addEventListener("change", syncParentUi);
+$("f-dur-unit").addEventListener("change", syncDurUi);
+$("f-dur").addEventListener("input", syncDurUi);
+$("f-date").addEventListener("input", syncDurUi);
+$("f-unsched").addEventListener("change", () => { $("f-date").disabled = $("f-unsched").checked; syncDurUi(); });
 
 // sub-tasks list inside the sheet
 function renderKidsList(t) {
@@ -467,28 +467,26 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("shee
 $("edit-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const t = editing; if (!t) return;
-  const horizon = $("f-horizon").value, timed = horizon === "day";
-  const start = timed ? $("f-start").value || null : null, end = timed ? $("f-end").value || null : null;
+  const unit = $("f-dur-unit").value, v = Number($("f-dur").value), unsched = !!t.parent_id && $("f-unsched").checked;
+  const start = unit === "day" ? null : $("f-start").value || null, end = unit === "day" ? null : $("f-end").value || null;
   if (end && !start) { toast("Add a start time too"); return; }
   if (start && end && end <= start) { toast("End must be after start"); return; }
-  const parentId = $("f-parent").value ? Number($("f-parent").value) : null, unsched = !!parentId && $("f-unsched").checked;
-  if (!unsched && !$("f-date").value) { toast("Pick a date"); return; }
-  if ($("f-start-on").value && $("f-due").value && $("f-due").value < $("f-start-on").value) { toast("The deadline is before the start date"); return; }
-  const patch = { title: $("f-title").value.trim(), notes: $("f-notes").value.trim() || null, horizon,
-    period_start: unsched ? null : periodStart(horizon, $("f-date").value), start_time: start, end_time: end,
-    parent_id: parentId, due_on: $("f-due").value || null, start_on: $("f-start-on").value || null,
-    priority: Number($("f-priority").value), recur: $("f-recur").value || null,
-    duration_min: Math.round(Number($("f-dur").value)) || null, color: sheetColor || null };
-  if (patch.duration_min && (patch.duration_min < 1 || patch.duration_min > 1440)) { toast("Duration must be 1–1440 minutes"); return; }
+  if (!unsched && !$("f-date").value) { toast("Pick a start date"); return; }
+  let duration_min = null, duration_days = null;
+  if (v > 0) {
+    if (unit === "day") { duration_days = Math.round(v); if (duration_days > 3650) { toast("That's more than 10 years"); return; } }
+    else { duration_min = Math.round(unit === "hour" ? v * 60 : v); if (duration_min > 1440) { toast("A single-day duration can be at most 24 hours — use days for longer"); return; } }
+  }
+  const patch = { title: $("f-title").value.trim(), notes: $("f-notes").value.trim() || null, horizon: "day",
+    period_start: unsched ? null : $("f-date").value, start_time: start, end_time: end,
+    recur: $("f-recur").value || null, duration_min, duration_days: duration_days > 1 ? duration_days : null, color: sheetColor || null };
   if (!patch.title) return;
   const wantDone = $("f-done").checked, becameDone = wantDone && !t.done_at;
   if (wantDone !== !!t.done_at) patch.done_at = wantDone ? new Date().toISOString() : null;
   const { data, error } = await sb.from("tasks").update(patch).eq("id", t.id).select().single();
   if (error) { toast("Couldn't save"); return; }
-  const oldParent = t.parent_id;
   Object.assign(t, data); closeSheet(); render();
   await syncUp(t);
-  if (oldParent && oldParent !== t.parent_id) { const gone = { id: t.id, parent_id: oldParent }; await syncUp(gone); }
   if (becameDone && t.recur) await spawnNext(t);
 });
 // delete a task and everything under it; the toast offers Undo (re-creates the same tree)

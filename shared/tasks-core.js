@@ -34,7 +34,7 @@ window.TasksCore = (function () {
     const next = nextPeriod(t);
     if (existing.some((x) => x.title === t.title && x.horizon === t.horizon && x.period_start === next && x.recur === t.recur)) return null;
     const row = { title: t.title, notes: t.notes, horizon: t.horizon, period_start: next, start_time: t.start_time,
-      end_time: t.end_time, priority: t.priority, recur: t.recur, duration_min: t.duration_min, color: t.color, parent_id: t.parent_id, due_on: null };
+      end_time: t.end_time, priority: t.priority, recur: t.recur, duration_min: t.duration_min, duration_days: t.duration_days, color: t.color, parent_id: t.parent_id };
     const { data, error } = await sb.from("tasks").insert(row).select().single();
     return error ? null : data;
   }
