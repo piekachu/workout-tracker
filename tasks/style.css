@@ -313,18 +313,21 @@ textarea { resize: vertical; }
 .row2 label > span:first-child { white-space: nowrap; }
 .sheet-actions .kebab { width: 44px; height: 44px; border: 1px solid var(--border); background: var(--surface); }
 
-/* Subtasks view: each task is a row; its sub-tasks sit side by side as columns */
-.pcard.lane { display: flex; align-items: stretch; gap: 16px; max-width: none; padding: 12px 14px; }
-.lane-head { flex: 0 0 230px; width: 230px; min-width: 0; padding-right: 14px; border-right: 1px solid var(--border-2); }
-.lane-head .pbar { margin: 8px 0 6px; }
-.lane-cols { flex: 1 1 auto; min-width: 0; display: flex; gap: 12px; align-items: flex-start; overflow-x: auto; overscroll-behavior-x: contain; padding-bottom: 6px; scroll-snap-type: x proximity; }
-.lane-col { flex: 0 0 236px; width: 236px; padding: 8px 10px 6px; background: var(--bg-2); border: 1px solid var(--border-2); border-top: 3px solid var(--border); border-radius: var(--radius); scroll-snap-align: start; }
-.lane-col.tinted { border-top-color: var(--tc); }
-.lane-col.done { opacity: .65; }
-.col-head { border-bottom: 1px solid var(--border-2); margin-bottom: 4px; padding-bottom: 2px; font-weight: 600; }
-.lane-cols > .empty { align-self: center; }
+/* Subtasks view: one compact row per task; click ▸ to open its sub-tasks underneath */
+.pcard.prowcard { max-width: none; margin: 0 0 8px; padding: 4px 12px; }
+.prow { display: flex; align-items: center; gap: 12px; min-height: 46px; min-width: 0; }
+.pr-title { flex: 1 1 auto; min-width: 0; text-align: left; background: none; border: 0; padding: 6px 0; color: var(--text); font-family: var(--font-display); font-size: 1.02rem; font-weight: 600; cursor: pointer; overflow-wrap: anywhere; }
+.pr-prog { flex: 0 0 150px; display: flex; align-items: center; gap: 8px; }
+.pbar.mini { flex: 1 1 auto; margin: 0; height: 6px; }
+.pr-count { flex: 0 0 auto; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); min-width: 28px; text-align: right; }
+.pr-when { flex: 0 0 150px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); white-space: nowrap; }
+.prow .dd, .dd-gap { flex: 0 0 88px; text-align: center; }
+.prowcard .pc-body { margin: 0 0 6px 28px; padding-top: 4px; }
 @media (max-width: 760px) {
-  .pcard.lane { flex-direction: column; gap: 10px; }
-  .lane-head { flex: none; width: auto; padding: 0 0 10px; border-right: 0; border-bottom: 1px solid var(--border-2); }
-  .lane-col { flex-basis: min(260px, 78vw); width: min(260px, 78vw); }
+  .prow { flex-wrap: wrap; row-gap: 0; }
+  .pr-title { flex: 1 1 calc(100% - 90px); }
+  .pr-prog, .pr-when { flex: 0 0 auto; }
+  .prow .dd, .dd-gap { flex: 0 0 auto; }
+  .dd-gap { display: none; }
+  .prowcard .pc-body { margin-left: 8px; }
 }
