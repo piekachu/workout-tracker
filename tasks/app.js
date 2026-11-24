@@ -18,14 +18,11 @@ function periodLabel(view, anchor) {
   return fmt(anchor, { month: "long", year: "numeric" });
 }
 
-// ---------- colours + durations ----------
+// ---------- colours ----------
 const COLORS = { red: "#e5484d", orange: "#f76b15", yellow: "#d9a406", green: "#30a46c", teal: "#12a594", blue: "#3e63dd", purple: "#8e4ec6", pink: "#d6409f", gray: "#8b8d98" };
 const colorStyle = (t) => { const c = effColor(t); return c ? { style: `--tc: ${COLORS[c]}` } : {}; };
 const colorClass = (t) => (effColor(t) ? " tinted" : "");
-function fmtDur(m) { if (!m) return ""; const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; }
-function addMinutes(hhmm, m) { const [h, mi] = hhmm.split(":").map(Number), t = h * 60 + mi + m; return t >= 1440 ? "23:59" : `${pad(Math.floor(t / 60))}:${pad(t % 60)}`; }
-// end time to show: the explicit one, else start + duration
-const endOf = (t) => (t.end_time ? t.end_time.slice(0, 5) : t.start_time && t.duration_min ? addMinutes(t.start_time.slice(0, 5), t.duration_min) : "");
+const endOf = (t) => (t.end_time ? t.end_time.slice(0, 5) : "");
 
 // ---------- tiny DOM helper ----------
 const $ = (id) => document.getElementById(id);
@@ -54,10 +51,10 @@ let anchor = TODAY;
 try { const v = localStorage.getItem("tasks:view"); if (["day", "week", "month", "nested"].includes(v)) view = v; } catch {}
 
 // ---------- spans + D-day counter ----------
-// A task starts on period_start and lasts duration_days (default 1). The last day of that span is its deadline.
-const spanDays = (t) => Math.max(1, t.duration_days || 1);
-const isMulti = (t) => spanDays(t) > 1;
-const endDate = (t) => (t.period_start ? addDays(t.period_start, spanDays(t) - 1) : null);
+// A task starts on period_start and may have an end date (end_on), its deadline.
+const endDate = (t) => (t.period_start ? (t.end_on && t.end_on > t.period_start ? t.end_on : t.period_start) : null);
+const isMulti = (t) => !!t.period_start && endDate(t) > t.period_start;
+const spanDays = (t) => (isMulti(t) ? Math.round((parse(endDate(t)) - parse(t.period_start)) / 86400000) + 1 : 1);
 const covers = (t, iso) => !!t.period_start && t.period_start <= iso && endDate(t) >= iso;
 const dayGap = (iso) => Math.round((parse(iso) - parse(TODAY)) / 86400000);
 // time left today, to the task's end time if it has one, otherwise to midnight
@@ -74,7 +71,6 @@ function dleft(t) {
   const n = dayGap(endDate(t));
   return { n, text: n > 0 ? `D-${n}` : n === 0 ? `D-Day · ${timeLeftToday(t)}` : `D+${-n}`, cls: n < 0 ? "late" : n <= 3 ? "soon" : "" };
 }
-const durLabel = (t) => (t.duration_days ? `${t.duration_days} day${t.duration_days === 1 ? "" : "s"}` : t.duration_min ? fmtDur(t.duration_min) : "");
 // ---------- hierarchy ----------
 // A task can sit under another one (max 3 levels). Sub-tasks may be unscheduled (period_start = null): the project's backlog.
 const MAX_DEPTH = 3;
@@ -90,11 +86,10 @@ const heightOf = (t) => 1 + Math.max(0, ...kids(t).map(heightOf));
 const leaves = (t) => (kids(t).length ? kids(t).flatMap(leaves) : [t]);
 function crumb(t) { const out = []; let p = parentOf(t); while (p && out.length < 10) { out.unshift(p.title); p = parentOf(p); } return out.join(" › "); }
 function effColor(t) { let x = t, n = 0; while (x && n++ < 10) { if (x.color && COLORS[x.color]) return x.color; x = parentOf(x); } return null; }
-// done / total leaves (and the minutes their durations add up to)
+// done / total leaves
 function progressOf(t) {
   const L = leaves(t);
-  return { total: L.length, done: L.filter((x) => x.done_at).length,
-    planMin: L.reduce((s, x) => s + (x.duration_min || 0), 0), doneMin: L.filter((x) => x.done_at).reduce((s, x) => s + (x.duration_min || 0), 0) };
+  return { total: L.length, done: L.filter((x) => x.done_at).length };
 }
 
 async function load() {
@@ -118,11 +113,11 @@ const ongoingOn = (iso) => sorted(tasks.filter((t) => isMulti(t) && covers(t, is
 function taskRow(t, opts = {}) {
   const hhmm = (s) => (s ? s.slice(0, 5) : "");
   const bits = [], hasKids = kids(t).length;
+  if (opts.dueTag) bits.push("⚑ due");
   if (t.parent_id && !opts.noCrumb) bits.push(crumb(t));
   if (hasKids) { const p = progressOf(t); bits.push(`${p.done}/${p.total} sub-tasks`); }
   if (!t.period_start) bits.push("backlog");
   if (t.start_time) bits.push(hhmm(t.start_time) + (endOf(t) ? "–" + endOf(t) : ""));
-  if (t.duration_min || t.duration_days) bits.push(durLabel(t));
   if (t.recur) bits.push("↻ " + t.recur);
   if (isMulti(t)) { bits.push(`${fmt(t.period_start, { month: "short", day: "numeric" })} → ${fmt(endDate(t), { month: "short", day: "numeric" })}`); const d = !t.done_at && dleft(t); if (d) bits.push(d.text); }
   const row = el("div", { class: `task${t.done_at ? " done" : ""}${colorClass(t)}`, ...colorStyle(t) },
@@ -182,10 +177,26 @@ function renderDay(c) {
 function renderWeek(c) {
   const mon = weekStart(anchor), sun = addDays(mon, 6);
   const spanning = sorted(tasks.filter((t) => isMulti(t) && t.period_start <= sun && endDate(t) >= mon));
-  if (spanning.length) c.append(group("Spanning this week", spanning.map((t) => taskRow(t))));
+  if (spanning.length) {
+    // the tasks that last several days, drawn as long lines across the days they cover
+    const { bar } = calBits();
+    const days = el("div", { class: "wk-days" }), bars = el("div", { class: "mcal-bars" });
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(mon, i);
+      days.append(el("button", { type: "button", class: d === TODAY ? "today" : "", onclick: () => { view = "day"; anchor = d; render(); } },
+        el("span", { class: "n" }, fmt(d, { weekday: "short" })), el("span", { class: "d" }, String(parse(d).getDate()))));
+    }
+    spanning.forEach((t) => {
+      const c1 = t.period_start > mon ? Math.round((parse(t.period_start) - parse(mon)) / 86400000) : 0;
+      const e = endDate(t), c2 = e < sun ? Math.round((parse(e) - parse(mon)) / 86400000) : 6;
+      bars.append(bar(t, c1, c2));
+    });
+    c.append(el("section", { class: "wk-strip", "aria-label": "Tasks spanning this week" }, days, bars));
+  }
   for (let i = 0; i < 7; i++) {
     const day = addDays(mon, i);
-    const rows = startingOn(day).filter((t) => !isMulti(t)).map((t) => taskRow(t));
+    const rows = [...sorted(tasks.filter((t) => isMulti(t) && endDate(t) === day)).map((t) => taskRow(t, { dueTag: true })),
+      ...startingOn(day).filter((t) => !isMulti(t)).map((t) => taskRow(t))];
     c.append(group(fmt(day, { weekday: "short", month: "short", day: "numeric" }), rows,
       { today: day === TODAY, empty: "—", action: { label: "Open ›", fn: () => { view = "day"; anchor = day; render(); } } }));
   }
@@ -223,11 +234,9 @@ function isoWeek(iso) {
   return 1 + Math.round(((d - w1) / 86400000 - 3 + ((w1.getDay() + 6) % 7)) / 7);
 }
 
-// Month grid: week rows with a week number, date numbers on top. A task that lasts several days is a bar
-// across the days it covers; a one-day task is a tinted chip; "N more" when a day overflows.
-function renderMonth(c) {
-  const first = firstOf(anchor), last = addDays(addMonths(first, 1), -1), month = first.slice(0, 7);
-  const taskLabel = (t) => [t.start_time ? t.start_time.slice(0, 5) : "", t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ");
+// pieces shared by the month grid and the week strip: one-day chips, multi-day bars, due flags
+function calBits() {
+  const taskLabel = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
   // divs, not buttons: Firefox won't start a drag from a <button>
   const press = (t) => ({ role: "button", tabindex: "0", title: t.title, onclick: () => openSheet(t),
     onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSheet(t); } } });
@@ -236,9 +245,20 @@ function renderMonth(c) {
     onclick: (e) => { e.stopPropagation(); toggle(t); }, onkeydown: (e) => e.stopPropagation() }, "✓");
   const bar = (t, c1, c2) => { const d = !t.done_at && dleft(t);
     return el("div", { ...press(t), ...colorStyle(t), ...dragAttrs(t), class: "mbar" + colorClass(t) + (t.done_at ? " done" : ""), style: `${colorStyle(t).style || ""}; grid-column: ${c1 + 1} / ${c2 + 2}` },
-      check(t), el("span", { class: "tt" }, t.title), el("span", { class: "tm" }, d ? d.text.split(" · ")[0] : durLabel(t))); };
+      check(t), el("span", { class: "tt" }, t.title), el("span", { class: "tm" }, d ? d.text.split(" · ")[0] : spanDays(t) + "d")); };
   const chip = (t) => el("div", { ...press(t), ...colorStyle(t), ...dragAttrs(t), class: `mchip${colorClass(t)}${t.done_at ? " done" : ""}` },
     check(t), taskLabel(t) ? el("span", { class: "tm" }, taskLabel(t)) : null, el("span", { class: "tt" }, t.title));
+  // a flag on the day a task ends, so deadlines stand out from the bar that leads up to them
+  const dueFlag = (t) => el("div", { ...press(t), ...colorStyle(t), class: "mdue" + colorClass(t) + (t.done_at ? " done" : ""), title: `Due: ${t.title}` },
+    el("span", { class: "fl", "aria-hidden": "true" }, "⚑"), el("span", { class: "tt" }, t.title), el("span", { class: "tm" }, "due"));
+  return { press, check, bar, chip, dueFlag };
+}
+
+// Month grid: week rows with a week number, date numbers on top. A task that lasts several days is a bar
+// across the days it covers; a one-day task is a tinted chip; "N more" when a day overflows.
+function renderMonth(c) {
+  const first = firstOf(anchor), last = addDays(addMonths(first, 1), -1), month = first.slice(0, 7);
+  const { chip, bar, dueFlag } = calBits();
   const goDay = (iso) => { view = "day"; anchor = iso; render(); };
 
   const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -260,17 +280,19 @@ function renderMonth(c) {
     const maxChips = Math.max(2, 4 - Math.min(spans.length, 2));
     for (let i = 0; i < 7; i++) {
       const iso = addDays(m, i), inMonth = iso.slice(0, 7) === month, list = startingOn(iso).filter((t) => !isMulti(t));
+      const dues = sorted(tasks.filter((t) => isMulti(t) && endDate(t) === iso));
       const showMonth = iso.slice(8) === "01";
       const dateBtn = el("button", { type: "button", class: (iso === TODAY ? "today " : "") + (inMonth ? "" : "out"), "aria-label": iso, onclick: () => goDay(iso) },
         showMonth ? el("span", { class: "m" }, fmt(iso, { month: "short" })) : null, el("span", { class: "d" }, String(parse(iso).getDate())));
       dates.append(dateBtn);
       const col = el("div", { class: "mcal-col" });
       dayTargets.push([[dateBtn, col], iso]);
-      const visible = list.length > maxChips ? maxChips - 1 : list.length;
-      list.slice(0, visible).forEach((t) => col.append(chip(t)));
-      if (list.length > visible) col.append(el("button", { type: "button", class: "mmore", onclick: () => goDay(iso) }, `${list.length - visible} more`));
+      const items = [...dues.map((t) => [dueFlag, t]), ...list.map((t) => [chip, t])];
+      const visible = items.length > maxChips ? maxChips - 1 : items.length;
+      items.slice(0, visible).forEach(([make, t]) => col.append(make(t)));
+      if (items.length > visible) col.append(el("button", { type: "button", class: "mmore", onclick: () => goDay(iso) }, `${items.length - visible} more`));
       const dots = el("div", { class: "mdots", onclick: () => goDay(iso) });
-      list.slice(0, 6).forEach((t) => dots.append(el("i", { ...colorStyle(t), class: `${colorClass(t).trim()}${t.done_at ? " done" : ""}` })));
+      items.slice(0, 6).forEach(([make, t]) => dots.append(el("i", { ...colorStyle(t), class: `${colorClass(t).trim()}${make === dueFlag ? " due" : ""}${t.done_at ? " done" : ""}` })));
       col.append(dots);
       chips.append(col);
     }
@@ -296,7 +318,7 @@ function nodeRow(t, depth) {
     el("button", { class: "tick sm", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done",
       onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
     el("button", { class: "pt-title", type: "button", onclick: () => openSheet(t) }, t.title),
-    el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t), durLabel(t)].filter(Boolean).join(" · ")),
+    el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t)].filter(Boolean).join(" · ")),
     dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null,
     !hasKids && !t.done_at && t.period_start !== TODAY ? el("button", { class: "pt-btn", type: "button", onclick: () => schedule(t, TODAY) }, "→ Today") : null,
     depth < MAX_DEPTH ? el("button", { class: "pt-btn", type: "button", "aria-label": "Add sub-task", onclick: () => { addingUnder = addingUnder === t.id ? null : t.id; render(); } }, "＋") : null);
@@ -314,10 +336,10 @@ function treeRows(t, depth, out) {
 }
 function nestedCard(r) {
   const hasKids = kids(r).length, p = progressOf(r), open = !collapsed.has(r.id), pct = p.total && hasKids ? Math.round(p.done / p.total * 100) : (r.done_at ? 100 : 0);
-  const stats = [hasKids ? `${p.done}/${p.total} done` : "no sub-tasks yet", p.planMin ? `${fmtDur(p.doneMin)} of ${fmtDur(p.planMin)} planned` : ""].filter(Boolean).join(" · ");
+  const stats = hasKids ? `${p.done}/${p.total} done` : "no sub-tasks yet";
   const next = leaves(r).filter((l) => !l.done_at && (!l.period_start || l.period_start > TODAY))[0];
   const dl = !r.done_at && dleft(r);
-  const span = r.period_start ? whenLabel(r) + (isMulti(r) ? ` · ${durLabel(r)}` : "") : "";
+  const span = r.period_start ? whenLabel(r) + (isMulti(r) ? ` · ${spanDays(r)} days` : "") : "";
   const card = el("section", { class: "pcard" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) },
     el("div", { class: "pc-head" },
       el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: () => { open ? collapsed.add(r.id) : collapsed.delete(r.id); render(); } }, open ? "▾" : "▸"),
@@ -400,17 +422,16 @@ $("add-form").addEventListener("submit", async (e) => {
 
 // ---------- edit sheet ----------
 let editing = null, sheetColor = "";
-const DUR_CHIPS = { min: [[15, "15m"], [30, "30m"], [45, "45m"], [60, "1h"]], hour: [[1, "1h"], [2, "2h"], [3, "3h"], [4, "4h"]], day: [[1, "1 day"], [3, "3 days"], [7, "1 week"], [14, "2 weeks"], [30, "30 days"]] };
-function syncDurUi() {
-  const u = $("f-dur-unit").value;
-  $("f-dur").max = u === "day" ? 3650 : u === "hour" ? 24 : 1440;
-  $("dur-chips").innerHTML = ""; DUR_CHIPS[u].forEach(([v, label]) => $("dur-chips").append(el("button", { type: "button", "data-v": String(v) }, label)));
-  $("f-time-row").hidden = u === "day";                 // clock times only make sense inside a single day
-  const n = Number($("f-dur").value), d = $("f-date").value;
+const END_CHIPS = [["", "Same day"], [3, "+3 days"], [7, "+1 week"], [14, "+2 weeks"], [30, "+1 month"]];
+function syncDateUi() {
+  const d = $("f-date").value, e = $("f-end-date").value;
+  $("f-end-date").min = d || "";
+  const multi = !!d && !!e && e > d && !$("f-date").disabled;
+  $("f-time-row").hidden = multi;                        // clock times only make sense inside a single day
   const info = $("f-endinfo");
-  if (u === "day" && n >= 1 && d && !$("f-date").disabled) {
-    const end = addDays(d, Math.round(n) - 1), g = dayGap(end);
-    info.textContent = `Ends ${fmt(end, { weekday: "short", month: "short", day: "numeric" })} · ${g > 0 ? "D-" + g : g === 0 ? "D-Day" : "D+" + -g}`; info.hidden = false;
+  if (multi) {
+    const g = dayGap(e), n = Math.round((parse(e) - parse(d)) / 86400000) + 1;
+    info.textContent = `${n} days · ends ${fmt(e, { weekday: "short", month: "short", day: "numeric" })} · ${g > 0 ? "D-" + g : g === 0 ? "D-Day" : "D+" + -g}`; info.hidden = false;
   } else info.hidden = true;
 }
 function setColor(c) {
@@ -420,27 +441,28 @@ function setColor(c) {
 function openSheet(t) {
   editing = t;
   $("f-title").value = t.title; $("f-notes").value = t.notes || "";
-  $("f-date").value = t.period_start || "";
+  $("f-date").value = t.period_start || ""; $("f-end-date").value = t.end_on && t.period_start && t.end_on > t.period_start ? t.end_on : "";
   $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
-  if (t.duration_days) { $("f-dur-unit").value = "day"; $("f-dur").value = t.duration_days; }
-  else if (t.duration_min && t.duration_min >= 60 && t.duration_min % 60 === 0) { $("f-dur-unit").value = "hour"; $("f-dur").value = t.duration_min / 60; }
-  else { $("f-dur-unit").value = "min"; $("f-dur").value = t.duration_min || ""; }
   setColor(t.color || ""); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
   $("f-unsched-row").hidden = !t.parent_id; $("f-unsched").checked = !!t.parent_id && !t.period_start; $("f-date").disabled = $("f-unsched").checked;
-  renderKidsList(t); syncDurUi(); $("sheet").hidden = false;
+  renderKidsList(t); syncDateUi(); $("sheet").hidden = false;
 }
 {
   const box = $("f-colors");
   box.append(el("button", { type: "button", class: "sw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setColor("") }, "∅"));
   for (const [name, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "sw", "data-c": name, role: "radio", "aria-label": name, title: name,
     style: `--tc: ${hex}`, onclick: () => setColor(name) }));
-  $("dur-chips").addEventListener("click", (e) => { const b = e.target.closest("button[data-v]"); if (b) { $("f-dur").value = b.dataset.v; syncDurUi(); } });
+  END_CHIPS.forEach(([n, label]) => $("dur-chips").append(el("button", { type: "button", "data-n": String(n) }, label)));
+  $("dur-chips").addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-n]"); if (!b) return;
+    const d = $("f-date").value; if (!d) { toast("Pick a start date first"); return; }
+    $("f-end-date").value = b.dataset.n ? addDays(d, Number(b.dataset.n)) : ""; syncDateUi();
+  });
 }
 const closeSheet = () => { $("sheet").hidden = true; editing = null; };
-$("f-dur-unit").addEventListener("change", syncDurUi);
-$("f-dur").addEventListener("input", syncDurUi);
-$("f-date").addEventListener("input", syncDurUi);
-$("f-unsched").addEventListener("change", () => { $("f-date").disabled = $("f-unsched").checked; syncDurUi(); });
+$("f-date").addEventListener("input", syncDateUi);
+$("f-end-date").addEventListener("input", syncDateUi);
+$("f-unsched").addEventListener("change", () => { $("f-date").disabled = $("f-unsched").checked; syncDateUi(); });
 
 // sub-tasks list inside the sheet
 function renderKidsList(t) {
@@ -467,19 +489,15 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("shee
 $("edit-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const t = editing; if (!t) return;
-  const unit = $("f-dur-unit").value, v = Number($("f-dur").value), unsched = !!t.parent_id && $("f-unsched").checked;
-  const start = unit === "day" ? null : $("f-start").value || null, end = unit === "day" ? null : $("f-end").value || null;
+  const unsched = !!t.parent_id && $("f-unsched").checked, endOn = $("f-end-date").value, multi = !unsched && endOn && endOn > $("f-date").value;
+  const start = multi ? null : $("f-start").value || null, end = multi ? null : $("f-end").value || null;
   if (end && !start) { toast("Add a start time too"); return; }
   if (start && end && end <= start) { toast("End must be after start"); return; }
   if (!unsched && !$("f-date").value) { toast("Pick a start date"); return; }
-  let duration_min = null, duration_days = null;
-  if (v > 0) {
-    if (unit === "day") { duration_days = Math.round(v); if (duration_days > 3650) { toast("That's more than 10 years"); return; } }
-    else { duration_min = Math.round(unit === "hour" ? v * 60 : v); if (duration_min > 1440) { toast("A single-day duration can be at most 24 hours — use days for longer"); return; } }
-  }
+  if (endOn && !unsched && endOn < $("f-date").value) { toast("The end date is before the start date"); return; }
   const patch = { title: $("f-title").value.trim(), notes: $("f-notes").value.trim() || null, horizon: "day",
     period_start: unsched ? null : $("f-date").value, start_time: start, end_time: end,
-    recur: $("f-recur").value || null, duration_min, duration_days: duration_days > 1 ? duration_days : null, color: sheetColor || null };
+    recur: $("f-recur").value || null, end_on: multi ? endOn : null, color: sheetColor || null };
   if (!patch.title) return;
   const wantDone = $("f-done").checked, becameDone = wantDone && !t.done_at;
   if (wantDone !== !!t.done_at) patch.done_at = wantDone ? new Date().toISOString() : null;

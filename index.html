@@ -154,7 +154,6 @@
     .erow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .erow[hidden] { display: none; }
     .esheet .opt { font-weight: 400; color: var(--text-faint); }
-    .edur { display: flex; gap: 6px; } .edur input { flex: 1 1 auto; min-width: 0; } .edur select { flex: 0 0 auto; width: auto; }
     .eswatches { display: flex; gap: 8px; flex-wrap: wrap; }
     .esw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--tc, transparent); cursor: pointer; padding: 0; color: var(--text-dim); font-size: 14px; }
     .esw.none { border-color: var(--border); background: none; min-height: 0; }
@@ -165,6 +164,30 @@
     .eactions .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .eactions .danger { color: var(--danger); }
     .elink { font-size: .85rem; color: var(--accent); text-decoration: none; }
+    /* streak badge on every habit */
+    .streak { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 999px; background: var(--bg-2);
+      font-family: var(--font-mono); font-size: 11.5px; font-weight: 600; color: var(--text-dim); white-space: nowrap; }
+    .streak.on { background: color-mix(in oklab, var(--gold) 22%, transparent); color: var(--text); }
+
+    /* small calendar of tasks that have an end date */
+    .mini-nav { display: flex; align-items: center; gap: 4px; }
+    .mini-nav button { width: 30px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text-dim); font-size: 15px; cursor: pointer; padding: 0; }
+    .mini-nav .ttl { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); min-width: 108px; text-align: center; }
+    .mc { border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: var(--bg); }
+    .mc-head, .mc-dates, .mc-bars { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+    .mc-head span { padding: 4px 0; text-align: center; font-size: 10.5px; color: var(--text-faint); border-bottom: 1px solid var(--border-2); }
+    .mc-week { border-bottom: 1px solid var(--border-2); position: relative;
+      background: repeating-linear-gradient(to right, transparent 0, transparent calc(100% / 7 - 1px), var(--border-2) calc(100% / 7 - 1px), var(--border-2) calc(100% / 7)); }
+    .mc-week:last-child { border-bottom: 0; }
+    .mc-dates span { padding: 3px 0 2px; text-align: center; font-size: 11px; color: var(--text); }
+    .mc-dates span.out { color: var(--text-faint); }
+    .mc-dates span b { display: inline-block; min-width: 18px; border-radius: 999px; font-weight: 500; }
+    .mc-dates span.today b { background: #e5484d; color: #fff; font-weight: 700; }
+    .mc-bars { row-gap: 2px; padding-bottom: 3px; min-height: 22px; grid-auto-flow: row dense; }
+    .mc-bar { margin: 0 2px; padding: 0 6px; height: 17px; line-height: 17px; border: 0; border-radius: 3px; text-align: left; font-size: 10.5px; color: #fff; cursor: pointer;
+      background: color-mix(in oklab, var(--tc, var(--accent)) 82%, #000); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .mc-bar.done { opacity: .5; text-decoration: line-through; }
+    .mc-empty { margin-top: 8px; font-size: .85rem; color: var(--text-dim); }
     .toast-err { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%);
       background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 13px; z-index: 50; }
     footer { padding: 0 var(--page-pad) 36px; color: var(--text-faint); font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; }
@@ -216,6 +239,14 @@
         </div>
       </div>
       <div class="panel">
+        <div class="panel-h"><span>Calendar</span><span class="meta">tasks with an end date</span></div>
+        <div class="panel-b">
+          <div class="mini-nav"><button type="button" id="mc-prev" aria-label="Previous month">‹</button><span class="ttl" id="mc-title"></span><button type="button" id="mc-next" aria-label="Next month">›</button><button type="button" id="mc-today" style="width:auto;padding:0 10px;font-size:12px">Today</button></div>
+          <div class="mc" id="mini-cal" style="margin-top:8px"></div>
+          <div class="mc-empty" id="mc-empty" hidden>No tasks with an end date this month.</div>
+        </div>
+      </div>
+      <div class="panel">
         <div class="panel-h"><span>Today at a glance</span><span class="meta">share finished</span></div>
         <div class="panel-b rings">
           <div class="ring-cell"><div id="ring-habits" class="ring-host"></div>Habits</div>
@@ -258,10 +289,7 @@
       <label>Description<textarea id="e-notes" rows="3" placeholder="What is this about?"></textarea></label>
       <div class="erow">
         <label>Start date<input id="e-date" type="date"></label>
-        <label>Duration <span class="opt">optional</span>
-          <span class="edur"><input id="e-dur" type="number" inputmode="numeric" min="1" max="3650" step="1" placeholder="e.g. 45">
-            <select id="e-unit" aria-label="Duration unit"><option value="min">minutes</option><option value="hour">hours</option><option value="day">days</option></select></span>
-        </label>
+        <label>End date <span class="opt">optional</span><input id="e-end-date" type="date"></label>
       </div>
       <div class="erow" id="e-time-row">
         <label>Start time<input id="e-start" type="time"></label>
@@ -313,7 +341,7 @@
       tasks: once(async () => {
         const [recent, spans] = await Promise.all([
           sb.from("tasks").select("*").not("period_start", "is", null).lte("period_start", TODAY).gte("period_start", addDaysISO(TODAY, -60)),
-          sb.from("tasks").select("*").gt("duration_days", 1).lte("period_start", TODAY).gte("period_start", addDaysISO(TODAY, -400)),
+          sb.from("tasks").select("*").not("end_on", "is", null).lte("period_start", TODAY).gte("end_on", TODAY),
         ]);
         if (recent.error) throw recent.error;
         if (spans.error) throw spans.error;
@@ -400,12 +428,10 @@
     // ---------------- rendering ----------------
     const COLORS = { red: "#e5484d", orange: "#f76b15", yellow: "#d9a406", green: "#30a46c", teal: "#12a594", blue: "#3e63dd", purple: "#8e4ec6", pink: "#d6409f", gray: "#8b8d98" };
     const colorOf = (t) => (COLORS[t.color] ? t.color : COLORS[t._pcolor] ? t._pcolor : null);
-    const fmtDur = (m) => { const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; };
     const dayDiff = (iso) => Math.round((new Date(iso + "T00:00") - new Date(TODAY + "T00:00")) / 86400000);
-    // a task starts on period_start and lasts duration_days (default 1); the last day is its deadline
-    const spanDays = (t) => Math.max(1, t.duration_days || 1);
-    const isMulti = (t) => spanDays(t) > 1;
-    const endDate = (t) => (t.period_start ? addDaysISO(t.period_start, spanDays(t) - 1) : null);
+    // a task starts on period_start and may have an end date (end_on), its deadline
+    const endDate = (t) => (t.period_start ? (t.end_on && t.end_on > t.period_start ? t.end_on : t.period_start) : null);
+    const isMulti = (t) => !!t.period_start && endDate(t) > t.period_start;
     function timeLeftToday(t) {
       const now = new Date(), end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0);
       if (t.end_time) { const [h, m] = t.end_time.split(":").map(Number); end.setHours(h, m, 0, 0); }
@@ -418,17 +444,12 @@
       return { n, text: n > 0 ? `D-${n}` : n === 0 ? `D-Day · ${timeLeftToday(t)}` : `D+${-n}`, cls: n < 0 ? " alert" : n <= 3 ? " soon" : "" };
     }
     const shortDate = (iso) => new Date(iso + "T00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
-    function endOf(t) {
-      if (t.end_time) return t.end_time.slice(0, 5);
-      if (t.start_time && t.duration_min) { const [h, m] = t.start_time.slice(0, 5).split(":").map(Number), x = h * 60 + m + t.duration_min; return x >= 1440 ? "23:59" : `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; }
-      return "";
-    }
+    const endOf = (t) => (t.end_time ? t.end_time.slice(0, 5) : "");
     function taskItem(t, tag) {
       const chips = [], c = colorOf(t);
       if (tag === "overdue") chips.push(el("span", { class: "tchip alert" }, "overdue"));
       if (isMulti(t)) chips.push(el("span", { class: "tchip" }, `${shortDate(t.period_start)} → ${shortDate(endDate(t))}`));
       if (t.start_time) chips.push(el("span", { class: "tchip" }, "🕐 " + timeOf(t) + (endOf(t) ? "–" + endOf(t) : "")));
-      if (t.duration_min) chips.push(el("span", { class: "tchip" }, "⏳ " + fmtDur(t.duration_min)));
       if (t._kids) chips.push(el("span", { class: "tchip" }, `${t._kids.done}/${t._kids.total} sub-tasks`));
       if (t._parent) chips.push(el("span", { class: "tchip proj" }, "↳ " + t._parent));
       if (!t.done_at) { const d = dleft(t); if (d) chips.push(el("span", { class: "tchip" + d.cls }, d.text)); }
@@ -440,18 +461,21 @@
         el("button", { class: "edit", type: "button", "aria-label": `Edit "${t.title}"`, title: "Edit task", onclick: () => openEdit(t) }, "✎"),
         el("button", { class: "del", type: "button", "aria-label": `Delete "${t.title}"`, title: "Delete task", onclick: () => deleteTask(t) }, "✕"));
     }
+    const streakBadge = (n, unit) => el("span", { class: "streak" + (n > 0 ? " on" : ""), title: unit === "w" ? `${n}-week streak` : `${n}-day streak` }, `🔥 ${n}${unit}`);
     function coreItem(c) {
       const st = state.core[c.key];
       return el("a", { class: "item core" + (st && st.done ? " done" : ""), href: c.href },
         st && st.done ? el("span", { class: "tick" }, "✓") : el("span", { class: "go-dot" }, "→"),
-        el("div", { class: "body" }, el("div", { class: "name" }, c.name), el("div", { class: "sub" }, st ? withStreak(st.sub, st.streak) : "Loading…")),
+        el("div", { class: "body" }, el("div", { class: "name" }, c.name), el("div", { class: "sub" }, st ? st.sub : "Loading…")),
+        st ? streakBadge(st.streak || 0, st.unit || "d") : "",
         st && st.done ? "" : el("span", { class: "cta" }, c.cta));
     }
     function habitItem(h) {
       return el("div", { class: "item" + (h.done ? " done" : ""), role: "button", tabindex: "0", "aria-pressed": String(h.done),
           onclick: () => toggleHabit(h), onkeydown: (e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleHabit(h); } } },
         el("span", { class: "tick" }, "✓"),
-        el("div", { class: "body" }, el("div", { class: "name" }, h.name), h.streak >= 2 ? el("div", { class: "sub" }, `${h.streak}-day streak`) : ""));
+        el("div", { class: "body" }, el("div", { class: "name" }, h.name)),
+        streakBadge(h.streak || 0, "d"));
     }
 
     function render() {
@@ -584,6 +608,48 @@
       state.custom.filter((h) => h.streak >= 1).forEach((h) => chip(h.streak, `day ${h.name.toLowerCase()}`));
     }
 
+    // ---------------- small calendar: tasks with an end date ----------------
+    let mcMonth = firstOf(TODAY), mcSpans = [];
+    async function loadSpans() {
+      const gridStart = weekStart(mcMonth), gridEnd = addDaysISO(weekStart(addDaysISO(addMonthsISO(mcMonth, 1), -1)), 6);
+      const { data, error } = await sb.from("tasks").select("*").not("end_on", "is", null).not("period_start", "is", null).lte("period_start", gridEnd).gte("end_on", gridStart).order("period_start");
+      if (error) { mcSpans = []; renderMini(); return; }
+      const rows = (data || []).filter((t) => t.end_on > t.period_start);
+      const pids = [...new Set(rows.map((r) => r.parent_id).filter(Boolean))];
+      if (pids.length) {
+        const { data: ps } = await sb.from("tasks").select("id, title, color").in("id", pids);
+        const info = new Map((ps || []).map((p) => [p.id, p]));
+        rows.forEach((r) => { const p = info.get(r.parent_id); if (p) { r._parent = p.title; r._pcolor = p.color; } });
+      }
+      mcSpans = rows; renderMini();
+    }
+    function addMonthsISO(iso, n) { const d = new Date(iso + "T00:00"); return localISO(new Date(d.getFullYear(), d.getMonth() + n, 1)); }
+    function renderMini() {
+      const box = $("mini-cal"); box.innerHTML = "";
+      $("mc-title").textContent = new Date(mcMonth + "T00:00").toLocaleDateString(undefined, { month: "long", year: "numeric" });
+      box.append(el("div", { class: "mc-head" }, ...["S", "M", "T", "W", "T", "F", "S"].map((d) => el("span", {}, d))));
+      const last = addDaysISO(addMonthsISO(mcMonth, 1), -1), month = mcMonth.slice(0, 7);
+      for (let m = weekStart(mcMonth); m <= last; m = addDaysISO(m, 7)) {
+        const m6 = addDaysISO(m, 6), dates = el("div", { class: "mc-dates" }), bars = el("div", { class: "mc-bars" });
+        for (let i = 0; i < 7; i++) {
+          const d = addDaysISO(m, i);
+          dates.append(el("span", { class: (d === TODAY ? "today " : "") + (d.slice(0, 7) === month ? "" : "out") }, el("b", {}, String(Number(d.slice(8))))));
+        }
+        mcSpans.filter((t) => t.period_start <= m6 && endDate(t) >= m).forEach((t) => {
+          const c1 = t.period_start > m ? Math.round((new Date(t.period_start) - new Date(m)) / 86400000) : 0;
+          const e = endDate(t), c2 = e < m6 ? Math.round((new Date(e) - new Date(m)) / 86400000) : 6, c = colorOf(t);
+          bars.append(el("button", { type: "button", class: "mc-bar" + (t.done_at ? " done" : ""), title: `${t.title} · ${shortDate(t.period_start)} → ${shortDate(endDate(t))}`,
+            style: `grid-column: ${c1 + 1} / ${c2 + 2};${c ? ` --tc: ${COLORS[c]}` : ""}`, onclick: () => openEdit(t) }, t.title));
+        });
+        box.append(el("div", { class: "mc-week" }, dates, bars));
+      }
+      $("mc-empty").hidden = mcSpans.length > 0;
+    }
+    $("mc-prev").addEventListener("click", () => { mcMonth = addMonthsISO(mcMonth, -1); loadSpans(); });
+    $("mc-next").addEventListener("click", () => { mcMonth = addMonthsISO(mcMonth, 1); loadSpans(); });
+    $("mc-today").addEventListener("click", () => { mcMonth = firstOf(TODAY); loadSpans(); });
+    renderMini();
+
     // ---------------- pull steps from projects ----------------
     let pullOpen = false;
     function renderPull() {
@@ -603,8 +669,8 @@
       for (const g of groups.values()) {
         box.append(el("div", { class: "pull-proj" }, g.name));
         g.items.slice(0, 4).forEach((t) => box.append(el("div", { class: "pull-row" },
-          el("div", { class: "t" }, t.title, (t._parent && t._parent !== g.name) || t.duration_min
-            ? el("small", {}, [t._parent && t._parent !== g.name ? "↳ " + t._parent : "", t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ")) : ""),
+          el("div", { class: "t" }, t.title, (t._parent && t._parent !== g.name)
+            ? el("small", {}, "↳ " + t._parent) : ""),
           el("button", { type: "button", class: "mini-btn", onclick: () => pullToday(t) }, "+ Today"))));
         if (g.items.length > 4) box.append(el("div", { class: "quiet" }, `+ ${g.items.length - 4} more in Tasks → Subtasks`));
       }
@@ -633,42 +699,38 @@
       box.append(el("button", { type: "button", class: "esw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setEColor("") }, "∅"));
       for (const [n, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "esw", "data-c": n, role: "radio", "aria-label": n, title: n, style: `--tc: ${hex}`, onclick: () => setEColor(n) }));
     }
-    const EDUR_MAX = { min: 1440, hour: 24, day: 3650 };
-    const syncETime = () => { const u = $("e-unit").value; $("e-dur").max = EDUR_MAX[u]; $("e-time-row").hidden = u === "day"; };
-    $("e-unit").addEventListener("change", syncETime);
+    const syncETime = () => {
+      const d = $("e-date").value, e = $("e-end-date").value;
+      $("e-end-date").min = d || ""; $("e-time-row").hidden = !!d && !!e && e > d;     // clock times only make sense inside one day
+    };
+    $("e-date").addEventListener("input", syncETime); $("e-end-date").addEventListener("input", syncETime);
     function openEdit(t) {
       editingT = t;
       $("e-title").value = t.title; $("e-notes").value = t.notes || ""; $("e-date").value = t.period_start || TODAY;
+      $("e-end-date").value = isMulti(t) ? endDate(t) : "";
       $("e-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("e-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
-      if (t.duration_days) { $("e-unit").value = "day"; $("e-dur").value = t.duration_days; }
-      else if (t.duration_min && t.duration_min >= 60 && t.duration_min % 60 === 0) { $("e-unit").value = "hour"; $("e-dur").value = t.duration_min / 60; }
-      else { $("e-unit").value = "min"; $("e-dur").value = t.duration_min || ""; }
       setEColor(t.color || ""); syncETime(); $("esheet").hidden = false; $("e-title").focus();
     }
     const closeEdit = () => { $("esheet").hidden = true; editingT = null; };
     $("e-cancel").addEventListener("click", closeEdit);
     $("esheet").addEventListener("click", (e) => { if (e.target.id === "esheet") closeEdit(); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("esheet").hidden) closeEdit(); });
-    $("e-delete").addEventListener("click", () => { const t = editingT; closeEdit(); if (t) deleteTask(t); });
+    $("e-delete").addEventListener("click", async () => { const t = editingT; closeEdit(); if (t) { await deleteTask(t); loadSpans(); } });
     $("eform").addEventListener("submit", async (e) => {
       e.preventDefault();
       const t = editingT; if (!t) return;
-      const unit = $("e-unit").value, v = Number($("e-dur").value), date = $("e-date").value;
-      const start = unit === "day" ? null : $("e-start").value || null, end = unit === "day" ? null : $("e-end").value || null;
+      const date = $("e-date").value, endOn = $("e-end-date").value, multi = !!endOn && endOn > date;
+      const start = multi ? null : $("e-start").value || null, end = multi ? null : $("e-end").value || null;
       if (!date) return toast("Pick a start date");
+      if (endOn && endOn < date) return toast("The end date is before the start date");
       if (end && !start) return toast("Add a start time too");
       if (start && end && end <= start) return toast("End must be after start");
-      let duration_min = null, duration_days = null;
-      if (v > 0) {
-        if (unit === "day") duration_days = Math.round(v);
-        else { duration_min = Math.round(unit === "hour" ? v * 60 : v); if (duration_min > 1440) return toast("Up to 24 hours in one day — use days for longer"); }
-      }
       const patch = { title: $("e-title").value.trim(), notes: $("e-notes").value.trim() || null, horizon: "day", period_start: date,
-        start_time: start, end_time: end, duration_min, duration_days: duration_days > 1 ? duration_days : null, color: eColor || null };
+        start_time: start, end_time: end, end_on: multi ? endOn : null, color: eColor || null };
       if (!patch.title) return;
       const { data, error } = await sb.from("tasks").update(patch).eq("id", t.id).select().single();
       if (error) return toast("Couldn't save — check your connection");
-      Object.assign(t, data); closeEdit(); render();
+      Object.assign(t, data); closeEdit(); render(); loadSpans();
     });
 
     // ---------------- actions ----------------
@@ -783,7 +845,11 @@
         const inLabel = (g, label) => { const parts = (label || "").split("+").map((x) => x.trim()); return g.split("+").every((p) => parts.includes(p.trim())); };
         const last = rows[0], idx = last ? Math.max(-1, ...WORKOUT_GROUPS.map((g, i) => (inLabel(g, last.category) ? i : -1))) : -1;
         const next = WORKOUT_GROUPS[(idx + 1) % WORKOUT_GROUPS.length];
-        state.core.workout = { done, streak: 0,
+        // rest days are normal, so the workout streak counts consecutive weeks with at least one session
+        const wk = new Set(rows.map((r) => weekStart(r.log_date)));
+        let w = wk.has(weekStart(TODAY)) ? weekStart(TODAY) : addDaysISO(weekStart(TODAY), -7), wstreak = 0;
+        while (wk.has(w)) { wstreak++; w = addDaysISO(w, -7); }
+        state.core.workout = { done, streak: wstreak, unit: "w",
           sub: done ? `Logged${todays && todays.category ? " · " + todays.category : ""}` : `Next up: ${next} · ${thisWeek} this week` };
       }).catch(() => { state.core.workout = { done: false, sub: "Couldn't load" }; });
     }
@@ -821,7 +887,7 @@
     function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }); }
 
     render();
-    [loadTasks, loadRecent, loadVocab, loadWorkout, loadCustom, loadSpend, loadBacklog].forEach((f) => f().then(render));
+    [loadTasks, loadRecent, loadVocab, loadWorkout, loadCustom, loadSpend, loadBacklog, loadSpans].forEach((f) => f().then(render));
     window.addEventListener("resize", (() => { let w = innerWidth; return () => { if ((innerWidth < 640) !== (w < 640)) { w = innerWidth; render(); } }; })());
 
     // A tab left open past midnight should roll over to the new day.

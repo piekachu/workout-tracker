@@ -271,3 +271,28 @@ textarea { resize: vertical; }
 .end-info[hidden] { display: none; }
 .dur-chips:empty { display: none; }
 @media (max-width: 700px) { .mcal-bars .mbar { margin: 1px 1px; } }
+
+/* due-date flag on the last day of a task */
+.mdue { display: flex; align-items: center; gap: 5px; width: 100%; margin-bottom: 2px; padding: 2px 6px; min-width: 0; font-size: 12.5px; line-height: 1.35; cursor: pointer;
+  border: 1px dashed var(--tc, var(--accent)); border-radius: 3px; color: var(--text); background: color-mix(in oklab, var(--tc, var(--accent)) 10%, transparent); }
+.mdue .fl { flex: 0 0 auto; color: var(--tc, var(--accent)); font-size: 11px; }
+.mdue .tt { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mdue .tm { flex: 0 0 auto; margin-left: auto; color: var(--text-dim); font-size: 11px; }
+.mdue.done { opacity: .55; }
+.mdue.done .tt { text-decoration: line-through; }
+.mdue:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.mdots i.due { background: none; border: 2px solid var(--tc, var(--accent)); width: 8px; height: 8px; }
+@media (max-width: 700px) { .mdue { display: none; } }
+
+/* week strip: multi-day tasks as long lines across the week */
+.wk-strip { margin: 6px 0 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); overflow: hidden; }
+.wk-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.wk-days button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 6px 0; background: none; border: 0; border-left: 1px solid var(--border-2); color: var(--text-dim); cursor: pointer; }
+.wk-days button:first-child { border-left: 0; }
+.wk-days .n { font-size: 11px; }
+.wk-days .d { font-size: 15px; font-weight: 600; color: var(--text); min-width: 26px; text-align: center; border-radius: 999px; }
+.wk-days .today .d { background: #e5484d; color: #fff; }
+.wk-strip .mcal-bars { padding: 4px 0;
+  background: repeating-linear-gradient(to right, transparent 0, transparent calc(100% / 7 - 1px), var(--border-2) calc(100% / 7 - 1px), var(--border-2) calc(100% / 7)); }
+.wk-strip .mbar { margin: 2px 3px; }
+@media (min-width: 900px) { #content[data-view="week"] > .wk-strip { grid-column: 1 / -1; } }
