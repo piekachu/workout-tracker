@@ -21,23 +21,6 @@ function periodLabel(view, anchor) {
 // ---------- colours ----------
 const COLORS = { red: "#e5484d", orange: "#f76b15", yellow: "#d9a406", green: "#30a46c", teal: "#12a594", blue: "#3e63dd", purple: "#8e4ec6", pink: "#d6409f", gray: "#8b8d98" };
 const hexOf = (c) => (c && (COLORS[c] || (/^#[0-9a-fA-F]{6}$/.test(c) ? c : null))) || null;
-const hslHex = (h, s, l) => { s /= 100; l /= 100; const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-  return "#" + [f(0), f(8), f(4)].map((x) => Math.round(x * 255).toString(16).padStart(2, "0")).join(""); };
-const hexHsl = (hex) => { const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
-  let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [Math.round(((h * 60) + 360) % 360), d ? Math.round(d / (1 - Math.abs(2 * l - 1)) * 100) : 0, Math.round(l * 100)]; };
-// wide colour picker: rainbow bar + shade bar + exact picker; calls onPick(hex)
-function buildPicker(host, onPick) {
-  const hue = el("input", { type: "range", min: "0", max: "359", value: "210", class: "cp-hue", "aria-label": "Hue" });
-  const lit = el("input", { type: "range", min: "20", max: "80", value: "50", class: "cp-lit", "aria-label": "Shade" });
-  const exact = el("input", { type: "color", value: "#3e63dd", class: "cp-exact", "aria-label": "Exact colour" });
-  const from = () => hslHex(+hue.value, 70, +lit.value);
-  const paint = () => { lit.style.setProperty("--h", hue.value); };
-  const fire = () => { paint(); const hx = from(); exact.value = hx; onPick(hx); };
-  hue.addEventListener("input", fire); lit.addEventListener("input", fire);
-  exact.addEventListener("input", () => { const [h, , l] = hexHsl(exact.value); hue.value = h; lit.value = Math.min(80, Math.max(20, l)); paint(); onPick(exact.value); });
-  host.append(hue, lit, exact); paint();
-  return (hex) => { if (hex && /^#/.test(hex)) { exact.value = hex; const [h, , l] = hexHsl(hex); hue.value = h; lit.value = Math.min(80, Math.max(20, l)); paint(); } };
-}
 const colorStyle = (t) => { const c = effColor(t); return c ? { style: `--tc: ${hexOf(c)}` } : {}; };
 const colorClass = (t) => (effColor(t) ? " tinted" : "");
 const endOf = (t) => (t.end_time ? t.end_time.slice(0, 5) : "");
@@ -491,8 +474,7 @@ function syncDateUi() {
 }
 function setColor(c) {
   sheetColor = c;
-  document.querySelectorAll("#f-colors button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.c === c)));
-  if (pickerSet) pickerSet(c);
+  if (pickerSet) pickerSet(hexOf(c));
 }
 function openSheet(t) {
   editing = t;
@@ -504,12 +486,7 @@ function openSheet(t) {
   renderKidsList(t); syncDateUi(); syncPasteUi(); $("sheet").hidden = false;
 }
 {
-  const box = $("f-colors");
-  box.append(el("button", { type: "button", class: "sw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setColor("") }, "∅"));
-  for (const [name, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "sw", "data-c": name, role: "radio", "aria-label": name, title: name,
-    style: `--tc: ${hex}`, onclick: () => setColor(name) }));
-  const cp = el("div", { class: "cp" }); $("f-colors").after(cp);
-  pickerSet = buildPicker(cp, (hx) => { sheetColor = hx; document.querySelectorAll("#f-colors button").forEach((b) => b.setAttribute("aria-checked", "false")); });
+  pickerSet = UI.colorPicker($("f-colors"), (hx) => { sheetColor = hx; });
   END_CHIPS.forEach(([n, label]) => $("dur-chips").append(el("button", { type: "button", "data-n": String(n) }, label)));
   $("dur-chips").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-n]"); if (!b) return;

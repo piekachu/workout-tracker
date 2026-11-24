@@ -193,10 +193,6 @@ textarea { resize: vertical; }
 .dur-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .dur-chips button { height: 30px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 12.5px; cursor: pointer; }
 .color-field .lbl { display: block; margin-bottom: 6px; font-size: .78rem; color: var(--text-dim); font-weight: 600; }
-.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
-.sw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--tc, transparent); cursor: pointer; padding: 0; color: var(--text-dim); font-size: 14px; }
-.sw.none { border-color: var(--border); background: none; }
-.sw[aria-checked="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
 /* phones: week/month bars stay readable instead of 5px slivers */
 @media (max-width: 700px) {
   .mbar { font-size: 10.5px; height: auto; padding: 1px 5px; margin: 1px 2px 2px; line-height: 1.35; }
@@ -301,13 +297,6 @@ textarea { resize: vertical; }
 .add-row #add-paste[hidden], #f-paste[hidden] { display: none; }
 
 .pt-fold { width: 24px; height: 28px; flex: 0 0 auto; margin-right: -4px; background: none; border: 0; color: var(--text-dim); font-size: 14px; cursor: pointer; padding: 0; }
-.cp { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; margin-top: 10px; }
-.cp input[type=range] { -webkit-appearance: none; appearance: none; height: 14px; border-radius: 999px; border: 1px solid var(--border); padding: 0; margin: 0; min-width: 0; width: 100%; }
-.cp input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 2px solid #333; cursor: pointer; }
-.cp input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #333; cursor: pointer; }
-.cp-hue { grid-column: 1; background: linear-gradient(90deg, #f00, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00); }
-.cp-lit { grid-column: 1; background: linear-gradient(90deg, hsl(var(--h, 210) 70% 20%), hsl(var(--h, 210) 70% 50%), hsl(var(--h, 210) 70% 80%)); }
-.cp-exact { grid-column: 2; grid-row: 1 / span 2; width: 44px; height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: none; cursor: pointer; }
 
 /* keep crowded rows from spilling or overlapping */
 .pnode { flex-wrap: wrap; row-gap: 4px; }

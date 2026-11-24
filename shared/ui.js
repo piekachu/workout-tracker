@@ -57,5 +57,44 @@ const UI = (() => {
       document.addEventListener("pointermove", move); document.addEventListener("pointerup", up); document.addEventListener("pointercancel", up);
     });
   }
-  return { menu, kebab, reorder, closeMenu };
+  // ---- colour picker: hue / saturation / shade bars + exact picker + "No color" ----
+  const hslHex = (h, s, l) => { s /= 100; l /= 100; const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return "#" + [f(0), f(8), f(4)].map((x) => Math.round(x * 255).toString(16).padStart(2, "0")).join(""); };
+  const hexHsl = (hex) => { const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+    let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+    return [Math.round(((h * 60) + 360) % 360), d ? Math.round(d / (1 - Math.abs(2 * l - 1)) * 100) : 0, Math.round(l * 100)]; };
+  function colorPicker(host, onPick) {
+    let H = 210, S = 70, L = 50, on = false;
+    const mk = (t, c, a) => { const e = document.createElement(t); if (c) e.className = c; if (a) for (const k in a) e.setAttribute(k, a[k]); return e; };
+    const bar = (label, max, get, set) => {
+      const track = mk("div", "cp-bar", { role: "slider", "aria-label": label, tabindex: "0", "aria-valuemin": "0", "aria-valuemax": String(max) }), thumb = mk("i", "cp-thumb");
+      track.append(thumb);
+      const put = (clientX) => { const r = track.getBoundingClientRect(); set(Math.round(Math.max(0, Math.min(1, (clientX - r.left) / r.width)) * max)); on = true; sync(true); };
+      track.addEventListener("pointerdown", (e) => { e.preventDefault(); track.setPointerCapture(e.pointerId); put(e.clientX); track.onpointermove = (ev) => put(ev.clientX); });
+      const stop = () => { track.onpointermove = null; };
+      track.addEventListener("pointerup", stop); track.addEventListener("pointercancel", stop);
+      track.addEventListener("keydown", (e) => { const d = e.key === "ArrowRight" || e.key === "ArrowUp" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowDown" ? -1 : 0; if (!d) return; e.preventDefault(); set(Math.max(0, Math.min(max, get() + d * Math.max(1, Math.round(max / 50))))); on = true; sync(true); });
+      return { track, thumb, max, get };
+    };
+    const hue = bar("Hue", 359, () => H, (v) => { H = v; }), sat = bar("Saturation", 100, () => S, (v) => { S = v; }), lit = bar("Shade", 100, () => Math.round((L - 10) / 0.8), (v) => { L = Math.round(10 + v * 0.8); });
+    const exact = mk("input", "cp-exact", { type: "color", "aria-label": "Exact colour" });
+    const none = mk("button", "cp-none", { type: "button" }); none.textContent = "No color";
+    const dot = mk("span", "cp-dot");
+    const row = mk("div", "cp-row"); row.append(dot, exact, none);
+    hue.track.classList.add("hue"); host.classList.add("cp"); host.append(hue.track, sat.track, lit.track, row);
+    function sync(fire) {
+      const hex = hslHex(H, S, L);
+      hue.thumb.style.left = (H / 359 * 100) + "%"; sat.thumb.style.left = S + "%"; lit.thumb.style.left = ((L - 10) / 0.8) + "%";
+      sat.track.style.background = `linear-gradient(90deg, ${hslHex(H, 0, L)}, ${hslHex(H, 100, L)})`;
+      lit.track.style.background = `linear-gradient(90deg, ${hslHex(H, S, 10)}, ${hslHex(H, S, 50)}, ${hslHex(H, S, 90)})`;
+      dot.style.background = on ? hex : "transparent"; dot.classList.toggle("empty", !on); none.classList.toggle("active", !on);
+      if (on) exact.value = hex;
+      if (fire) onPick(on ? hex : "");
+    }
+    exact.addEventListener("input", () => { [H, S, L] = hexHsl(exact.value); L = Math.max(10, Math.min(90, L)); on = true; sync(true); });
+    none.addEventListener("click", () => { on = false; sync(true); });
+    sync(false);
+    return (hex) => { if (hex && /^#[0-9a-fA-F]{6}$/.test(hex)) { [H, S, L] = hexHsl(hex); L = Math.max(10, Math.min(90, L)); on = true; } else on = false; sync(false); };
+  }
+  return { menu, kebab, reorder, closeMenu, colorPicker, hslHex, hexHsl };
 })();
