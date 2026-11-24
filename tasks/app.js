@@ -367,37 +367,40 @@ function treeRows(t, depth, out) {
   for (const k of kids(t)) { out.push(nodeRow(k, depth)); if (addingUnder === k.id) out.push(addBox(k, depth + 1)); if (!collapsed.has(k.id)) treeRows(k, depth + 1, out); }
   return out;
 }
-// top-level tasks open/closed in the Subtasks view (closed by default: one compact row each)
-const openRoots = new Set();
-try { JSON.parse(localStorage.getItem("tasks.openroots") || "[]").forEach((i) => openRoots.add(i)); } catch (_) {}
-const saveOpenRoots = () => { try { localStorage.setItem("tasks.openroots", JSON.stringify([...openRoots])); } catch (_) {} };
 function nestedCard(r) {
-  const hasKids = kids(r).length, p = progressOf(r), open = openRoots.has(r.id) || addingUnder === r.id, pct = p.total && hasKids ? Math.round(p.done / p.total * 100) : (r.done_at ? 100 : 0);
+  const hasKids = kids(r).length, p = progressOf(r), open = !collapsed.has(r.id), pct = p.total && hasKids ? Math.round(p.done / p.total * 100) : (r.done_at ? 100 : 0);
+  const stats = hasKids ? `${p.done}/${p.total} done` : "no sub-tasks yet";
   const next = leaves(r).filter((l) => !l.done_at && (!l.period_start || l.period_start > TODAY))[0];
   const dl = !r.done_at && dleft(r);
-  const span = r.period_start ? whenLabel(r) : "";
-  const toggleOpen = () => { open ? openRoots.delete(r.id) : openRoots.add(r.id); if (open && addingUnder === r.id) addingUnder = null; saveOpenRoots(); render(); };
-  const row = el("div", { class: "prow" },
-    el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: toggleOpen }, open ? "▾" : "▸"),
-    el("button", { class: "pr-title", type: "button", onclick: () => openSheet(r) }, r.title),
-    el("span", { class: "pr-prog", title: `${p.done} of ${p.total} done` }, el("div", { class: "pbar mini", role: "progressbar", "aria-valuenow": String(pct), "aria-valuemin": "0", "aria-valuemax": "100" }, el("i", { style: `width:${pct}%` })),
-      el("span", { class: "pr-count" }, hasKids ? `${p.done}/${p.total}` : "–")),
-    span ? el("span", { class: "pr-when" }, span) : null,
-    dl ? el("span", { class: "dd " + dl.cls, title: "Ends " + endDate(r) }, dl.text) : el("span", { class: "dd-gap" }),
-    UI.kebab(() => [
-      next ? { label: "Plan next → today", fn: () => schedule(next, TODAY) } : null,
-      { label: "Add sub-task", fn: () => { addingUnder = r.id; openRoots.add(r.id); saveOpenRoots(); render(); } },
-      { label: "Copy", fn: () => copyTask(r) },
-      canPaste(r) ? { label: "Paste inside", fn: () => pasteTask(r) } : null,
-      { label: "Edit", fn: () => openSheet(r) },
-      { label: "Delete", danger: true, fn: () => deleteTree(r) }], `Actions for "${r.title}"`));
-  const card = el("section", { class: "pcard prowcard" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) }, row);
+  const span = r.period_start ? whenLabel(r) + (isMulti(r) ? ` · ${spanDays(r)} days` : "") : "";
+  const head = el("div", { class: "lane-head" },
+    el("div", { class: "pc-head" },
+      el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: () => { open ? collapsed.add(r.id) : collapsed.delete(r.id); saveCollapsed(); render(); } }, open ? "▾" : "▸"),
+      el("button", { class: "pc-title", type: "button", onclick: () => openSheet(r) }, r.title)),
+    dl ? el("div", {}, el("span", { class: "dd big " + dl.cls, title: "Ends " + endDate(r) }, dl.text)) : null,
+    el("div", { class: "pbar", role: "progressbar", "aria-valuenow": String(pct), "aria-valuemin": "0", "aria-valuemax": "100" }, el("i", { style: `width:${pct}%` })),
+    span ? el("div", { class: "pc-span" }, span) : null,
+    el("div", { class: "pc-stats" }, stats),
+    el("div", { class: "pc-actions" },
+      next ? el("button", { type: "button", class: "pt-btn solid", onclick: () => schedule(next, TODAY) }, "Plan next → today") : null,
+      UI.kebab(() => [
+        { label: "Add sub-task", fn: () => { addingUnder = r.id; collapsed.delete(r.id); render(); } },
+        { label: "Copy", fn: () => copyTask(r) },
+        canPaste(r) ? { label: "Paste inside", fn: () => pasteTask(r) } : null,
+        { label: "Edit", fn: () => openSheet(r) },
+        { label: "Delete", danger: true, fn: () => deleteTree(r) }], `Actions for "${r.title}"`)));
+  const card = el("section", { class: "pcard lane" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) }, head);
   if (open) {
-    const body = el("div", { class: "pc-body" });
-    if (addingUnder === r.id) body.append(addBox(r, 1));
-    treeRows(r, 1, []).forEach((n) => body.append(n));
-    if (!hasKids && addingUnder !== r.id) body.append(el("div", { class: "empty" }, "No sub-tasks yet — use ⋯ → Add sub-task."));
-    card.append(body);
+    const cols = el("div", { class: "lane-cols" });
+    for (const k of kids(r)) {
+      const col = el("div", { class: "lane-col" + colorClass(k) + (k.done_at ? " done" : ""), ...colorStyle(k) }, el("div", { class: "col-head" }, nodeRow(k, 1)));
+      if (addingUnder === k.id) col.append(addBox(k, 2));
+      if (!collapsed.has(k.id)) treeRows(k, 2, []).forEach((n) => col.append(n));
+      cols.append(col);
+    }
+    if (addingUnder === r.id) cols.append(el("div", { class: "lane-col" }, addBox(r, 1)));
+    if (!kids(r).length && addingUnder !== r.id) cols.append(el("div", { class: "empty" }, "No sub-tasks yet — use ⋯ → Add sub-task."));
+    card.append(cols);
   }
   return card;
 }
