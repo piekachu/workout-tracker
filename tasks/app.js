@@ -58,26 +58,6 @@ function dday(iso) {
   const n = Math.round((parse(iso) - parse(TODAY)) / 86400000);
   return { n, text: n > 0 ? `D-${n}` : n === 0 ? "D-Day" : `D+${-n}`, cls: n < 0 ? "late" : n <= 3 ? "soon" : "" };
 }
-const spentSec = (t) => (t.time_spent_sec || 0) + (t.timer_started_at ? Math.max(0, (Date.now() - Date.parse(t.timer_started_at)) / 1000) : 0);
-function fmtClock(sec) { sec = Math.floor(sec); const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60; return h ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`; }
-async function startTimer(t) {
-  const now = new Date().toISOString();
-  for (const o of tasks.filter((x) => x.timer_started_at && x.id !== t.id)) await stopTimer(o, true);   // one running timer at a time
-  t.timer_started_at = now; render();
-  const { error } = await sb.from("tasks").update({ timer_started_at: now }).eq("id", t.id);
-  if (error) { t.timer_started_at = null; render(); toast("Couldn't start the timer"); }
-}
-async function stopTimer(t, quiet) {
-  if (!t.timer_started_at) return;
-  const bank = Math.round(spentSec(t)), prev = { s: t.time_spent_sec, at: t.timer_started_at };
-  t.time_spent_sec = bank; t.timer_started_at = null; if (!quiet) render();
-  const { error } = await sb.from("tasks").update({ time_spent_sec: bank, timer_started_at: null }).eq("id", t.id);
-  if (error) { t.time_spent_sec = prev.s; t.timer_started_at = prev.at; render(); toast("Couldn't save the timer"); }
-}
-const timerBtn = (t) => el("button", { type: "button", class: "ptimer" + (t.timer_started_at ? " on" : ""), "aria-label": t.timer_started_at ? "Pause timer" : "Start timer",
-  title: t.timer_started_at ? "Pause timer" : "Start timer", onclick: (e) => { e.stopPropagation(); t.timer_started_at ? stopTimer(t).then(() => render()) : startTimer(t); } }, t.timer_started_at ? "⏸" : "▶");
-setInterval(() => { document.querySelectorAll("[data-spent]").forEach((n) => { const t = idx.get(Number(n.dataset.spent)); if (t) n.textContent = fmtClock(n.dataset.tree ? subtree(t).reduce((s, x) => s + spentSec(x), 0) : spentSec(t)); }); }, 1000);
-
 // ---------- hierarchy ----------
 // A task can sit under another one (max 3 levels). Sub-tasks may be unscheduled (period_start = null): the project's backlog.
 const MAX_DEPTH = 3;
@@ -128,12 +108,11 @@ function taskRow(t, opts = {}) {
   if (opts.showHorizon && t.horizon !== "day") bits.push(t.horizon === "week" ? "this week" : "this month");
   if (t.recur) bits.push("↻ " + t.recur);
   if (t.due_on) bits.push((t.done_at ? "" : dday(t.due_on).text + " · ") + fmt(t.due_on, { month: "short", day: "numeric" }));
-  if (spentSec(t) >= 60 && !hasKids) bits.push("⏱ " + fmtDur(Math.round(spentSec(t) / 60)));
   const row = el("div", { class: `task p${t.priority}${t.done_at ? " done" : ""}${colorClass(t)}`, ...colorStyle(t) },
     el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : hasKids ? "Done when all sub-tasks are done" : "Mark done",
       onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
     el("button", { class: "main", type: "button", onclick: () => openSheet(t) },
-      el("div", { class: "title" }, t.title), bits.length ? el("div", { class: "meta" }, bits.join(" · ")) : null));
+      el("div", { class: "title" }, t.title), t.notes ? el("div", { class: "desc" }, t.notes) : null, bits.length ? el("div", { class: "meta" }, bits.join(" · ")) : null));
   if (opts.plan) row.append(el("button", { class: "move", type: "button", onclick: opts.plan.fn }, opts.plan.label));
   if (opts.moveToToday) row.append(el("button", { class: "move", type: "button", onclick: () => moveToToday(t) }, "→ Today"));
   return row;
@@ -146,7 +125,7 @@ function group(title, rows, opts = {}) {
 
 function render() {
   reindex();
-  $("view-select").value = view;
+  document.querySelectorAll("#view-btns button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
   for (const id of ["prev", "next", "today-btn"]) $(id).hidden = view === "projects";
   $("period-label").textContent = periodLabel(view, anchor);
   $("add-title").placeholder = view === "projects" ? "New project" : `Add a task for ${view === "day" ? (anchor === TODAY ? "today" : "this day") : "this " + view}`;
@@ -305,8 +284,6 @@ function nodeRow(t, depth) {
     el("button", { class: "pt-title", type: "button", onclick: () => openSheet(t) }, t.title),
     el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t), t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ")),
     t.due_on && !t.done_at ? el("span", { class: "dd " + dday(t.due_on).cls }, dday(t.due_on).text) : null,
-    spentSec(t) >= 1 || t.timer_started_at ? el("span", { class: "pt-spent", "data-spent": String(t.id) }, fmtClock(spentSec(t))) : null,
-    !hasKids && !t.done_at ? timerBtn(t) : null,
     !hasKids && !t.done_at && t.period_start !== TODAY ? el("button", { class: "pt-btn", type: "button", onclick: () => schedule(t, TODAY) }, "→ Today") : null,
     depth < MAX_DEPTH ? el("button", { class: "pt-btn", type: "button", "aria-label": "Add sub-task", onclick: () => { addingUnder = addingUnder === t.id ? null : t.id; render(); } }, "＋") : null);
   return row;
@@ -323,22 +300,27 @@ function treeRows(t, depth, out) {
 }
 function projectCard(r) {
   const hasKids = kids(r).length, p = progressOf(r), open = !collapsed.has(r.id), pct = p.total && hasKids ? Math.round(p.done / p.total * 100) : (r.done_at ? 100 : 0);
-  const all = subtree(r), spent = all.reduce((s, x) => s + spentSec(x), 0), running = all.some((x) => x.timer_started_at);
   const stats = [hasKids ? `${p.done}/${p.total} done` : "no sub-tasks yet",
     p.planMin ? `${fmtDur(p.doneMin)} of ${fmtDur(p.planMin)} planned` : "", r.duration_min ? `budget ${fmtDur(r.duration_min)}` : ""].filter(Boolean).join(" · ");
   const over = r.duration_min && p.planMin > r.duration_min;
   const next = leaves(r).filter((l) => !l.done_at && (!l.period_start || l.period_start > TODAY))[0];
   const dd = r.due_on && !r.done_at ? dday(r.due_on) : null;
+  const short = (d) => fmt(d, { month: "short", day: "numeric" });
+  let span = "";
+  if (r.start_on || r.due_on) {
+    span = (r.start_on ? short(r.start_on) : "…") + " → " + (r.due_on ? short(r.due_on) : "…");
+    if (r.start_on && r.start_on > TODAY) span += ` · starts in ${Math.round((parse(r.start_on) - parse(TODAY)) / 86400000)}d`;
+    else if (r.start_on && r.due_on) { const tot = Math.round((parse(r.due_on) - parse(r.start_on)) / 86400000) + 1, day = Math.round((parse(TODAY) - parse(r.start_on)) / 86400000) + 1; if (day <= tot && !r.done_at) span += ` · day ${day} of ${tot}`; }
+  }
   const card = el("section", { class: "pcard" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) },
     el("div", { class: "pc-head" },
       el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: () => { open ? collapsed.add(r.id) : collapsed.delete(r.id); render(); } }, open ? "▾" : "▸"),
       el("button", { class: "pc-title", type: "button", onclick: () => openSheet(r) }, r.title),
       dd ? el("span", { class: "dd big " + dd.cls, title: "Deadline " + r.due_on }, dd.text) : null),
     el("div", { class: "pbar", role: "progressbar", "aria-valuenow": String(pct), "aria-valuemin": "0", "aria-valuemax": "100" }, el("i", { style: `width:${pct}%` })),
+    span ? el("div", { class: "pc-span" }, span) : null,
     el("div", { class: "pc-stats" + (over ? " warn" : "") }, stats + (over ? " — over budget" : "")),
     el("div", { class: "pc-actions" },
-      el("button", { type: "button", class: "ptimer wide" + (running ? " on" : ""), onclick: () => (running ? stopTimer(all.find((x) => x.timer_started_at)).then(() => render()) : startTimer(r)) },
-        running ? "⏸ Pause" : "▶ Start timer", " ", el("span", { "data-spent": String(r.id), "data-tree": "1" }, fmtClock(spent))),
       next ? el("button", { type: "button", class: "pt-btn solid", onclick: () => schedule(next, TODAY) }, "Plan next → today") : null,
       el("button", { type: "button", class: "pt-btn", onclick: () => { addingUnder = addingUnder === r.id ? null : r.id; collapsed.delete(r.id); render(); } }, "＋ Sub-task")));
   if (open) {
@@ -418,7 +400,7 @@ function openSheet(t) {
   $("f-horizon").value = t.horizon; $("f-date").value = t.period_start;
   $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
   $("f-dur").value = t.duration_min || ""; setColor(t.color || "");
-  $("f-due").value = t.due_on || ""; fillParentSelect(t); $("f-unsched").checked = !t.period_start;
+  $("f-due").value = t.due_on || ""; $("f-start-on").value = t.start_on || ""; fillParentSelect(t); $("f-unsched").checked = !t.period_start;
   syncParentUi(); renderKidsList(t);
   $("f-priority").value = String(t.priority); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
   syncTimeRow(); $("sheet").hidden = false;
@@ -491,9 +473,10 @@ $("edit-form").addEventListener("submit", async (e) => {
   if (start && end && end <= start) { toast("End must be after start"); return; }
   const parentId = $("f-parent").value ? Number($("f-parent").value) : null, unsched = !!parentId && $("f-unsched").checked;
   if (!unsched && !$("f-date").value) { toast("Pick a date"); return; }
+  if ($("f-start-on").value && $("f-due").value && $("f-due").value < $("f-start-on").value) { toast("The deadline is before the start date"); return; }
   const patch = { title: $("f-title").value.trim(), notes: $("f-notes").value.trim() || null, horizon,
     period_start: unsched ? null : periodStart(horizon, $("f-date").value), start_time: start, end_time: end,
-    parent_id: parentId, due_on: $("f-due").value || null,
+    parent_id: parentId, due_on: $("f-due").value || null, start_on: $("f-start-on").value || null,
     priority: Number($("f-priority").value), recur: $("f-recur").value || null,
     duration_min: Math.round(Number($("f-dur").value)) || null, color: sheetColor || null };
   if (patch.duration_min && (patch.duration_min < 1 || patch.duration_min > 1440)) { toast("Duration must be 1–1440 minutes"); return; }
@@ -542,8 +525,9 @@ function step(dir) {
 $("prev").addEventListener("click", () => step(-1));
 $("next").addEventListener("click", () => step(1));
 $("today-btn").addEventListener("click", () => { anchor = TODAY; render(); });
-$("view-select").addEventListener("change", (e) => {
-  view = e.target.value;
+$("view-btns").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-view]"); if (!b) return;
+  view = b.dataset.view;
   try { localStorage.setItem("tasks:view", view); } catch {}
   render();
 });

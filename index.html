@@ -104,6 +104,66 @@
       display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-weight: 600; }
     .tool.primary { border-color: var(--accent); }
 
+    /* ---- revamp: task cards, pull panel, habits panel, edit sheet ---- */
+    .hero h1 { font-size: 1.9rem; }
+    .hero-stats { display: flex; flex-wrap: wrap; gap: 6px 8px; margin-top: 10px; }
+    .hstat { display: inline-flex; align-items: baseline; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--bg-2); border: 1px solid var(--border); font-size: .82rem; color: var(--text-dim); }
+    .hstat b { font-family: var(--font-mono); font-size: .95rem; color: var(--text); font-weight: 600; }
+    .quick-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .quick-row .quick { flex: 1 1 auto; margin-bottom: 0; }
+    .pull-btn { flex: 0 0 auto; height: 50px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+      color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .pull-btn[aria-expanded="true"] { border-color: var(--accent); background: var(--accent-soft); }
+    .pull-btn .n { font-family: var(--font-mono); color: var(--accent); margin-left: 4px; }
+    .pull { margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: var(--radius); background: var(--surface); }
+    .pull[hidden] { display: none; }
+    .pull-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; font-weight: 600; }
+    .pull-head .quiet { font-weight: 400; }
+    .pull-proj { font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin: 10px 0 4px; }
+    .pull-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-top: 1px solid var(--border-2); }
+    .pull-row .t { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+    .pull-row .t small { display: block; color: var(--text-dim); font-size: .8rem; }
+    .mini-btn { flex: 0 0 auto; min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--accent); background: none; color: var(--accent); font-size: .82rem; font-weight: 600; cursor: pointer; }
+    .mini-btn.solid { background: var(--accent); color: #fff; }
+
+    .item.task-card { align-items: flex-start; padding: 10px 10px 10px 12px; }
+    .item.task-card .tick { margin-top: 1px; }
+    .item.tinted { border-left-color: var(--tc); }
+    .item .desc { font-size: .86rem; color: var(--text-dim); margin-top: 3px; line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; cursor: pointer; }
+    .item .desc.open { -webkit-line-clamp: unset; display: block; }
+    .item.done .desc { opacity: .6; }
+    .tchips { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 6px; }
+    .tchip { font-family: var(--font-mono); font-size: 11px; padding: 1px 8px; border-radius: 999px; background: var(--bg-2); color: var(--text-dim); white-space: nowrap; }
+    .tchip.alert { background: var(--danger-soft); color: var(--danger); }
+    .tchip.soon { background: color-mix(in oklab, var(--gold) 25%, transparent); color: var(--text); }
+    .tchip.proj { background: color-mix(in oklab, var(--tc, var(--accent)) 18%, transparent); color: var(--text); }
+    .item .edit { flex: 0 0 auto; width: 36px; height: 36px; margin: -4px 0 -4px 0; padding: 0; background: none; border: 0; border-radius: 4px; color: var(--text-faint); font-size: 15px; cursor: pointer; }
+    .item .edit:hover, .item .edit:focus-visible { color: var(--accent); background: var(--accent-soft); }
+    .side-habits .item { min-height: 50px; margin-bottom: 6px; }
+    .side-habits .panel-b { padding-top: 8px; }
+    .habit-sect { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-faint); margin: 10px 0 6px; }
+
+    .esheet-backdrop { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; background: rgba(0,0,0,.5); }
+    .esheet-backdrop[hidden] { display: none; }
+    .esheet { width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; background: var(--bg); border-radius: 10px 10px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
+    @media (min-width: 700px) { .esheet-backdrop { align-items: center; } .esheet { border-radius: 10px; } }
+    .esheet h2 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; }
+    .esheet label { display: flex; flex-direction: column; gap: 5px; font-size: .78rem; color: var(--text-dim); font-weight: 600; }
+    .esheet input, .esheet select, .esheet textarea { font: inherit; font-size: 16px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 46px; width: 100%; }
+    .esheet textarea { resize: vertical; }
+    .erow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .erow[hidden] { display: none; }
+    .esheet .opt { font-weight: 400; color: var(--text-faint); }
+    .eswatches { display: flex; gap: 8px; flex-wrap: wrap; }
+    .esw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--tc, transparent); cursor: pointer; padding: 0; color: var(--text-dim); font-size: 14px; }
+    .esw.none { border-color: var(--border); background: none; min-height: 0; }
+    .esw[aria-checked="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+    .eactions { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .eactions .sp { flex: 1; }
+    .eactions button { min-height: 46px; padding: 0 16px; border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 15px; font-weight: 600; cursor: pointer; }
+    .eactions .primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .eactions .danger { color: var(--danger); }
+    .elink { font-size: .85rem; color: var(--accent); text-decoration: none; }
     .toast-err { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); transform: translateX(-50%);
       background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 999px; font-size: 13px; z-index: 50; }
     footer { padding: 0 var(--page-pad) 36px; color: var(--text-faint); font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; }
@@ -116,9 +176,9 @@
   <header>
     <div class="hero hero-wrap">
       <div>
-        <h1>Today</h1>
+        <h1 id="greet">Today</h1>
         <div class="date" id="today-date"></div>
-        <div class="sub" id="hero-sub" aria-live="polite"></div>
+        <div class="hero-stats" id="hero-stats" aria-live="polite"></div>
       </div>
       <div id="hero-ring" class="ring-host"></div>
     </div>
@@ -127,24 +187,33 @@
   <main>
    <div class="layout">
     <section class="col-main">
-    <form class="quick" id="quick" autocomplete="off">
-      <input id="quick-title" type="text" maxlength="200" placeholder="Add a task for today" enterkeyhint="done" aria-label="New task for today">
-      <button type="submit">Add</button>
-    </form>
-
-    <div id="list"></div>
-
-    <details class="manage" id="manage">
-      <summary>Manage habits</summary>
-      <form id="habit-add">
-        <input id="habit-name" type="text" maxlength="60" placeholder="New habit (water, reading, sleep…)" enterkeyhint="done">
+    <div class="quick-row">
+      <form class="quick" id="quick" autocomplete="off">
+        <input id="quick-title" type="text" maxlength="200" placeholder="Add a task for today" enterkeyhint="done" aria-label="New task for today">
         <button type="submit">Add</button>
       </form>
-      <div id="habit-rows"></div>
-    </details>
+      <button type="button" class="pull-btn" id="pull-btn" aria-expanded="false" aria-controls="pull">From projects<span class="n" id="pull-n"></span></button>
+    </div>
+    <section class="pull" id="pull" hidden aria-label="Steps from your projects"></section>
+
+    <div id="list"></div>
     </section>
 
-    <aside class="col-side" aria-label="Insights">
+    <aside class="col-side" aria-label="Habits and insights">
+      <div class="panel side-habits">
+        <div class="panel-h"><span>Habits</span><span class="meta" id="cap-hab"></span></div>
+        <div class="panel-b">
+          <div id="habit-list"></div>
+          <details class="manage" id="manage">
+            <summary>Manage habits</summary>
+            <form id="habit-add">
+              <input id="habit-name" type="text" maxlength="60" placeholder="New habit (water, reading, sleep…)" enterkeyhint="done">
+              <button type="submit">Add</button>
+            </form>
+            <div id="habit-rows"></div>
+          </details>
+        </div>
+      </div>
       <div class="panel">
         <div class="panel-h"><span>Today at a glance</span><span class="meta">share finished</span></div>
         <div class="panel-b rings">
@@ -180,6 +249,35 @@
     </section>
    </div>
   </main>
+
+  <div class="esheet-backdrop" id="esheet" hidden>
+    <form class="esheet" id="eform" autocomplete="off">
+      <h2>Edit task</h2>
+      <label>Title<input id="e-title" type="text" maxlength="200" required></label>
+      <label>Description<textarea id="e-notes" rows="3" placeholder="What is this about?"></textarea></label>
+      <div class="erow">
+        <label>Scope<select id="e-horizon"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></label>
+        <label>Date<input id="e-date" type="date"></label>
+      </div>
+      <div class="erow" id="e-time-row">
+        <label>Start<input id="e-start" type="time"></label>
+        <label>End<input id="e-end" type="time"></label>
+      </div>
+      <div class="erow">
+        <label>Duration <span class="opt">minutes</span><input id="e-dur" type="number" inputmode="numeric" min="1" max="1440" step="5" placeholder="optional"></label>
+        <label>Deadline <span class="opt">optional</span><input id="e-due" type="date"></label>
+      </div>
+      <label>Priority<select id="e-priority"><option value="0">Normal</option><option value="1">Medium</option><option value="2">High</option></select></label>
+      <div><span class="opt" style="font-size:.78rem;font-weight:600;color:var(--text-dim)">Color</span><div class="eswatches" id="e-colors" role="radiogroup" aria-label="Color" style="margin-top:6px"></div></div>
+      <a class="elink" href="tasks/">Sub-tasks, parent and repeat: open in Tasks →</a>
+      <div class="eactions">
+        <button type="button" class="danger" id="e-delete">Delete</button>
+        <span class="sp"></span>
+        <button type="button" id="e-cancel">Cancel</button>
+        <button type="submit" class="primary">Save</button>
+      </div>
+    </form>
+  </div>
 
   <footer>Private — your data is visible only when signed in.</footer>
 
@@ -225,11 +323,27 @@
         // sub-tasks show which project they belong to
         const pids = [...new Set(rows.map((r) => r.parent_id).filter(Boolean))];
         if (pids.length) {
-          const { data } = await sb.from("tasks").select("id, title").in("id", pids);
-          const names = new Map((data || []).map((p) => [p.id, p.title]));
-          rows.forEach((r) => { if (r.parent_id) r._parent = names.get(r.parent_id) || ""; });
+          const { data } = await sb.from("tasks").select("id, title, color").in("id", pids);
+          const info = new Map((data || []).map((p) => [p.id, p]));
+          rows.forEach((r) => { if (r.parent_id) { const p = info.get(r.parent_id); r._parent = p ? p.title : ""; r._pcolor = p ? p.color : null; } });
         }
         return rows;
+      }),
+      // open sub-tasks with no date yet (project backlogs), with the project each belongs to
+      backlog: once(async () => {
+        const { data, error } = await sb.from("tasks").select("*").not("parent_id", "is", null).is("period_start", null).is("done_at", null).order("id").limit(200);
+        if (error) throw error;
+        const rows = data || [];
+        const need = new Set(rows.map((r) => r.parent_id));
+        const parents = new Map();
+        for (let round = 0; round < 3 && need.size; round++) {       // climb to the top-level project
+          const { data: ps } = await sb.from("tasks").select("id, title, color, parent_id, done_at").in("id", [...need]);
+          need.clear();
+          (ps || []).forEach((p) => { parents.set(p.id, p); if (p.parent_id && !parents.has(p.parent_id)) need.add(p.parent_id); });
+        }
+        const rootOf = (t) => { let p = parents.get(t.parent_id), n = 0; while (p && p.parent_id && parents.has(p.parent_id) && n++ < 5) p = parents.get(p.parent_id); return p; };
+        return rows.map((r) => { const root = rootOf(r), par = parents.get(r.parent_id); return { ...r, _parent: par ? par.title : "", _pcolor: par ? par.color : null, _root: root ? root.title : "", _rootId: root ? root.id : r.parent_id, _rootDone: !!(root && root.done_at) }; })
+          .filter((r) => !r._rootDone);
       }),
       // 60 days of expenses: this week vs the one before (ticker) and the daily-logging streak
       spend14: once(async () => {
@@ -261,6 +375,7 @@
       return e;
     }
     function toast(msg) { const t = el("div", { class: "toast-err", role: "status" }, msg); document.body.appendChild(t); setTimeout(() => t.remove(), 2800); }
+    { const hr = new Date().getHours(); $("greet").textContent = hr < 5 ? "Late night" : hr < 12 ? "Good morning" : hr < 18 ? "Good afternoon" : "Good evening"; }
     $("today-date").textContent = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
     // ---------------- state ----------------
@@ -271,17 +386,35 @@
       { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
       { key: "expenses", name: "Daily expenses",  href: "expenses/", cta: "Log" },
     ];
-    const state = { core: {}, tasks: null, custom: [], vocabAct: {}, jpAct: {}, kanaDays: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
+    const state = { core: {}, tasks: null, backlog: [], custom: [], vocabAct: {}, jpAct: {}, kanaDays: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
     const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (b.priority - a.priority) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
 
     // ---------------- rendering ----------------
+    const COLORS = { red: "#e5484d", orange: "#f76b15", yellow: "#d9a406", green: "#30a46c", teal: "#12a594", blue: "#3e63dd", purple: "#8e4ec6", pink: "#d6409f", gray: "#8b8d98" };
+    const colorOf = (t) => (COLORS[t.color] ? t.color : COLORS[t._pcolor] ? t._pcolor : null);
+    const fmtDur = (m) => { const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; };
+    const dayDiff = (iso) => Math.round((new Date(iso + "T00:00") - new Date(TODAY + "T00:00")) / 86400000);
+    function endOf(t) {
+      if (t.end_time) return t.end_time.slice(0, 5);
+      if (t.start_time && t.duration_min) { const [h, m] = t.start_time.slice(0, 5).split(":").map(Number), x = h * 60 + m + t.duration_min; return x >= 1440 ? "23:59" : `${String(Math.floor(x / 60)).padStart(2, "0")}:${String(x % 60).padStart(2, "0")}`; }
+      return "";
+    }
     function taskItem(t, tag) {
-      return el("div", { class: `item p${t.priority}${t.done_at ? " done" : ""}` },
+      const chips = [], c = colorOf(t);
+      if (tag === "overdue") chips.push(el("span", { class: "tchip alert" }, "overdue"));
+      else if (tag) chips.push(el("span", { class: "tchip" }, tag === "week" ? "this week" : tag === "month" ? "this month" : tag));
+      if (t.start_time) chips.push(el("span", { class: "tchip" }, "🕐 " + timeOf(t) + (endOf(t) ? "–" + endOf(t) : "")));
+      if (t.duration_min) chips.push(el("span", { class: "tchip" }, "⏳ " + fmtDur(t.duration_min)));
+      if (t._parent) chips.push(el("span", { class: "tchip proj" }, "↳ " + t._parent));
+      if (t.due_on && !t.done_at) { const n = dayDiff(t.due_on); chips.push(el("span", { class: "tchip" + (n < 0 ? " alert" : n <= 3 ? " soon" : "") }, n > 0 ? `D-${n}` : n === 0 ? "D-Day" : `D+${-n}`)); }
+      const desc = t.notes ? el("div", { class: "desc", title: "Click to expand" }, t.notes) : "";
+      if (desc) desc.addEventListener("click", () => desc.classList.toggle("open"));
+      return el("div", { class: `item task-card p${t.priority}${t.done_at ? " done" : ""}${c ? " tinted" : ""}`, ...(c ? { style: `--tc: ${COLORS[c]}` } : {}) },
         el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
-        el("div", { class: "body" }, el("div", { class: "name" }, t.title), t._parent ? el("div", { class: "sub" }, "↳ " + t._parent) : ""),
-        tag || timeOf(t) ? el("span", { class: "tag" + (tag === "overdue" ? " alert" : "") }, tag || timeOf(t)) : "",
+        el("div", { class: "body" }, el("div", { class: "name" }, t.title), desc, chips.length ? el("div", { class: "tchips" }, chips) : ""),
+        el("button", { class: "edit", type: "button", "aria-label": `Edit "${t.title}"`, title: "Edit task", onclick: () => openEdit(t) }, "✎"),
         el("button", { class: "del", type: "button", "aria-label": `Delete "${t.title}"`, title: "Delete task", onclick: () => deleteTask(t) }, "✕"));
     }
     function coreItem(c) {
@@ -320,44 +453,58 @@
       const size = window.innerWidth < 640 ? 92 : 112;
       Charts.ring($("hero-ring"), { value: taskTotal ? doneTasks.length : 1, total: taskTotal || 1, size,
         big: ready ? String(taskLeft) : "…", small: taskLeft === 1 ? "task left" : "tasks left", aria: `${taskLeft} tasks left` });
-      $("hero-sub").textContent = !ready ? "" : habitTotal - habitDone ? `${habitTotal - habitDone} habit${habitTotal - habitDone === 1 ? "" : "s"} left` : "All habits done";
+      const hs = $("hero-stats"); hs.innerHTML = "";
+      if (ready) {
+        const stat = (n, label) => hs.append(el("span", { class: "hstat" }, el("b", {}, String(n)), label));
+        stat(taskLeft, taskLeft === 1 ? "task left" : "tasks left");
+        stat(habitTotal - habitDone, habitTotal - habitDone === 1 ? "habit left" : "habits left");
+        if (state.backlog.length) stat(state.backlog.length, "project steps waiting");
+      }
       if (ready) renderInsights({ doneN, total, habitDone, habitTotal, taskLeft });
 
+      // ----- tasks (left column) -----
       const list = $("list"); list.innerHTML = "";
-      if (ready && !pendingTasks.length && !pendingCore.length && !pendingHabits.length) {
-        list.append(el("div", { class: "allgood" }, el("b", {}, "All done for today"), el("span", {}, "Nice work. Check Progress to see how the week is going.")));
-      }
       if (pendingTasks.length) {
-        list.append(el("div", { class: "sect" }, "Tasks"));
+        list.append(el("div", { class: "sect" }, "Today"));
         overdue.forEach((t) => list.append(taskItem(t, "overdue")));
         today.filter((t) => !t.done_at).forEach((t) => list.append(taskItem(t)));
       } else if (ready) {
-        list.append(el("div", { class: "sect" }, "Tasks"));
-        list.append(el("div", { class: "quiet" }, doneTasks.length ? "All of today's tasks are done." : "No tasks for today — add one above."));
+        list.append(el("div", { class: "sect" }, "Today"));
+        list.append(doneTasks.length || !state.backlog.length
+          ? el("div", { class: "quiet" }, doneTasks.length ? "All of today's tasks are done." : "No tasks for today — add one above.")
+          : el("div", { class: "quiet" }, "Nothing planned. Pull a step from one of your projects, or add a task above."));
       }
-      if (!coreReady || pendingCore.length || pendingHabits.length) {
-        list.append(el("div", { class: "sect" }, "Habits"));
-        if (!coreReady) CORE.forEach((c) => list.append(coreItem(c)));
-        else pendingCore.forEach((c) => list.append(coreItem(c)));
-        pendingHabits.forEach((h) => list.append(habitItem(h)));
+      if (ready && !pendingTasks.length && !pendingCore.length && !pendingHabits.length) {
+        list.append(el("div", { class: "allgood" }, el("b", {}, "All done for today"), el("span", {}, "Nice work. Check Progress to see how the week is going.")));
       }
       if (later.length) {
         list.append(el("div", { class: "sect" }, "This week & month"));
         later.forEach((t) => list.append(taskItem(t, t.horizon)));
       }
-      if (doneN) {
-        const box = el("details", { class: "done-box" }, el("summary", {}, `Done today (${doneN})`));
+      if (doneTasks.length) {
+        const box = el("details", { class: "done-box" }, el("summary", {}, `Done today (${doneTasks.length})`));
         doneTasks.forEach((t) => box.append(taskItem(t)));
-        doneCore.forEach((c) => box.append(coreItem(c)));
-        doneHabits.forEach((h) => box.append(habitItem(h)));
         box.open = doneOpen;
         box.addEventListener("toggle", () => { doneOpen = box.open; });
         list.append(box);
       }
 
+      // ----- habits (side panel) -----
+      const hl = $("habit-list"); hl.innerHTML = "";
+      $("cap-hab").textContent = ready ? `${habitDone}/${habitTotal} done` : "";
+      if (!coreReady) CORE.forEach((c) => hl.append(coreItem(c)));
+      else pendingCore.forEach((c) => hl.append(coreItem(c)));
+      pendingHabits.forEach((h) => hl.append(habitItem(h)));
+      if (doneCore.length + doneHabits.length) {
+        hl.append(el("div", { class: "habit-sect" }, "Done"));
+        doneCore.forEach((c) => hl.append(coreItem(c)));
+        doneHabits.forEach((h) => hl.append(habitItem(h)));
+      }
+
       const rows = $("habit-rows"); rows.innerHTML = "";
       state.custom.forEach((h) => rows.append(el("div", { class: "mrow" }, el("span", {}, h.name),
         el("button", { type: "button", onclick: () => removeHabit(h) }, "Remove"))));
+      renderPull();
     }
 
     // ---------------- insights panel ----------------
@@ -413,6 +560,86 @@
       chip(state.sessions7, state.sessions7 === 1 ? "workout this week" : "workouts this week");
       state.custom.filter((h) => h.streak >= 1).forEach((h) => chip(h.streak, `day ${h.name.toLowerCase()}`));
     }
+
+    // ---------------- pull steps from projects ----------------
+    let pullOpen = false;
+    function renderPull() {
+      const box = $("pull"), btn = $("pull-btn");
+      $("pull-n").textContent = state.backlog.length ? " " + state.backlog.length : "";
+      btn.setAttribute("aria-expanded", String(pullOpen)); box.hidden = !pullOpen;
+      if (!pullOpen) return;
+      box.innerHTML = "";
+      if (!state.backlog.length) {
+        box.append(el("div", { class: "quiet" }, "No project steps are waiting. Add sub-tasks to a project in Tasks → Projects and they'll show up here."));
+        return;
+      }
+      const groups = new Map();
+      for (const t of state.backlog) (groups.get(t._rootId) || groups.set(t._rootId, { name: t._root || "Project", items: [] }).get(t._rootId)).items.push(t);
+      box.append(el("div", { class: "pull-head" }, el("span", {}, "Pull into today"),
+        el("button", { type: "button", class: "mini-btn solid", onclick: pullNextEach }, "+ Next step of each")));
+      for (const g of groups.values()) {
+        box.append(el("div", { class: "pull-proj" }, g.name));
+        g.items.slice(0, 4).forEach((t) => box.append(el("div", { class: "pull-row" },
+          el("div", { class: "t" }, t.title, (t._parent && t._parent !== g.name) || t.duration_min
+            ? el("small", {}, [t._parent && t._parent !== g.name ? "↳ " + t._parent : "", t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ")) : ""),
+          el("button", { type: "button", class: "mini-btn", onclick: () => pullToday(t) }, "+ Today"))));
+        if (g.items.length > 4) box.append(el("div", { class: "quiet" }, `+ ${g.items.length - 4} more in Tasks → Projects`));
+      }
+    }
+    async function pullToday(t, quiet) {
+      const { error } = await sb.from("tasks").update({ horizon: "day", period_start: TODAY }).eq("id", t.id);
+      if (error) { toast("Couldn't add it"); return false; }
+      state.backlog = state.backlog.filter((x) => x.id !== t.id);
+      (state.tasks = state.tasks || []).push({ ...t, horizon: "day", period_start: TODAY });
+      if (!quiet) render();
+      return true;
+    }
+    async function pullNextEach() {
+      const firsts = [], seen = new Set();
+      for (const t of state.backlog) if (!seen.has(t._rootId)) { seen.add(t._rootId); firsts.push(t); }
+      for (const t of firsts) await pullToday(t, true);
+      render(); toast(`Added ${firsts.length} step${firsts.length === 1 ? "" : "s"} to today`);
+    }
+    $("pull-btn").addEventListener("click", () => { pullOpen = !pullOpen; renderPull(); });
+
+    // ---------------- edit a task ----------------
+    let editingT = null, eColor = "";
+    function setEColor(c) { eColor = c; document.querySelectorAll("#e-colors button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.c === c))); }
+    {
+      const box = $("e-colors");
+      box.append(el("button", { type: "button", class: "esw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setEColor("") }, "∅"));
+      for (const [n, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "esw", "data-c": n, role: "radio", "aria-label": n, title: n, style: `--tc: ${hex}`, onclick: () => setEColor(n) }));
+    }
+    const syncETime = () => { $("e-time-row").hidden = $("e-horizon").value !== "day"; };
+    $("e-horizon").addEventListener("change", syncETime);
+    function openEdit(t) {
+      editingT = t;
+      $("e-title").value = t.title; $("e-notes").value = t.notes || ""; $("e-horizon").value = t.horizon; $("e-date").value = t.period_start || TODAY;
+      $("e-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("e-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
+      $("e-dur").value = t.duration_min || ""; $("e-due").value = t.due_on || ""; $("e-priority").value = String(t.priority || 0);
+      setEColor(t.color || ""); syncETime(); $("esheet").hidden = false; $("e-title").focus();
+    }
+    const closeEdit = () => { $("esheet").hidden = true; editingT = null; };
+    $("e-cancel").addEventListener("click", closeEdit);
+    $("esheet").addEventListener("click", (e) => { if (e.target.id === "esheet") closeEdit(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("esheet").hidden) closeEdit(); });
+    $("e-delete").addEventListener("click", () => { const t = editingT; closeEdit(); if (t) deleteTask(t); });
+    $("eform").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const t = editingT; if (!t) return;
+      const horizon = $("e-horizon").value, timed = horizon === "day", date = $("e-date").value;
+      const start = timed ? $("e-start").value || null : null, end = timed ? $("e-end").value || null : null;
+      if (!date) return toast("Pick a date");
+      if (end && !start) return toast("Add a start time too");
+      if (start && end && end <= start) return toast("End must be after start");
+      const patch = { title: $("e-title").value.trim(), notes: $("e-notes").value.trim() || null, horizon, period_start: TasksCore.periodStart(horizon, date),
+        start_time: start, end_time: end, duration_min: Math.round(Number($("e-dur").value)) || null, due_on: $("e-due").value || null,
+        priority: Number($("e-priority").value), color: eColor || null };
+      if (!patch.title) return;
+      const { data, error } = await sb.from("tasks").update(patch).eq("id", t.id).select().single();
+      if (error) return toast("Couldn't save — check your connection");
+      Object.assign(t, data); closeEdit(); render();
+    });
 
     // ---------------- actions ----------------
     async function toggleTask(t) {
@@ -560,10 +787,11 @@
         rows.forEach((r) => { const d = localISO(new Date(r.done_at)); state.doneByDay[d] = (state.doneByDay[d] || 0) + 1; });
       }).catch(() => { state.doneByDay = {}; });
     }
+    function loadBacklog() { return SRC.backlog().then((rows) => { state.backlog = rows; }).catch(() => { state.backlog = []; }); }
     function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }); }
 
     render();
-    [loadTasks, loadRecent, loadVocab, loadWorkout, loadCustom, loadSpend].forEach((f) => f().then(render));
+    [loadTasks, loadRecent, loadVocab, loadWorkout, loadCustom, loadSpend, loadBacklog].forEach((f) => f().then(render));
     window.addEventListener("resize", (() => { let w = innerWidth; return () => { if ((innerWidth < 640) !== (w < 640)) { w = innerWidth; render(); } }; })());
 
     // A tab left open past midnight should roll over to the new day.
