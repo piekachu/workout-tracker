@@ -34,6 +34,7 @@
     <form class="add-row" id="add-form" autocomplete="off">
     <input id="add-title" type="text" maxlength="200" enterkeyhint="done" aria-label="New task">
     <button type="submit">Add</button>
+    <button type="button" id="add-paste" hidden>Paste</button>
   </form>
     <div class="rings-row" id="rings" aria-label="Completion">
       <div class="ring-cell"><div id="r-today" class="ring-host"></div><span>Today</span></div>
@@ -76,6 +77,8 @@
       <label class="chk"><input type="checkbox" id="f-done"> Completed</label>
       <div class="sheet-actions">
         <button type="button" class="danger" id="f-delete">Delete</button>
+        <button type="button" id="f-copy">Copy</button>
+        <button type="button" id="f-paste" hidden>Paste inside</button>
         <span class="spacer"></span>
         <button type="button" id="f-cancel">Cancel</button>
         <button type="submit" class="primary">Save</button>

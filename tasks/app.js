@@ -20,7 +20,25 @@ function periodLabel(view, anchor) {
 
 // ---------- colours ----------
 const COLORS = { red: "#e5484d", orange: "#f76b15", yellow: "#d9a406", green: "#30a46c", teal: "#12a594", blue: "#3e63dd", purple: "#8e4ec6", pink: "#d6409f", gray: "#8b8d98" };
-const colorStyle = (t) => { const c = effColor(t); return c ? { style: `--tc: ${COLORS[c]}` } : {}; };
+const hexOf = (c) => (c && (COLORS[c] || (/^#[0-9a-fA-F]{6}$/.test(c) ? c : null))) || null;
+const hslHex = (h, s, l) => { s /= 100; l /= 100; const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return "#" + [f(0), f(8), f(4)].map((x) => Math.round(x * 255).toString(16).padStart(2, "0")).join(""); };
+const hexHsl = (hex) => { const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+  let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [Math.round(((h * 60) + 360) % 360), d ? Math.round(d / (1 - Math.abs(2 * l - 1)) * 100) : 0, Math.round(l * 100)]; };
+// wide colour picker: rainbow bar + shade bar + exact picker; calls onPick(hex)
+function buildPicker(host, onPick) {
+  const hue = el("input", { type: "range", min: "0", max: "359", value: "210", class: "cp-hue", "aria-label": "Hue" });
+  const lit = el("input", { type: "range", min: "20", max: "80", value: "50", class: "cp-lit", "aria-label": "Shade" });
+  const exact = el("input", { type: "color", value: "#3e63dd", class: "cp-exact", "aria-label": "Exact colour" });
+  const from = () => hslHex(+hue.value, 70, +lit.value);
+  const paint = () => { lit.style.setProperty("--h", hue.value); };
+  const fire = () => { paint(); const hx = from(); exact.value = hx; onPick(hx); };
+  hue.addEventListener("input", fire); lit.addEventListener("input", fire);
+  exact.addEventListener("input", () => { const [h, , l] = hexHsl(exact.value); hue.value = h; lit.value = Math.min(80, Math.max(20, l)); paint(); onPick(exact.value); });
+  host.append(hue, lit, exact); paint();
+  return (hex) => { if (hex && /^#/.test(hex)) { exact.value = hex; const [h, , l] = hexHsl(hex); hue.value = h; lit.value = Math.min(80, Math.max(20, l)); paint(); } };
+}
+const colorStyle = (t) => { const c = effColor(t); return c ? { style: `--tc: ${hexOf(c)}` } : {}; };
 const colorClass = (t) => (effColor(t) ? " tinted" : "");
 const endOf = (t) => (t.end_time ? t.end_time.slice(0, 5) : "");
 
@@ -85,7 +103,7 @@ function depthOf(t) { let d = 1, p = parentOf(t); while (p && d < 10) { d++; p =
 const heightOf = (t) => 1 + Math.max(0, ...kids(t).map(heightOf));
 const leaves = (t) => (kids(t).length ? kids(t).flatMap(leaves) : [t]);
 function crumb(t) { const out = []; let p = parentOf(t); while (p && out.length < 10) { out.unshift(p.title); p = parentOf(p); } return out.join(" › "); }
-function effColor(t) { let x = t, n = 0; while (x && n++ < 10) { if (x.color && COLORS[x.color]) return x.color; x = parentOf(x); } return null; }
+function effColor(t) { let x = t, n = 0; while (x && n++ < 10) { if (hexOf(x.color)) return x.color; x = parentOf(x); } return null; }
 // done / total leaves
 function progressOf(t) {
   const L = leaves(t);
@@ -135,7 +153,13 @@ function group(title, rows, opts = {}) {
   return el("section", { class: "group" }, head, ...(rows.length ? rows : [el("div", { class: "empty" }, opts.empty || "Nothing here")]));
 }
 
+function syncPasteUi() {
+  const b = document.getElementById("add-paste"); if (!b) return;
+  b.hidden = !canPaste(null); if (clip) b.textContent = "Paste";
+  const f = document.getElementById("f-paste"); if (f) f.hidden = !(editing && canPaste(editing));
+}
 function render() {
+  syncPasteUi();
   reindex();
   document.querySelectorAll("#view-btns button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === view)));
   for (const id of ["prev", "next", "today-btn"]) $(id).hidden = view === "nested";
@@ -305,7 +329,9 @@ function renderMonth(c) {
 }
 
 // ---------- tasks with sub-tasks ----------
-const collapsed = new Set();      // task ids folded shut
+const collapsed = new Set();      // task ids folded shut (remembered between visits)
+try { JSON.parse(localStorage.getItem("tasks.collapsed") || "[]").forEach((i) => collapsed.add(i)); } catch (_) {}
+const saveCollapsed = () => { try { localStorage.setItem("tasks.collapsed", JSON.stringify([...collapsed])); } catch (_) {} };
 let addingUnder = null;           // node id with an open inline "add sub-task" box
 function whenLabel(t) {
   if (!t.period_start) return "Waiting";
@@ -317,10 +343,13 @@ function nodeRow(t, depth) {
   const row = el("div", { class: "pnode" + (t.done_at ? " done" : "") + colorClass(t), ...colorStyle(t), style: `${colorStyle(t).style || ""}; --depth: ${depth}` },
     el("button", { class: "tick sm", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done",
       onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
+    hasKids ? el("button", { class: "pt-fold", type: "button", "aria-expanded": String(!collapsed.has(t.id)), "aria-label": collapsed.has(t.id) ? "Expand" : "Collapse", onclick: () => { collapsed.has(t.id) ? collapsed.delete(t.id) : collapsed.add(t.id); saveCollapsed(); render(); } }, collapsed.has(t.id) ? "▸" : "▾") : null,
     el("button", { class: "pt-title", type: "button", onclick: () => openSheet(t) }, t.title),
     el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t)].filter(Boolean).join(" · ")),
     dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null,
     !hasKids && !t.done_at && t.period_start !== TODAY ? el("button", { class: "pt-btn", type: "button", onclick: () => schedule(t, TODAY) }, "→ Today") : null,
+    el("button", { class: "pt-btn", type: "button", "aria-label": "Copy with sub-tasks", title: "Copy", onclick: () => copyTask(t) }, "⧉"),
+    canPaste(t) ? el("button", { class: "pt-btn", type: "button", "aria-label": "Paste as sub-task", title: "Paste as sub-task", onclick: () => pasteTask(t) }, "⇩") : null,
     depth < MAX_DEPTH ? el("button", { class: "pt-btn", type: "button", "aria-label": "Add sub-task", onclick: () => { addingUnder = addingUnder === t.id ? null : t.id; render(); } }, "＋") : null);
   return row;
 }
@@ -331,7 +360,7 @@ function addBox(parent, depth) {
   return el("div", { class: "pnode add", "data-addbox": String(parent.id), style: `--depth: ${depth}` }, input, el("button", { type: "button", onclick: go }, "Add"));
 }
 function treeRows(t, depth, out) {
-  for (const k of kids(t)) { out.push(nodeRow(k, depth)); if (addingUnder === k.id) out.push(addBox(k, depth + 1)); treeRows(k, depth + 1, out); }
+  for (const k of kids(t)) { out.push(nodeRow(k, depth)); if (addingUnder === k.id) out.push(addBox(k, depth + 1)); if (!collapsed.has(k.id)) treeRows(k, depth + 1, out); }
   return out;
 }
 function nestedCard(r) {
@@ -342,7 +371,7 @@ function nestedCard(r) {
   const span = r.period_start ? whenLabel(r) + (isMulti(r) ? ` · ${spanDays(r)} days` : "") : "";
   const card = el("section", { class: "pcard" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) },
     el("div", { class: "pc-head" },
-      el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: () => { open ? collapsed.add(r.id) : collapsed.delete(r.id); render(); } }, open ? "▾" : "▸"),
+      el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: () => { open ? collapsed.add(r.id) : collapsed.delete(r.id); saveCollapsed(); render(); } }, open ? "▾" : "▸"),
       el("button", { class: "pc-title", type: "button", onclick: () => openSheet(r) }, r.title),
       dl ? el("span", { class: "dd big " + dl.cls, title: "Ends " + endDate(r) }, dl.text) : null),
     el("div", { class: "pbar", role: "progressbar", "aria-valuenow": String(pct), "aria-valuemin": "0", "aria-valuemax": "100" }, el("i", { style: `width:${pct}%` })),
@@ -350,7 +379,9 @@ function nestedCard(r) {
     el("div", { class: "pc-stats" }, stats),
     el("div", { class: "pc-actions" },
       next ? el("button", { type: "button", class: "pt-btn solid", onclick: () => schedule(next, TODAY) }, "Plan next → today") : null,
-      el("button", { type: "button", class: "pt-btn", onclick: () => { addingUnder = addingUnder === r.id ? null : r.id; collapsed.delete(r.id); render(); } }, "＋ Sub-task")));
+      el("button", { type: "button", class: "pt-btn", onclick: () => { addingUnder = addingUnder === r.id ? null : r.id; collapsed.delete(r.id); render(); } }, "＋ Sub-task"),
+      el("button", { type: "button", class: "pt-btn", onclick: () => copyTask(r) }, "Copy"),
+      canPaste(r) ? el("button", { type: "button", class: "pt-btn", onclick: () => pasteTask(r) }, "Paste inside") : null));
   if (open) {
     const body = el("div", { class: "pc-body" });
     if (addingUnder === r.id) body.append(addBox(r, 1));
@@ -421,7 +452,7 @@ $("add-form").addEventListener("submit", async (e) => {
 });
 
 // ---------- edit sheet ----------
-let editing = null, sheetColor = "";
+let editing = null, sheetColor = "", pickerSet = null;
 const END_CHIPS = [["", "Same day"], [3, "+3 days"], [7, "+1 week"], [14, "+2 weeks"], [30, "+1 month"]];
 function syncDateUi() {
   const d = $("f-date").value, e = $("f-end-date").value;
@@ -437,6 +468,7 @@ function syncDateUi() {
 function setColor(c) {
   sheetColor = c;
   document.querySelectorAll("#f-colors button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.c === c)));
+  if (pickerSet) pickerSet(c);
 }
 function openSheet(t) {
   editing = t;
@@ -445,13 +477,15 @@ function openSheet(t) {
   $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
   setColor(t.color || ""); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
   $("f-unsched-row").hidden = !t.parent_id; $("f-unsched").checked = !!t.parent_id && !t.period_start; $("f-date").disabled = $("f-unsched").checked;
-  renderKidsList(t); syncDateUi(); $("sheet").hidden = false;
+  renderKidsList(t); syncDateUi(); syncPasteUi(); $("sheet").hidden = false;
 }
 {
   const box = $("f-colors");
   box.append(el("button", { type: "button", class: "sw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setColor("") }, "∅"));
   for (const [name, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "sw", "data-c": name, role: "radio", "aria-label": name, title: name,
     style: `--tc: ${hex}`, onclick: () => setColor(name) }));
+  const cp = el("div", { class: "cp" }); $("f-colors").after(cp);
+  pickerSet = buildPicker(cp, (hx) => { sheetColor = hx; document.querySelectorAll("#f-colors button").forEach((b) => b.setAttribute("aria-checked", "false")); });
   END_CHIPS.forEach(([n, label]) => $("dur-chips").append(el("button", { type: "button", "data-n": String(n) }, label)));
   $("dur-chips").addEventListener("click", (e) => {
     const b = e.target.closest("button[data-n]"); if (!b) return;
@@ -528,6 +562,45 @@ async function restoreTree(rows) {
   }
   render(); toast("Restored");
 }
+
+// ---------- copy / paste (a task with all its sub-tasks) ----------
+let clip = null;
+try { clip = JSON.parse(localStorage.getItem("tasks.clip") || "null"); } catch (_) {}
+const clipDepth = (n) => 1 + Math.max(0, ...(n.kids || []).map(clipDepth));
+const snap = (t) => ({ title: t.title, notes: t.notes, color: t.color, recur: t.recur, start: t.period_start, end_on: t.end_on,
+  start_time: t.start_time, end_time: t.end_time, kids: kids(t).map(snap) });
+const daysBetween = (a, b) => Math.round((new Date(b + "T00:00") - new Date(a + "T00:00")) / 864e5);
+const canPaste = (parent) => !!clip && (parent ? depthOf(parent) : 0) + clipDepth(clip) <= MAX_DEPTH;
+function copyTask(t) {
+  clip = snap(t);
+  try { localStorage.setItem("tasks.clip", JSON.stringify(clip)); } catch (_) {}
+  render(); toast(`Copied "${t.title}"${clip.kids.length ? " with its sub-tasks" : ""}`);
+}
+async function pasteTask(parent) {
+  if (!clip) return;
+  if (!canPaste(parent)) return toast("That would nest too deep");
+  const inWeek = weekStart(anchor) <= TODAY && TODAY <= addDays(weekStart(anchor), 6), inMonth = anchor.slice(0, 7) === TODAY.slice(0, 7);
+  const base = parent ? TODAY : view === "day" ? anchor : view === "week" ? (inWeek ? TODAY : weekStart(anchor)) : view === "month" ? (inMonth ? TODAY : firstOf(anchor)) : TODAY;
+  const delta = clip.start ? daysBetween(clip.start, base) : 0;
+  const shift = (d) => (d ? addDays(d, delta) : null);
+  let made = 0, failed = false;
+  const put = async (n, parentId, top) => {
+    const start = n.start ? shift(n.start) : (top && !parentId ? base : null);
+    const row = { title: top && !parentId ? n.title + " (copy)" : n.title, notes: n.notes, color: n.color, recur: n.recur, horizon: "day",
+      period_start: start, end_on: n.start && n.end_on ? shift(n.end_on) : null, start_time: n.start_time, end_time: n.end_time, parent_id: parentId };
+    const { data, error } = await sb.from("tasks").insert(row).select().single();
+    if (error) { failed = true; return; }
+    tasks.push(data); made++;
+    for (const k of n.kids) { if (failed) break; await put(k, data.id, false); }
+  };
+  await put(clip, parent ? parent.id : null, true);
+  render();
+  if (parent) await syncUp({ id: -1, parent_id: parent.id });
+  toast(failed ? "Couldn't paste everything" : `Pasted ${made} task${made === 1 ? "" : "s"}`);
+}
+$("f-copy").addEventListener("click", () => { const t = editing; if (t) copyTask(t); });
+$("f-paste").addEventListener("click", async () => { const t = editing; if (!t) return; await pasteTask(t); renderKidsList(t); });
+$("add-paste").addEventListener("click", () => pasteTask(null));
 $("f-delete").addEventListener("click", async () => {
   const t = editing; if (!t) return;
   closeSheet(); await deleteTree(t);

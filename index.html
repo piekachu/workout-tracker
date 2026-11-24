@@ -20,7 +20,7 @@
     .layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px 32px; align-items: start; }
     @media (min-width: 980px) {
       .layout { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); }
-      .col-side { position: sticky; top: 16px; }
+      .col-side { position: sticky; top: calc(var(--nav-h, 56px) + 12px); max-height: calc(100vh - var(--nav-h, 56px) - 24px); overflow-y: auto; overscroll-behavior: contain; padding-bottom: 2px; }
     }
     .col-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
     .rings { display: flex; justify-content: space-around; gap: 12px; flex-wrap: wrap; }
@@ -71,6 +71,7 @@
     .item .tag.alert { color: var(--danger); }
     .item .del { flex: 0 0 auto; width: 36px; height: 36px; margin: -4px -6px -4px 0; padding: 0; background: none; border: 0; border-radius: 4px;
       color: var(--text-faint); font-size: 14px; cursor: pointer; }
+    .item .del.back:hover, .item .del.back:focus-visible { color: var(--accent); background: var(--accent-soft, rgba(0,0,0,.06)); }
     .item .del:hover, .item .del:focus-visible { color: var(--danger); background: var(--danger-soft); }
     .item .cta { flex: 0 0 auto; color: var(--accent); font-size: .85rem; font-weight: 600; white-space: nowrap; }
     a.item:active, .item[role=button]:active { transform: scale(.99); }
@@ -156,6 +157,12 @@
     .esheet .opt { font-weight: 400; color: var(--text-faint); }
     .eswatches { display: flex; gap: 8px; flex-wrap: wrap; }
     .esw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--tc, transparent); cursor: pointer; padding: 0; color: var(--text-dim); font-size: 14px; }
+    .cp { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; margin-top: 10px; }
+    .cp input[type=range] { -webkit-appearance: none; appearance: none; height: 14px; border-radius: 999px; border: 1px solid var(--border); padding: 0; margin: 0; min-width: 0; width: 100%; min-height: 0; }
+    .cp input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 2px solid #333; cursor: pointer; }
+    .cp-hue { grid-column: 1; background: linear-gradient(90deg, #f00, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00); }
+    .cp-lit { grid-column: 1; background: linear-gradient(90deg, hsl(var(--h, 210) 70% 20%), hsl(var(--h, 210) 70% 50%), hsl(var(--h, 210) 70% 80%)); }
+    .cp-exact { grid-column: 2; grid-row: 1 / span 2; width: 44px; height: 44px; min-height: 0; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: none; cursor: pointer; }
     .esw.none { border-color: var(--border); background: none; min-height: 0; }
     .esw[aria-checked="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
     .eactions { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
@@ -427,7 +434,25 @@
 
     // ---------------- rendering ----------------
     const COLORS = { red: "#e5484d", orange: "#f76b15", yellow: "#d9a406", green: "#30a46c", teal: "#12a594", blue: "#3e63dd", purple: "#8e4ec6", pink: "#d6409f", gray: "#8b8d98" };
-    const colorOf = (t) => (COLORS[t.color] ? t.color : COLORS[t._pcolor] ? t._pcolor : null);
+    const hexOf = (c) => (c && (COLORS[c] || (/^#[0-9a-fA-F]{6}$/.test(c) ? c : null))) || null;
+    const hslHex = (h, s, l) => { s /= 100; l /= 100; const k = (n) => (n + h / 30) % 12, a = s * Math.min(l, 1 - l), f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      return "#" + [f(0), f(8), f(4)].map((x) => Math.round(x * 255).toString(16).padStart(2, "0")).join(""); };
+    const hexHsl = (hex) => { const r = parseInt(hex.slice(1, 3), 16) / 255, g = parseInt(hex.slice(3, 5), 16) / 255, b = parseInt(hex.slice(5, 7), 16) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+      let h = 0; if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [Math.round(((h * 60) + 360) % 360), d ? Math.round(d / (1 - Math.abs(2 * l - 1)) * 100) : 0, Math.round(l * 100)]; };
+    // wide colour picker: rainbow bar + shade bar + exact picker; calls onPick(hex)
+    function buildPicker(host, onPick) {
+      const hue = el("input", { type: "range", min: "0", max: "359", value: "210", class: "cp-hue", "aria-label": "Hue" });
+      const lit = el("input", { type: "range", min: "20", max: "80", value: "50", class: "cp-lit", "aria-label": "Shade" });
+      const exact = el("input", { type: "color", value: "#3e63dd", class: "cp-exact", "aria-label": "Exact colour" });
+      const from = () => hslHex(+hue.value, 70, +lit.value);
+      const paint = () => { lit.style.setProperty("--h", hue.value); };
+      const fire = () => { paint(); const hx = from(); exact.value = hx; onPick(hx); };
+      hue.addEventListener("input", fire); lit.addEventListener("input", fire);
+      exact.addEventListener("input", () => { const [h, , l] = hexHsl(exact.value); hue.value = h; lit.value = Math.min(80, Math.max(20, l)); paint(); onPick(exact.value); });
+      host.append(hue, lit, exact); paint();
+      return (hex) => { if (hex && /^#/.test(hex)) { exact.value = hex; const [h, , l] = hexHsl(hex); hue.value = h; lit.value = Math.min(80, Math.max(20, l)); paint(); } };
+    }
+    const colorOf = (t) => (hexOf(t.color) ? t.color : hexOf(t._pcolor) ? t._pcolor : null);
     const dayDiff = (iso) => Math.round((new Date(iso + "T00:00") - new Date(TODAY + "T00:00")) / 86400000);
     // a task starts on period_start and may have an end date (end_on), its deadline
     const endDate = (t) => (t.period_start ? (t.end_on && t.end_on > t.period_start ? t.end_on : t.period_start) : null);
@@ -455,11 +480,13 @@
       if (!t.done_at) { const d = dleft(t); if (d) chips.push(el("span", { class: "tchip" + d.cls }, d.text)); }
       const desc = t.notes ? el("div", { class: "desc", title: "Click to expand" }, t.notes) : "";
       if (desc) desc.addEventListener("click", () => desc.classList.toggle("open"));
-      return el("div", { class: `item task-card${t.done_at ? " done" : ""}${c ? " tinted" : ""}`, ...(c ? { style: `--tc: ${COLORS[c]}` } : {}) },
+      return el("div", { class: `item task-card${t.done_at ? " done" : ""}${c ? " tinted" : ""}`, ...(c ? { style: `--tc: ${hexOf(c)}` } : {}) },
         el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
         el("div", { class: "body" }, el("div", { class: "name" }, t.title), desc, chips.length ? el("div", { class: "tchips" }, chips) : ""),
         el("button", { class: "edit", type: "button", "aria-label": `Edit "${t.title}"`, title: "Edit task", onclick: () => openEdit(t) }, "✎"),
-        el("button", { class: "del", type: "button", "aria-label": `Delete "${t.title}"`, title: "Delete task", onclick: () => deleteTask(t) }, "✕"));
+        t.parent_id && !t.done_at
+          ? el("button", { class: "del back", type: "button", "aria-label": `Send "${t.title}" back to sub-tasks`, title: "Send back to Sub-tasks", onclick: () => sendBack(t) }, "↩")
+          : el("button", { class: "del", type: "button", "aria-label": `Delete "${t.title}"`, title: "Delete task", onclick: () => deleteTask(t) }, "✕"));
     }
     const streakBadge = (n, unit) => el("span", { class: "streak" + (n > 0 ? " on" : ""), title: unit === "w" ? `${n}-week streak` : `${n}-day streak` }, `🔥 ${n}${unit}`);
     function coreItem(c) {
@@ -639,7 +666,7 @@
           const c1 = t.period_start > m ? Math.round((new Date(t.period_start) - new Date(m)) / 86400000) : 0;
           const e = endDate(t), c2 = e < m6 ? Math.round((new Date(e) - new Date(m)) / 86400000) : 6, c = colorOf(t);
           bars.append(el("button", { type: "button", class: "mc-bar" + (t.done_at ? " done" : ""), title: `${t.title} · ${shortDate(t.period_start)} → ${shortDate(endDate(t))}`,
-            style: `grid-column: ${c1 + 1} / ${c2 + 2};${c ? ` --tc: ${COLORS[c]}` : ""}`, onclick: () => openEdit(t) }, t.title));
+            style: `grid-column: ${c1 + 1} / ${c2 + 2};${c ? ` --tc: ${hexOf(c)}` : ""}`, onclick: () => openEdit(t) }, t.title));
         });
         box.append(el("div", { class: "mc-week" }, dates, bars));
       }
@@ -683,6 +710,14 @@
       if (!quiet) render();
       return true;
     }
+    async function sendBack(t) {
+      const patch = { period_start: null, end_on: null, start_time: null, end_time: null };
+      const { error } = await sb.from("tasks").update(patch).eq("id", t.id);
+      if (error) { toast("Couldn't send it back"); return; }
+      state.tasks = state.tasks.filter((x) => x.id !== t.id);
+      state.backlog.push({ ...t, ...patch });
+      render(); loadSpans(); toast(`"${t.title}" is back in Sub-tasks`);
+    }
     async function pullNextEach() {
       const firsts = [], seen = new Set();
       for (const t of state.backlog) if (!seen.has(t._rootId)) { seen.add(t._rootId); firsts.push(t); }
@@ -692,12 +727,14 @@
     $("pull-btn").addEventListener("click", () => { pullOpen = !pullOpen; renderPull(); });
 
     // ---------------- edit a task ----------------
-    let editingT = null, eColor = "";
-    function setEColor(c) { eColor = c; document.querySelectorAll("#e-colors button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.c === c))); }
+    let editingT = null, eColor = "", ePickSet = null;
+    function setEColor(c) { eColor = c; document.querySelectorAll("#e-colors button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.c === c))); if (ePickSet) ePickSet(c); }
     {
       const box = $("e-colors");
       box.append(el("button", { type: "button", class: "esw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setEColor("") }, "∅"));
       for (const [n, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "esw", "data-c": n, role: "radio", "aria-label": n, title: n, style: `--tc: ${hex}`, onclick: () => setEColor(n) }));
+      const cp = el("div", { class: "cp" }); box.after(cp);
+      ePickSet = buildPicker(cp, (hx) => { eColor = hx; document.querySelectorAll("#e-colors button").forEach((b) => b.setAttribute("aria-checked", "false")); });
     }
     const syncETime = () => {
       const d = $("e-date").value, e = $("e-end-date").value;

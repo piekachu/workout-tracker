@@ -296,3 +296,26 @@ textarea { resize: vertical; }
   background: repeating-linear-gradient(to right, transparent 0, transparent calc(100% / 7 - 1px), var(--border-2) calc(100% / 7 - 1px), var(--border-2) calc(100% / 7)); }
 .wk-strip .mbar { margin: 2px 3px; }
 @media (min-width: 900px) { #content[data-view="week"] > .wk-strip { grid-column: 1 / -1; } }
+
+#add-paste { flex: 0 0 auto; min-height: 50px; padding: 0 16px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text-dim); font-weight: 600; cursor: pointer; }
+.add-row #add-paste[hidden], #f-paste[hidden] { display: none; }
+
+.pt-fold { width: 24px; height: 28px; flex: 0 0 auto; margin-right: -4px; background: none; border: 0; color: var(--text-dim); font-size: 14px; cursor: pointer; padding: 0; }
+.cp { display: grid; grid-template-columns: 1fr auto; gap: 8px 10px; align-items: center; margin-top: 10px; }
+.cp input[type=range] { -webkit-appearance: none; appearance: none; height: 14px; border-radius: 999px; border: 1px solid var(--border); padding: 0; margin: 0; min-width: 0; width: 100%; }
+.cp input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: #fff; border: 2px solid #333; cursor: pointer; }
+.cp input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid #333; cursor: pointer; }
+.cp-hue { grid-column: 1; background: linear-gradient(90deg, #f00, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00); }
+.cp-lit { grid-column: 1; background: linear-gradient(90deg, hsl(var(--h, 210) 70% 20%), hsl(var(--h, 210) 70% 50%), hsl(var(--h, 210) 70% 80%)); }
+.cp-exact { grid-column: 2; grid-row: 1 / span 2; width: 44px; height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 50%; background: none; cursor: pointer; }
+
+/* keep crowded rows from spilling or overlapping */
+.pnode { flex-wrap: wrap; row-gap: 4px; }
+.pt-title { flex: 1 1 120px; }
+.pt-meta { white-space: normal; }
+.sheet-actions { flex-wrap: wrap; }
+.sheet-actions .spacer { flex: 1 1 0; }
+.sheet-actions button { min-height: 44px; padding: 0 14px; }
+.add-row { flex-wrap: wrap; }
+.add-row input { flex: 1 1 160px; }
+.pc-actions .pt-btn { white-space: nowrap; }
