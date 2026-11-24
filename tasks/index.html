@@ -59,6 +59,16 @@
         <label>Start<input id="f-start" type="time"></label>
         <label>End<input id="f-end" type="time"></label>
       </div>
+      <div class="dur-row">
+        <label>Duration <span class="opt">optional, minutes</span>
+          <input id="f-dur" type="number" inputmode="numeric" min="1" max="1440" step="5" placeholder="e.g. 45">
+        </label>
+        <div class="dur-chips" id="dur-chips"><button type="button" data-m="15">15m</button><button type="button" data-m="30">30m</button><button type="button" data-m="60">1h</button><button type="button" data-m="90">1.5h</button><button type="button" data-m="120">2h</button></div>
+      </div>
+      <div class="color-field">
+        <span class="lbl">Color</span>
+        <div class="swatches" id="f-colors" role="radiogroup" aria-label="Color"></div>
+      </div>
       <div class="row2">
         <label>Priority
           <select id="f-priority"><option value="0">Normal</option><option value="1">Medium</option><option value="2">High</option></select>

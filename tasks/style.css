@@ -146,7 +146,6 @@ textarea { resize: vertical; }
   .mcal-dates button { padding: 4px 4px 2px; font-size: 12px; }
   .mcal-dates button .m { display: none; }
   .mchip, .mmore { display: none; }
-  .mbar { font-size: 0; height: 5px; padding: 0; margin: 1px 3px; }
   .mcal-col { padding: 0 2px 4px; }
   .mdots { display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; padding: 2px 0; }
   .mdots i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: block; }
@@ -180,3 +179,26 @@ textarea { resize: vertical; }
 .sheet .chk { flex-direction: row; align-items: center; gap: 10px; font-size: .9rem; color: var(--text); font-weight: 500; }
 .sheet .chk input { width: 20px; height: 20px; min-height: 0; padding: 0; accent-color: var(--accent); }
 @media (max-width: 700px) { .mbar .mck { display: none; } }
+
+/* ---- colour labels + duration ---- */
+.task.tinted { border-left: 4px solid var(--tc); }
+.mchip.tinted { border-left-color: var(--tc); background: color-mix(in oklab, var(--tc) 22%, transparent); }
+.mchip.tinted.done { border-left-color: var(--text-faint); background: color-mix(in oklab, var(--text-dim) 12%, transparent); }
+.mbar.tinted { background: color-mix(in oklab, var(--tc) 78%, #000); color: #fff; }
+.mbar .tm { flex: 0 0 auto; margin-left: auto; padding-left: 6px; font-size: 11px; opacity: .85; }
+.mdots i.tinted { background: var(--tc); }
+.mdots i.tinted.done { background: var(--text-faint); }
+.sheet .opt { font-weight: 400; color: var(--text-faint); }
+.dur-row { display: grid; grid-template-columns: 1fr; gap: 6px; }
+.dur-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.dur-chips button { height: 30px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 12.5px; cursor: pointer; }
+.color-field .lbl { display: block; margin-bottom: 6px; font-size: .78rem; color: var(--text-dim); font-weight: 600; }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.sw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--tc, transparent); cursor: pointer; padding: 0; color: var(--text-dim); font-size: 14px; }
+.sw.none { border-color: var(--border); background: none; }
+.sw[aria-checked="true"] { outline: 2px solid var(--text); outline-offset: 2px; }
+/* phones: week/month bars stay readable instead of 5px slivers */
+@media (max-width: 700px) {
+  .mbar { font-size: 10.5px; height: auto; padding: 1px 5px; margin: 1px 2px 2px; line-height: 1.35; }
+  .mbar .tm { display: none; }
+}

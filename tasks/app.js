@@ -17,6 +17,15 @@ function periodLabel(view, anchor) {
   return fmt(anchor, { month: "long", year: "numeric" });
 }
 
+// ---------- colours + durations ----------
+const COLORS = { red: "#e5484d", orange: "#f76b15", yellow: "#d9a406", green: "#30a46c", teal: "#12a594", blue: "#3e63dd", purple: "#8e4ec6", pink: "#d6409f", gray: "#8b8d98" };
+const colorStyle = (t) => (t.color && COLORS[t.color] ? { style: `--tc: ${COLORS[t.color]}` } : {});
+const colorClass = (t) => (t.color && COLORS[t.color] ? " tinted" : "");
+function fmtDur(m) { if (!m) return ""; const h = Math.floor(m / 60), r = m % 60; return h ? (r ? `${h}h ${r}m` : `${h}h`) : `${r}m`; }
+function addMinutes(hhmm, m) { const [h, mi] = hhmm.split(":").map(Number), t = h * 60 + mi + m; return t >= 1440 ? "23:59" : `${pad(Math.floor(t / 60))}:${pad(t % 60)}`; }
+// end time to show: the explicit one, else start + duration
+const endOf = (t) => (t.end_time ? t.end_time.slice(0, 5) : t.start_time && t.duration_min ? addMinutes(t.start_time.slice(0, 5), t.duration_min) : "");
+
 // ---------- tiny DOM helper ----------
 const $ = (id) => document.getElementById(id);
 function el(tag, attrs = {}, ...kids) {
@@ -61,10 +70,11 @@ const inPeriod = (horizon, start) => sorted(tasks.filter((t) => t.horizon === ho
 function taskRow(t, opts = {}) {
   const hhmm = (s) => (s ? s.slice(0, 5) : "");
   const bits = [];
-  if (t.start_time) bits.push(hhmm(t.start_time) + (t.end_time ? "–" + hhmm(t.end_time) : ""));
+  if (t.start_time) bits.push(hhmm(t.start_time) + (endOf(t) ? "–" + endOf(t) : ""));
+  if (t.duration_min) bits.push(fmtDur(t.duration_min));
   if (opts.showHorizon && t.horizon !== "day") bits.push(t.horizon === "week" ? "this week" : "this month");
   if (t.recur) bits.push("↻ " + t.recur);
-  const row = el("div", { class: `task p${t.priority}${t.done_at ? " done" : ""}` },
+  const row = el("div", { class: `task p${t.priority}${t.done_at ? " done" : ""}${colorClass(t)}`, ...colorStyle(t) },
     el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggle(t) }, "✓"),
     el("button", { class: "main", type: "button", onclick: () => openSheet(t) },
       el("div", { class: "title" }, t.title), bits.length ? el("div", { class: "meta" }, bits.join(" · ")) : null));
@@ -114,6 +124,8 @@ function renderDay(c) {
 function renderWeek(c) {
   const mon = weekStart(anchor);
   c.append(group("This week", inPeriod("week", mon).map((t) => taskRow(t)), { empty: "No week-level tasks." }));
+  const mo = inPeriod("month", firstOf(mon));
+  if (mo.length) c.append(group("This month", mo.map((t) => taskRow(t))));
   for (let i = 0; i < 7; i++) {
     const day = addDays(mon, i);
     const rows = inPeriod("day", day).map((t) => taskRow(t));
@@ -166,16 +178,17 @@ function isoWeek(iso) {
 // week tasks as bars across the row, day tasks as tinted chips, "N more" when it overflows.
 function renderMonth(c) {
   const first = firstOf(anchor), last = addDays(addMonths(first, 1), -1), month = first.slice(0, 7);
-  const taskLabel = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
+  const taskLabel = (t) => [t.start_time ? t.start_time.slice(0, 5) : "", t.duration_min ? fmtDur(t.duration_min) : ""].filter(Boolean).join(" · ");
   // divs, not buttons: Firefox won't start a drag from a <button>
   const press = (t) => ({ role: "button", tabindex: "0", title: t.title, onclick: () => openSheet(t),
     onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSheet(t); } } });
   // the round check marks a task done without opening it
   const check = (t) => el("button", { type: "button", class: "mck", "aria-label": t.done_at ? "Mark not done" : "Mark done", "aria-pressed": String(!!t.done_at),
     onclick: (e) => { e.stopPropagation(); toggle(t); }, onkeydown: (e) => e.stopPropagation() }, "✓");
-  const bar = (t, extra) => el("div", { ...press(t), class: "mbar" + (extra ? " " + extra : "") + (t.done_at ? " done" : ""),
-    ...(t.horizon === "week" ? dragAttrs(t, "week") : {}) }, check(t), el("span", { class: "tt" }, t.title));
-  const chip = (t) => el("div", { ...press(t), class: `mchip c${t.priority}${t.done_at ? " done" : ""}`, ...dragAttrs(t, "day") },
+  const bar = (t, extra) => el("div", { ...press(t), ...colorStyle(t), class: "mbar" + (extra ? " " + extra : "") + colorClass(t) + (t.done_at ? " done" : ""),
+    ...(t.horizon === "week" ? dragAttrs(t, "week") : {}) }, check(t), el("span", { class: "tt" }, t.title),
+    t.duration_min ? el("span", { class: "tm" }, fmtDur(t.duration_min)) : null);
+  const chip = (t) => el("div", { ...press(t), ...colorStyle(t), class: `mchip c${t.priority}${colorClass(t)}${t.done_at ? " done" : ""}`, ...dragAttrs(t, "day") },
     check(t), taskLabel(t) ? el("span", { class: "tm" }, taskLabel(t)) : null, el("span", { class: "tt" }, t.title));
   const goDay = (iso) => { view = "day"; anchor = iso; render(); };
 
@@ -204,7 +217,7 @@ function renderMonth(c) {
       list.slice(0, visible).forEach((t) => col.append(chip(t)));
       if (list.length > visible) col.append(el("button", { type: "button", class: "mmore", onclick: () => goDay(iso) }, `${list.length - visible} more`));
       const dots = el("div", { class: "mdots", onclick: () => goDay(iso) });
-      list.slice(0, 6).forEach((t) => dots.append(el("i", { class: `c${t.priority}${t.done_at ? " done" : ""}` })));
+      list.slice(0, 6).forEach((t) => dots.append(el("i", { ...colorStyle(t), class: `c${t.priority}${colorClass(t)}${t.done_at ? " done" : ""}` })));
       col.append(dots);
       chips.append(col);
     }
@@ -258,8 +271,22 @@ function openSheet(t) {
   $("f-title").value = t.title; $("f-notes").value = t.notes || "";
   $("f-horizon").value = t.horizon; $("f-date").value = t.period_start;
   $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
+  $("f-dur").value = t.duration_min || ""; setColor(t.color || "");
   $("f-priority").value = String(t.priority); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
   syncTimeRow(); $("sheet").hidden = false;
+}
+// colour swatches + duration presets in the edit sheet
+let sheetColor = "";
+function setColor(c) {
+  sheetColor = c;
+  document.querySelectorAll("#f-colors button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.c === c)));
+}
+{
+  const box = $("f-colors");
+  box.append(el("button", { type: "button", class: "sw none", "data-c": "", role: "radio", "aria-label": "No color", title: "No color", onclick: () => setColor("") }, "∅"));
+  for (const [name, hex] of Object.entries(COLORS)) box.append(el("button", { type: "button", class: "sw", "data-c": name, role: "radio", "aria-label": name, title: name,
+    style: `--tc: ${hex}`, onclick: () => setColor(name) }));
+  $("dur-chips").addEventListener("click", (e) => { const b = e.target.closest("button[data-m]"); if (b) $("f-dur").value = b.dataset.m; });
 }
 const closeSheet = () => { $("sheet").hidden = true; editing = null; };
 $("f-horizon").addEventListener("change", syncTimeRow);
@@ -276,7 +303,9 @@ $("edit-form").addEventListener("submit", async (e) => {
   if (start && end && end <= start) { toast("End must be after start"); return; }
   const patch = { title: $("f-title").value.trim(), notes: $("f-notes").value.trim() || null, horizon,
     period_start: periodStart(horizon, $("f-date").value), start_time: start, end_time: end,
-    priority: Number($("f-priority").value), recur: $("f-recur").value || null };
+    priority: Number($("f-priority").value), recur: $("f-recur").value || null,
+    duration_min: Math.round(Number($("f-dur").value)) || null, color: sheetColor || null };
+  if (patch.duration_min && (patch.duration_min < 1 || patch.duration_min > 1440)) { toast("Duration must be 1–1440 minutes"); return; }
   if (!patch.title) return;
   const wantDone = $("f-done").checked, becameDone = wantDone && !t.done_at;
   if (wantDone !== !!t.done_at) patch.done_at = wantDone ? new Date().toISOString() : null;
