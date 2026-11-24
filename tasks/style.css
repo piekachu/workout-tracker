@@ -313,11 +313,18 @@ textarea { resize: vertical; }
 .row2 label > span:first-child { white-space: nowrap; }
 .sheet-actions .kebab { width: 44px; height: 44px; border: 1px solid var(--border); background: var(--surface); }
 
-/* Subtasks view: one column per task, scrolling sideways */
-#content[data-view="nested"] { display: flex !important; flex-wrap: nowrap; gap: 14px; align-items: flex-start; overflow-x: auto; overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity; padding: 2px 2px 16px; margin: 0 -2px; }
-#content[data-view="nested"] > .pcard, #content[data-view="nested"] > .group { flex: 0 0 min(330px, 86vw); width: min(330px, 86vw); max-width: none; margin: 0; scroll-snap-align: start; }
-#content[data-view="nested"] > .group { margin-top: 0; padding-left: 4px; border-left: 1px dashed var(--border); }
-#content[data-view="nested"] > .group .pcard { max-width: none; width: 100%; }
-#content[data-view="nested"] > .empty { flex: 1 1 auto; }
-#content[data-view="nested"] .pc-body { max-height: 70vh; overflow-y: auto; }
+/* Subtasks view: each task is a row; its sub-tasks sit side by side as columns */
+.pcard.lane { display: flex; align-items: stretch; gap: 16px; max-width: none; padding: 12px 14px; }
+.lane-head { flex: 0 0 230px; width: 230px; min-width: 0; padding-right: 14px; border-right: 1px solid var(--border-2); }
+.lane-head .pbar { margin: 8px 0 6px; }
+.lane-cols { flex: 1 1 auto; min-width: 0; display: flex; gap: 12px; align-items: flex-start; overflow-x: auto; overscroll-behavior-x: contain; padding-bottom: 6px; scroll-snap-type: x proximity; }
+.lane-col { flex: 0 0 236px; width: 236px; padding: 8px 10px 6px; background: var(--bg-2); border: 1px solid var(--border-2); border-top: 3px solid var(--border); border-radius: var(--radius); scroll-snap-align: start; }
+.lane-col.tinted { border-top-color: var(--tc); }
+.lane-col.done { opacity: .65; }
+.col-head { border-bottom: 1px solid var(--border-2); margin-bottom: 4px; padding-bottom: 2px; font-weight: 600; }
+.lane-cols > .empty { align-self: center; }
+@media (max-width: 760px) {
+  .pcard.lane { flex-direction: column; gap: 10px; }
+  .lane-head { flex: none; width: auto; padding: 0 0 10px; border-right: 0; border-bottom: 1px solid var(--border-2); }
+  .lane-col { flex-basis: min(260px, 78vw); width: min(260px, 78vw); }
+}

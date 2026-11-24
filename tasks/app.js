@@ -373,11 +373,11 @@ function nestedCard(r) {
   const next = leaves(r).filter((l) => !l.done_at && (!l.period_start || l.period_start > TODAY))[0];
   const dl = !r.done_at && dleft(r);
   const span = r.period_start ? whenLabel(r) + (isMulti(r) ? ` · ${spanDays(r)} days` : "") : "";
-  const card = el("section", { class: "pcard" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) },
+  const head = el("div", { class: "lane-head" },
     el("div", { class: "pc-head" },
       el("button", { class: "pc-fold", type: "button", "aria-expanded": String(open), "aria-label": open ? "Collapse" : "Expand", onclick: () => { open ? collapsed.add(r.id) : collapsed.delete(r.id); saveCollapsed(); render(); } }, open ? "▾" : "▸"),
-      el("button", { class: "pc-title", type: "button", onclick: () => openSheet(r) }, r.title),
-      dl ? el("span", { class: "dd big " + dl.cls, title: "Ends " + endDate(r) }, dl.text) : null),
+      el("button", { class: "pc-title", type: "button", onclick: () => openSheet(r) }, r.title)),
+    dl ? el("div", {}, el("span", { class: "dd big " + dl.cls, title: "Ends " + endDate(r) }, dl.text)) : null,
     el("div", { class: "pbar", role: "progressbar", "aria-valuenow": String(pct), "aria-valuemin": "0", "aria-valuemax": "100" }, el("i", { style: `width:${pct}%` })),
     span ? el("div", { class: "pc-span" }, span) : null,
     el("div", { class: "pc-stats" }, stats),
@@ -389,11 +389,18 @@ function nestedCard(r) {
         canPaste(r) ? { label: "Paste inside", fn: () => pasteTask(r) } : null,
         { label: "Edit", fn: () => openSheet(r) },
         { label: "Delete", danger: true, fn: () => deleteTree(r) }], `Actions for "${r.title}"`)));
+  const card = el("section", { class: "pcard lane" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) }, head);
   if (open) {
-    const body = el("div", { class: "pc-body" });
-    if (addingUnder === r.id) body.append(addBox(r, 1));
-    treeRows(r, 1, []).forEach((n) => body.append(n));
-    card.append(body);
+    const cols = el("div", { class: "lane-cols" });
+    for (const k of kids(r)) {
+      const col = el("div", { class: "lane-col" + colorClass(k) + (k.done_at ? " done" : ""), ...colorStyle(k) }, el("div", { class: "col-head" }, nodeRow(k, 1)));
+      if (addingUnder === k.id) col.append(addBox(k, 2));
+      if (!collapsed.has(k.id)) treeRows(k, 2, []).forEach((n) => col.append(n));
+      cols.append(col);
+    }
+    if (addingUnder === r.id) cols.append(el("div", { class: "lane-col" }, addBox(r, 1)));
+    if (!kids(r).length && addingUnder !== r.id) cols.append(el("div", { class: "empty" }, "No sub-tasks yet — use ⋯ → Add sub-task."));
+    card.append(cols);
   }
   return card;
 }
