@@ -334,7 +334,7 @@ try { JSON.parse(localStorage.getItem("tasks.collapsed") || "[]").forEach((i) =>
 const saveCollapsed = () => { try { localStorage.setItem("tasks.collapsed", JSON.stringify([...collapsed])); } catch (_) {} };
 let addingUnder = null;           // node id with an open inline "add sub-task" box
 function whenLabel(t) {
-  if (!t.period_start) return "Waiting";
+  if (!t.period_start) return "";
   const d = (x) => fmt(x, { month: "short", day: "numeric" });
   return isMulti(t) ? `${d(t.period_start)} → ${d(endDate(t))}` : d(t.period_start);
 }
