@@ -30,13 +30,37 @@ window.TasksCore = (function () {
   // Insert the next occurrence of a just-completed repeating task. Resolves to
   // the new row, or null when it already exists or the insert failed.
   async function spawnNext(sb, t, existing) {
+    if (!t.period_start) return null;          // backlog sub-tasks don't repeat
     const next = nextPeriod(t);
     if (existing.some((x) => x.title === t.title && x.horizon === t.horizon && x.period_start === next && x.recur === t.recur)) return null;
     const row = { title: t.title, notes: t.notes, horizon: t.horizon, period_start: next, start_time: t.start_time,
-      end_time: t.end_time, priority: t.priority, recur: t.recur, duration_min: t.duration_min, color: t.color };
+      end_time: t.end_time, priority: t.priority, recur: t.recur, duration_min: t.duration_min, color: t.color, parent_id: t.parent_id, due_on: null };
     const { data, error } = await sb.from("tasks").insert(row).select().single();
     return error ? null : data;
   }
 
-  return { pad, localISO, parse, addDays, firstOf, addMonths, weekStart, periodStart, nextPeriod, spawnNext };
+  // A task with sub-tasks is done exactly when all of them are. After a task changes,
+  // walk up its ancestors and fix their done state. Works from the database alone, so the
+  // Today screen (which only holds some tasks) can use it too. Resolves to the changed parents.
+  async function syncParents(sb, t) {
+    const changed = [];
+    let pid = t.parent_id;
+    while (pid) {
+      const [kids, par] = await Promise.all([
+        sb.from("tasks").select("id, done_at").eq("parent_id", pid),
+        sb.from("tasks").select("id, done_at, parent_id").eq("id", pid).maybeSingle(),
+      ]);
+      if (kids.error || par.error || !par.data || !(kids.data || []).length) break;
+      const allDone = kids.data.every((k) => k.done_at), isDone = !!par.data.done_at;
+      if (allDone === isDone) break;           // nothing changes, so nothing above it changes either
+      const next = allDone ? new Date().toISOString() : null;
+      const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", pid);
+      if (error) break;
+      changed.push({ id: pid, done_at: next });
+      pid = par.data.parent_id;
+    }
+    return changed;
+  }
+
+  return { syncParents, pad, localISO, parse, addDays, firstOf, addMonths, weekStart, periodStart, nextPeriod, spawnNext };
 })();

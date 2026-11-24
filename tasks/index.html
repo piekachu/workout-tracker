@@ -23,6 +23,7 @@
           <option value="day">Day</option>
           <option value="week">Week</option>
           <option value="month">Month</option>
+          <option value="projects">Projects</option>
         </select>
         <button type="button" class="tb-btn" id="today-btn">Today</button>
         <button type="button" class="tb-icon" id="prev" aria-label="Previous"><svg viewBox="0 0 16 16" width="16" height="16"><path d="M3 10l5-5 5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
@@ -53,8 +54,15 @@
         <label>Scope
           <select id="f-horizon"><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select>
         </label>
-        <label>Date<input id="f-date" type="date" required></label>
+        <label>Date<input id="f-date" type="date"></label>
       </div>
+      <div class="row2">
+        <label>Parent task
+          <select id="f-parent"></select>
+        </label>
+        <label>Deadline <span class="opt">optional</span><input id="f-due" type="date"></label>
+      </div>
+      <label class="chk" id="f-unsched-row" hidden><input type="checkbox" id="f-unsched"> Not scheduled yet (keep in the project backlog)</label>
       <div class="row2" id="f-time-row">
         <label>Start<input id="f-start" type="time"></label>
         <label>End<input id="f-end" type="time"></label>
@@ -76,6 +84,11 @@
         <label>Repeat
           <select id="f-recur"><option value="">Never</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option></select>
         </label>
+      </div>
+      <div class="kids-wrap" id="f-kids-wrap" hidden>
+        <span class="lbl">Sub-tasks</span>
+        <div id="f-kids"></div>
+        <div class="kid-add"><input id="f-kid" type="text" maxlength="200" placeholder="Add a sub-task" enterkeyhint="done"><button type="button" id="f-kid-add">Add</button></div>
       </div>
       <label class="chk"><input type="checkbox" id="f-done"> Completed</label>
       <div class="sheet-actions">

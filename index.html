@@ -221,7 +221,15 @@
         ]);
         if (days.error) throw days.error;
         if (longer.error) throw longer.error;
-        return [...(days.data || []), ...(longer.data || [])];
+        const rows = [...(days.data || []), ...(longer.data || [])];
+        // sub-tasks show which project they belong to
+        const pids = [...new Set(rows.map((r) => r.parent_id).filter(Boolean))];
+        if (pids.length) {
+          const { data } = await sb.from("tasks").select("id, title").in("id", pids);
+          const names = new Map((data || []).map((p) => [p.id, p.title]));
+          rows.forEach((r) => { if (r.parent_id) r._parent = names.get(r.parent_id) || ""; });
+        }
+        return rows;
       }),
       // 60 days of expenses: this week vs the one before (ticker) and the daily-logging streak
       spend14: once(async () => {
@@ -272,7 +280,7 @@
     function taskItem(t, tag) {
       return el("div", { class: `item p${t.priority}${t.done_at ? " done" : ""}` },
         el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
-        el("div", { class: "body" }, el("div", { class: "name" }, t.title)),
+        el("div", { class: "body" }, el("div", { class: "name" }, t.title), t._parent ? el("div", { class: "sub" }, "↳ " + t._parent) : ""),
         tag || timeOf(t) ? el("span", { class: "tag" + (tag === "overdue" ? " alert" : "") }, tag || timeOf(t)) : "",
         el("button", { class: "del", type: "button", "aria-label": `Delete "${t.title}"`, title: "Delete task", onclick: () => deleteTask(t) }, "✕"));
     }
@@ -413,6 +421,7 @@
       t.done_at = next; bump(next ? 1 : -1); render();
       const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", t.id);
       if (error) { t.done_at = was; bump(next ? -1 : 1); render(); toast("Couldn't save — check your connection"); return; }
+      if (t.parent_id) TasksCore.syncParents(sb, t);     // a project step finishing can finish its parent
       if (next && t.recur) {
         const row = await TasksCore.spawnNext(sb, t, state.tasks);
         if (row && row.period_start <= TODAY) { state.tasks.push(row); render(); }

@@ -202,3 +202,55 @@ textarea { resize: vertical; }
   .mbar { font-size: 10.5px; height: auto; padding: 1px 5px; margin: 1px 2px 2px; line-height: 1.35; }
   .mbar .tm { display: none; }
 }
+
+/* ---- projects, D-day, timers ---- */
+#content[data-view="projects"] { display: block; }
+.toast .toast-act { margin-left: 10px; background: none; border: 0; color: var(--bg); text-decoration: underline; font: inherit; font-weight: 700; cursor: pointer; padding: 4px; }
+.kids-wrap { display: flex; flex-direction: column; gap: 6px; }
+.kids-wrap .lbl { font-size: .78rem; color: var(--text-dim); font-weight: 600; }
+.kid { display: flex; align-items: center; gap: 8px; }
+.kid-tick { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); background: none; color: transparent; font-size: 13px; cursor: pointer; padding: 0; }
+.kid.done .kid-tick { background: var(--accent); border-color: var(--accent); color: #fff; }
+.kid-title { flex: 1; min-width: 0; text-align: left; background: none; border: 0; color: var(--text); font-size: .95rem; cursor: pointer; padding: 6px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kid.done .kid-title { color: var(--text-dim); text-decoration: line-through; }
+.kid-when { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); }
+.kid-add { display: flex; gap: 8px; }
+.kid-add button, .pnode.add button { flex: 0 0 auto; min-height: 44px; padding: 0 16px; border: 0; border-radius: var(--radius); background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; }
+
+.pcard { margin: 0 0 14px; padding: 12px 14px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--border); border-radius: var(--radius); max-width: 820px; }
+.pcard.tinted { border-left-color: var(--tc); }
+.pcard.done { opacity: .65; }
+.pc-head { display: flex; align-items: center; gap: 6px; }
+.pc-fold { width: 28px; height: 32px; flex: 0 0 auto; background: none; border: 0; color: var(--text-dim); font-size: 16px; cursor: pointer; padding: 0; }
+.pc-title { flex: 1; min-width: 0; text-align: left; background: none; border: 0; color: var(--text); font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; cursor: pointer; padding: 4px 0; overflow-wrap: anywhere; }
+.pbar { height: 6px; border-radius: 999px; background: var(--bg-2); margin: 8px 0 6px; overflow: hidden; }
+.pbar i { display: block; height: 100%; background: var(--tc, var(--accent)); border-radius: 999px; transition: width .3s; }
+.pc-stats { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); }
+.pc-stats.warn { color: var(--danger); }
+.pc-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.pt-btn { min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 12.5px; font-weight: 600; cursor: pointer; flex: 0 0 auto; }
+.pt-btn.solid { background: var(--accent); border-color: var(--accent); color: #fff; }
+.ptimer { min-width: 34px; min-height: 34px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 0 10px; flex: 0 0 auto; }
+.ptimer.on { background: color-mix(in oklab, var(--accent) 18%, var(--surface)); border-color: var(--accent); color: var(--text); }
+.ptimer.wide span { font-variant-numeric: tabular-nums; }
+.dd { flex: 0 0 auto; font-family: var(--font-mono); font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--bg-2); color: var(--text-dim); }
+.dd.big { font-size: 13px; padding: 4px 10px; }
+.dd.soon { background: color-mix(in oklab, var(--gold) 25%, transparent); color: var(--text); }
+.dd.late { background: color-mix(in oklab, var(--danger) 25%, transparent); color: var(--text); }
+.pc-body { margin-top: 10px; border-top: 1px solid var(--border-2); padding-top: 6px; }
+.pnode { display: flex; align-items: center; gap: 8px; padding: 5px 0 5px calc((var(--depth, 1) - 1) * 18px); min-width: 0; }
+.pnode .tick.sm { flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border); background: none; color: transparent; font-size: 13px; cursor: pointer; padding: 0; }
+.pnode.done .tick.sm { background: var(--accent); border-color: var(--accent); color: #fff; }
+.pnode.tinted .tick.sm { border-color: var(--tc); }
+.pnode.done .pt-title { color: var(--text-dim); text-decoration: line-through; }
+.pt-title { flex: 1 1 auto; min-width: 0; text-align: left; background: none; border: 0; color: var(--text); font-size: .95rem; cursor: pointer; padding: 6px 0; overflow-wrap: anywhere; }
+.pt-meta { flex: 0 1 auto; font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); white-space: nowrap; }
+.pt-spent { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.pnode.add input { min-height: 40px; }
+@media (max-width: 700px) {
+  .pnode { flex-wrap: wrap; row-gap: 2px; }
+  .pt-title { flex: 1 1 calc(100% - 40px); }
+  .pt-meta { order: 5; padding-left: 34px; }
+  .pnode.add { flex-wrap: nowrap; }
+}
+.sheet [hidden], .cal-tools [hidden] { display: none !important; }
