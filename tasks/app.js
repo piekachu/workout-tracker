@@ -370,7 +370,6 @@ function treeRows(t, depth, out) {
 function nestedCard(r) {
   const hasKids = kids(r).length, p = progressOf(r), open = !collapsed.has(r.id), pct = p.total && hasKids ? Math.round(p.done / p.total * 100) : (r.done_at ? 100 : 0);
   const stats = hasKids ? `${p.done}/${p.total} done` : "no sub-tasks yet";
-  const next = leaves(r).filter((l) => !l.done_at && (!l.period_start || l.period_start > TODAY))[0];
   const dl = !r.done_at && dleft(r);
   const span = r.period_start ? whenLabel(r) + (isMulti(r) ? ` · ${spanDays(r)} days` : "") : "";
   const card = el("section", { class: "pcard" + colorClass(r) + (r.done_at ? " done" : ""), ...colorStyle(r) },
@@ -382,7 +381,6 @@ function nestedCard(r) {
     span ? el("div", { class: "pc-span" }, span) : null,
     el("div", { class: "pc-stats" }, stats),
     el("div", { class: "pc-actions" },
-      next ? el("button", { type: "button", class: "pt-btn solid", onclick: () => schedule(next, TODAY) }, "Plan next → today") : null,
       UI.kebab(() => [
         { label: "Add sub-task", fn: () => { addingUnder = r.id; collapsed.delete(r.id); render(); } },
         { label: "Copy", fn: () => copyTask(r) },

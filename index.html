@@ -148,6 +148,16 @@
     .esheet-backdrop[hidden] { display: none; }
     .esheet { width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; background: var(--bg); border-radius: 10px 10px 0 0; padding: 18px 18px calc(18px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 12px; }
     @media (min-width: 700px) { .esheet-backdrop { align-items: center; } .esheet { border-radius: 10px; } }
+    .proj-head { display: flex; align-items: flex-start; gap: 4px; margin: 14px 0 8px; padding: 12px 14px 12px 6px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--tc, var(--border)); border-radius: var(--radius); }
+    .proj-head:first-child { margin-top: 0; }
+    .ph-fold { flex: 0 0 auto; width: 28px; height: 30px; padding: 0; border: 0; background: none; color: var(--text-dim); font-size: 14px; cursor: pointer; }
+    .ph-main { flex: 1 1 auto; min-width: 0; }
+    .ph-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .ph-title { flex: 1 1 auto; min-width: 0; padding: 0; border: 0; background: none; color: var(--text); text-align: left; font-family: var(--font-display); font-size: 1.15rem; font-weight: 600; line-height: 1.25; cursor: pointer; overflow-wrap: anywhere; }
+    .ph-bar { height: 6px; margin: 10px 0 8px; border-radius: 999px; background: var(--bg-2); overflow: hidden; }
+    .ph-bar i { display: block; height: 100%; border-radius: 999px; background: var(--tc, var(--accent)); }
+    .ph-meta { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-dim); }
+    .rgroup.in-proj { margin-left: 12px; padding-left: 10px; border-left: 2px solid var(--tc, var(--border)); }
     .esheet h2 { margin: 0; font-family: var(--font-display); font-size: 1.2rem; }
     .esheet label { display: flex; flex-direction: column; gap: 5px; font-size: .78rem; color: var(--text-dim); font-weight: 600; }
     .esheet input, .esheet select, .esheet textarea { font: inherit; font-size: 16px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 12px; min-height: 46px; width: 100%; }
@@ -424,7 +434,7 @@
       { key: "workout", name: "Workout",         href: "workout/", cta: "Log" },
       { key: "expenses", name: "Daily expenses",  href: "expenses/", cta: "Log" },
     ];
-    const state = { core: {}, tasks: null, backlog: [], custom: [], vocabAct: {}, jpAct: {}, kanaDays: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
+    const state = { projects: new Map(), projFold: new Set(), core: {}, tasks: null, backlog: [], custom: [], vocabAct: {}, jpAct: {}, kanaDays: new Set(), habitLogByDay: {}, doneByDay: {}, sessions7: 0, sessionsPrev: 0, spend: { now: 0, prev: 0 }, expDays: new Set() };   // core[key] = { done, sub, streak }
     const timeOf = (t) => (t.start_time ? t.start_time.slice(0, 5) : "");
     const byOrder = (a, b) => (!!a.done_at - !!b.done_at) || ((a.sort_order ?? 1e15) - (b.sort_order ?? 1e15)) || ((a.start_time || "99") < (b.start_time || "99") ? -1 : (a.start_time || "99") > (b.start_time || "99") ? 1 : 0) || (a.id - b.id);
     let doneOpen = false;   // keep the "Done today" drawer open across re-renders
@@ -450,13 +460,13 @@
     }
     const shortDate = (iso) => new Date(iso + "T00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
     const endOf = (t) => (t.end_time ? t.end_time.slice(0, 5) : "");
-    function taskItem(t, tag) {
+    function taskItem(t, tag, hideParent) {
       const chips = [], c = colorOf(t);
       if (tag === "overdue") chips.push(el("span", { class: "tchip alert" }, "overdue"));
       if (isMulti(t)) chips.push(el("span", { class: "tchip" }, `${shortDate(t.period_start)} → ${shortDate(endDate(t))}`));
       if (t.start_time) chips.push(el("span", { class: "tchip" }, "🕐 " + timeOf(t) + (endOf(t) ? "–" + endOf(t) : "")));
       if (t._kids) chips.push(el("span", { class: "tchip" }, `${t._kids.done}/${t._kids.total} sub-tasks`));
-      if (t._parent) chips.push(el("span", { class: "tchip proj" }, "↳ " + t._parent));
+      if (t._parent && !hideParent) chips.push(el("span", { class: "tchip proj" }, "↳ " + t._parent));
       if (!t.done_at) { const d = dleft(t); if (d) chips.push(el("span", { class: "tchip" + d.cls }, d.text)); }
       const desc = t.notes ? el("div", { class: "desc", title: "Click to expand" }, t.notes) : "";
       if (desc) desc.addEventListener("click", () => desc.classList.toggle("open"));
@@ -521,8 +531,18 @@
       const list = $("list"); list.innerHTML = "";
       if (overdue.length || today.some((t) => !t.done_at)) {
         list.append(el("div", { class: "sect" }, "Today"));
-        if (overdue.length) list.append(rgroup(overdue.map((t) => taskItem(t, "overdue"))));
-        const td = today.filter((t) => !t.done_at); if (td.length) list.append(rgroup(td.map((t) => taskItem(t))));
+        const pend = [...overdue.map((t) => [t, "overdue"]), ...today.filter((t) => !t.done_at).map((t) => [t, ""])];
+        const inProj = ([t]) => !!(t.parent_id && t._rootId && state.projects.get(t._rootId));
+        const loose = pend.filter((x) => !inProj(x)), byProj = new Map();
+        pend.filter(inProj).forEach((x) => (byProj.get(x[0]._rootId) || byProj.set(x[0]._rootId, []).get(x[0]._rootId)).push(x));
+        const lo = loose.filter(([, g]) => g), lt = loose.filter(([, g]) => !g);
+        if (lo.length) list.append(rgroup(lo.map(([t, g]) => taskItem(t, g))));
+        if (lt.length) list.append(rgroup(lt.map(([t, g]) => taskItem(t, g))));
+        byProj.forEach((items, rid) => {
+          const p = state.projects.get(rid), folded = state.projFold.has(rid);
+          list.append(projectHead(p, folded));
+          if (!folded) { const box = rgroup(items.map(([t, g]) => taskItem(t, g, true))); box.classList.add("in-proj"); if (hexOf(p.color)) box.style.setProperty("--tc", hexOf(p.color)); list.append(box); }
+        });
       } else if (ready && !ongoing.length) {
         list.append(el("div", { class: "sect" }, "Today"));
         list.append(doneTasks.length || !state.backlog.length
@@ -688,8 +708,21 @@
       if (error) { toast("Couldn't add it"); return false; }
       state.backlog = state.backlog.filter((x) => x.id !== t.id);
       (state.tasks = state.tasks || []).push({ ...t, horizon: "day", period_start: TODAY });
-      if (!quiet) render();
+      if (!quiet) { render(); loadProjects().then(render); }
       return true;
+    }
+    // header card for a project whose sub-tasks are on today's list
+    function projectHead(p, folded) {
+      const pct = p.total ? Math.round(p.done / p.total * 100) : 0, d = dleft(p), c = hexOf(p.color);
+      const days = isMulti(p) ? Math.round((new Date(endDate(p) + "T00:00") - new Date(p.period_start + "T00:00")) / 86400000) + 1 : 0;
+      return el("div", { class: "proj-head" + (c ? " tinted" : ""), ...(c ? { style: `--tc: ${c}` } : {}) },
+        el("button", { class: "ph-fold", type: "button", "aria-expanded": String(!folded), "aria-label": folded ? "Expand" : "Collapse",
+          onclick: () => { folded ? state.projFold.delete(p.id) : state.projFold.add(p.id); render(); } }, folded ? "▸" : "▾"),
+        el("div", { class: "ph-main" },
+          el("div", { class: "ph-top" }, el("button", { class: "ph-title", type: "button", onclick: () => openEdit(p) }, p.title),
+            d && !p.done_at ? el("span", { class: "tchip" + d.cls }, d.text) : ""),
+          el("div", { class: "ph-bar", role: "progressbar", "aria-valuenow": String(pct), "aria-valuemin": "0", "aria-valuemax": "100" }, el("i", { style: `width:${pct}%` })),
+          el("div", { class: "ph-meta" }, [p.period_start ? (isMulti(p) ? `${shortDate(p.period_start)} → ${shortDate(endDate(p))} · ${days} days` : shortDate(p.period_start)) : "", `${p.done}/${p.total} done`].filter(Boolean).join("  ·  "))));
     }
     // a list of task cards that can be reordered by dragging; the new order is saved to sort_order
     function rgroup(items) {
@@ -716,7 +749,7 @@
       const firsts = [], seen = new Set();
       for (const t of state.backlog) if (!seen.has(t._rootId)) { seen.add(t._rootId); firsts.push(t); }
       for (const t of firsts) await pullToday(t, true);
-      render(); toast(`Added ${firsts.length} step${firsts.length === 1 ? "" : "s"} to today`);
+      render(); loadProjects().then(render); toast(`Added ${firsts.length} step${firsts.length === 1 ? "" : "s"} to today`);
     }
     $("pull-btn").addEventListener("click", () => { pullOpen = !pullOpen; renderPull(); });
 
@@ -765,7 +798,9 @@
     async function toggleTask(t) {
       const was = t.done_at, next = was ? null : new Date().toISOString();
       const bump = (n) => { state.doneByDay[TODAY] = Math.max(0, (state.doneByDay[TODAY] || 0) + n); };
-      t.done_at = next; bump(next ? 1 : -1); render();
+      t.done_at = next; bump(next ? 1 : -1);
+      const pj = t._rootId && state.projects.get(t._rootId); if (pj) pj.done = Math.max(0, Math.min(pj.total, pj.done + (next ? 1 : -1)));
+      render();
       const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", t.id);
       if (error) { t.done_at = was; bump(next ? -1 : 1); render(); toast("Couldn't save — check your connection"); return; }
       if (t.parent_id) TasksCore.syncParents(sb, t);     // a project step finishing can finish its parent
@@ -912,7 +947,31 @@
       }).catch(() => { state.doneByDay = {}; });
     }
     function loadBacklog() { return SRC.backlog().then((rows) => { state.backlog = rows; }).catch(() => { state.backlog = []; }); }
-    function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }); }
+    // the top-level project behind every sub-task on today's list, with its progress (done / total leaf tasks)
+    async function loadProjects() {
+      try {
+        const subs = (state.tasks || []).filter((t) => t.parent_id);
+        if (!subs.length) return;
+        const chain = new Map(); let need = new Set(subs.map((t) => t.parent_id));
+        for (let i = 0; i < 4 && need.size; i++) {
+          const ids = [...need].filter((id) => !chain.has(id)); need = new Set(); if (!ids.length) break;
+          const { data } = await sb.from("tasks").select("*").in("id", ids);
+          (data || []).forEach((p) => { chain.set(p.id, p); if (p.parent_id && !chain.has(p.parent_id)) need.add(p.parent_id); });
+        }
+        const rootOf = (id) => { let p = chain.get(id), n = 0; while (p && p.parent_id && chain.has(p.parent_id) && n++ < 6) p = chain.get(p.parent_id); return p; };
+        const roots = new Map();
+        subs.forEach((t) => { const r = rootOf(t.parent_id); if (r) { t._rootId = r.id; roots.set(r.id, r); } });
+        const kids = new Map(), all = []; let ids = [...roots.keys()];
+        for (let i = 0; i < 4 && ids.length; i++) {
+          const { data } = await sb.from("tasks").select("id, parent_id, done_at").in("parent_id", ids);
+          (data || []).forEach((k) => { all.push(k); (kids.get(k.parent_id) || kids.set(k.parent_id, []).get(k.parent_id)).push(k); });
+          ids = (data || []).map((k) => k.id);
+        }
+        const leaves = (id) => (kids.get(id) || []).flatMap((k) => (kids.has(k.id) ? leaves(k.id) : [k]));
+        roots.forEach((r, id) => { const l = leaves(id); state.projects.set(id, { ...r, total: l.length, done: l.filter((k) => k.done_at).length }); });
+      } catch (_) { /* the header just won't show */ }
+    }
+    function loadTasks() { return SRC.tasks().then((rows) => { state.tasks = rows; }).catch(() => { state.tasks = []; }).then(loadProjects); }
 
     render();
     [loadTasks, loadRecent, loadVocab, loadWorkout, loadCustom, loadSpend, loadBacklog, loadSpans].forEach((f) => f().then(render));
