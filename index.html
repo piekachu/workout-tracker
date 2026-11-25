@@ -541,7 +541,7 @@
         byProj.forEach((items, rid) => {
           const p = state.projects.get(rid), folded = state.projFold.has(rid);
           list.append(projectHead(p, folded));
-          if (!folded) { const box = rgroup(items.map(([t, g]) => taskItem(t, g, true))); box.classList.add("in-proj"); if (hexOf(p.color)) box.style.setProperty("--tc", hexOf(p.color)); list.append(box); }
+          if (!folded) { const box = rgroup(items.map(([t, g]) => taskItem(t, g))); box.classList.add("in-proj"); if (hexOf(p.color)) box.style.setProperty("--tc", hexOf(p.color)); list.append(box); }
         });
       } else if (ready && !ongoing.length) {
         list.append(el("div", { class: "sect" }, "Today"));
