@@ -337,3 +337,18 @@ textarea { resize: vertical; }
 #content[data-view="nested"] { display: block !important; }
 #content[data-view="nested"] > .pcard, #content[data-view="nested"] > .group { width: 100%; max-width: none; }
 #content[data-view="nested"] .pcard.lane { margin: 0 0 12px; }
+
+/* in progress: a half-filled ring */
+.tick.doing, .pnode .tick.sm.doing, .kid-tick.doing, .mck.doing { border-color: var(--gold) !important; color: transparent !important;
+  background: linear-gradient(90deg, var(--gold) 50%, transparent 50%) !important; }
+/* rows keep the same shape whatever their state: fixed columns, ⋯ always at the far right, top-aligned */
+.pnode { display: grid !important; grid-template-columns: 26px 18px minmax(0, 1fr) 34px; column-gap: 6px; align-items: start; min-height: 38px; }
+.pnode.add { display: flex !important; grid-template-columns: none; }
+.pnode > .tick.sm { margin-top: 3px; }
+.pnode > .pt-fold { width: 18px; margin: 0; height: 32px; }
+.pnode > .pt-title { padding: 6px 0; min-height: 32px; line-height: 1.3; }
+.pnode > .kebab { margin: 0; height: 32px; }
+.pnode > .pt-sub { grid-column: 3; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 0 0 4px; margin-top: -4px; }
+.pnode .pt-meta { white-space: normal; }
+.task > .drag-h.off, .task-card > .drag-h.off { visibility: hidden; pointer-events: none; }
+.pnode .pt-meta { padding-left: 0 !important; order: 0 !important; }

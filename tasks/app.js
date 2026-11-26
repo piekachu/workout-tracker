@@ -87,6 +87,15 @@ const heightOf = (t) => 1 + Math.max(0, ...kids(t).map(heightOf));
 const leaves = (t) => (kids(t).length ? kids(t).flatMap(leaves) : [t]);
 function crumb(t) { const out = []; let p = parentOf(t); while (p && out.length < 10) { out.unshift(p.title); p = parentOf(p); } return out.join(" › "); }
 function effColor(t) { let x = t, n = 0; while (x && n++ < 10) { if (hexOf(x.color)) return x.color; x = parentOf(x); } return null; }
+// not started / in progress / done. A task with sub-tasks follows them.
+function statusOf(t) {
+  const ks = kids(t);
+  if (ks.length) { const st = ks.map(statusOf); return st.every((s) => s === "done") ? "done" : st.some((s) => s !== "todo") ? "doing" : "todo"; }
+  return t.done_at ? "done" : t.in_progress ? "doing" : "todo";
+}
+const NEXT_STATUS = { todo: "doing", doing: "done", done: "todo" };
+const stCls = (t) => (statusOf(t) === "doing" ? " doing" : "");
+const stLabel = (t) => ({ todo: "Not started — tap to start", doing: "In progress — tap to finish", done: "Done — tap to reset" })[statusOf(t)];
 // done / total leaves
 function progressOf(t) {
   const L = leaves(t);
@@ -123,9 +132,9 @@ function taskRow(t, opts = {}) {
   if (t.recur) bits.push("↻ " + t.recur);
   if (isMulti(t)) { bits.push(`${fmt(t.period_start, { month: "short", day: "numeric" })} → ${fmt(endDate(t), { month: "short", day: "numeric" })}`); const d = !t.done_at && dleft(t); if (d) bits.push(d.text); }
   const row = el("div", { class: `task${t.done_at ? " done" : ""}${colorClass(t)}`, "data-id": String(t.id), ...colorStyle(t) },
-    opts.drag && !t.done_at ? el("button", { class: "drag-h", type: "button", tabindex: "-1", "aria-label": "Drag to reorder", title: "Drag to reorder" }, "⋮⋮") : null,
-    el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : hasKids ? "Done when all sub-tasks are done" : "Mark done",
-      onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
+    opts.drag ? el("button", { class: "drag-h" + (t.done_at ? " off" : ""), type: "button", tabindex: "-1", "aria-label": "Drag to reorder", title: "Drag to reorder" }, "⋮⋮") : null,
+    el("button", { class: "tick" + stCls(t), type: "button", "aria-label": hasKids ? "Follows its sub-tasks" : stLabel(t), title: hasKids ? "Follows its sub-tasks" : stLabel(t),
+      onclick: () => (hasKids ? toast("Follows its sub-tasks") : toggle(t)) }, "✓"),
     el("button", { class: "main", type: "button", onclick: () => openSheet(t) },
       el("div", { class: "title" }, t.title), t.notes ? el("div", { class: "desc" }, t.notes) : null, bits.length ? el("div", { class: "meta" }, bits.join(" · ")) : null));
   if (opts.plan) row.append(el("button", { class: "move", type: "button", onclick: opts.plan.fn }, opts.plan.label));
@@ -265,7 +274,7 @@ function calBits() {
   const press = (t) => ({ role: "button", tabindex: "0", title: t.title, onclick: () => openSheet(t),
     onkeydown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openSheet(t); } } });
   // the round check marks a task done without opening it
-  const check = (t) => el("button", { type: "button", class: "mck", "aria-label": t.done_at ? "Mark not done" : "Mark done", "aria-pressed": String(!!t.done_at),
+  const check = (t) => el("button", { type: "button", class: "mck" + stCls(t), "aria-label": stLabel(t), title: stLabel(t),
     onclick: (e) => { e.stopPropagation(); toggle(t); }, onkeydown: (e) => e.stopPropagation() }, "✓");
   const bar = (t, c1, c2) => { const d = !t.done_at && dleft(t);
     return el("div", { ...press(t), ...colorStyle(t), ...dragAttrs(t), class: "mbar" + colorClass(t) + (t.done_at ? " done" : ""), style: `${colorStyle(t).style || ""}; grid-column: ${c1 + 1} / ${c2 + 2}` },
@@ -339,22 +348,24 @@ function whenLabel(t) {
   return isMulti(t) ? `${d(t.period_start)} → ${d(endDate(t))}` : d(t.period_start);
 }
 function nodeRow(t, depth) {
-  const hasKids = kids(t).length, p = hasKids ? progressOf(t) : null, dl = !t.done_at && dleft(t);
+  const hasKids = kids(t).length, p = hasKids ? progressOf(t) : null, dl = !t.done_at && dleft(t), st = statusOf(t);
+  const sub = [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t)].filter(Boolean).join(" · ");
   const row = el("div", { class: "pnode" + (t.done_at ? " done" : "") + colorClass(t), ...colorStyle(t), style: `${colorStyle(t).style || ""}; --depth: ${depth}` },
-    el("button", { class: "tick sm", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done",
-      onclick: () => (hasKids ? toast("Completes when all its sub-tasks are done") : toggle(t)) }, "✓"),
-    hasKids ? el("button", { class: "pt-fold", type: "button", "aria-expanded": String(!collapsed.has(t.id)), "aria-label": collapsed.has(t.id) ? "Expand" : "Collapse", onclick: () => { collapsed.has(t.id) ? collapsed.delete(t.id) : collapsed.add(t.id); saveCollapsed(); render(); } }, collapsed.has(t.id) ? "▸" : "▾") : null,
+    el("button", { class: "tick sm" + stCls(t), type: "button", "aria-label": hasKids ? "Follows its sub-tasks" : stLabel(t), title: hasKids ? "Follows its sub-tasks" : stLabel(t),
+      onclick: () => (hasKids ? toast("Follows its sub-tasks") : toggle(t)) }, "✓"),
+    hasKids ? el("button", { class: "pt-fold", type: "button", "aria-expanded": String(!collapsed.has(t.id)), "aria-label": collapsed.has(t.id) ? "Expand" : "Collapse", onclick: () => { collapsed.has(t.id) ? collapsed.delete(t.id) : collapsed.add(t.id); saveCollapsed(); render(); } }, collapsed.has(t.id) ? "▸" : "▾") : el("span", { class: "pt-fold" }),
     el("button", { class: "pt-title", type: "button", onclick: () => openSheet(t) }, t.title),
-    el("span", { class: "pt-meta" }, [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t)].filter(Boolean).join(" · ")),
-    dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null,
     UI.kebab(() => [
+      !hasKids ? { label: st === "doing" ? "Mark not started" : "Mark in progress", fn: () => setStatus(t, st === "doing" ? "todo" : "doing") } : null,
+      !hasKids && st !== "done" ? { label: "Mark done", fn: () => setStatus(t, "done") } : null,
       !hasKids && !t.done_at && t.period_start !== TODAY ? { label: "Move to today", fn: () => schedule(t, TODAY) } : null,
       depth < MAX_DEPTH ? { label: "Add sub-task", fn: () => { addingUnder = t.id; collapsed.delete(t.id); render(); } } : null,
       { label: "Move up", fn: () => moveSibling(t, -1) }, { label: "Move down", fn: () => moveSibling(t, 1) },
       { label: "Copy", fn: () => copyTask(t) },
       canPaste(t) ? { label: "Paste inside", fn: () => pasteTask(t) } : null,
       { label: "Edit", fn: () => openSheet(t) },
-      { label: "Delete", danger: true, fn: () => deleteTree(t) }], `Actions for "${t.title}"`));
+      { label: "Delete", danger: true, fn: () => deleteTree(t) }], `Actions for "${t.title}"`),
+    sub || dl ? el("div", { class: "pt-sub" }, sub ? el("span", { class: "pt-meta" }, sub) : null, dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null) : null);
   return row;
 }
 function addBox(parent, depth) {
@@ -411,13 +422,15 @@ function renderNested(c) {
 }
 
 // ---------- mutations ----------
-async function toggle(t) {
-  const was = t.done_at, next = was ? null : new Date().toISOString();
-  t.done_at = next; render();
-  const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", t.id);
-  if (error) { t.done_at = was; render(); toast("Couldn't save — check your connection"); return; }
+// tap cycles: not started → in progress → done → not started
+async function toggle(t) { await setStatus(t, NEXT_STATUS[statusOf(t)]); }
+async function setStatus(t, st) {
+  const prev = { done_at: t.done_at, in_progress: t.in_progress };
+  t.done_at = st === "done" ? new Date().toISOString() : null; t.in_progress = st === "doing"; render();
+  const { error } = await sb.from("tasks").update({ done_at: t.done_at, in_progress: t.in_progress }).eq("id", t.id);
+  if (error) { Object.assign(t, prev); render(); toast("Couldn't save — check your connection"); return; }
   await syncUp(t);
-  if (next && t.recur) await spawnNext(t);
+  if (st === "done" && t.recur) await spawnNext(t);
 }
 // a parent is done exactly when all its sub-tasks are
 async function syncUp(t) {
@@ -485,7 +498,7 @@ function openSheet(t) {
   $("f-title").value = t.title; $("f-notes").value = t.notes || "";
   $("f-date").value = t.period_start || ""; $("f-end-date").value = t.end_on && t.period_start && t.end_on > t.period_start ? t.end_on : "";
   $("f-start").value = t.start_time ? t.start_time.slice(0, 5) : ""; $("f-end").value = t.end_time ? t.end_time.slice(0, 5) : "";
-  setColor(t.color || ""); $("f-recur").value = t.recur || ""; $("f-done").checked = !!t.done_at;
+  setColor(t.color || ""); $("f-recur").value = t.recur || ""; $("f-status").value = statusOf(t); $("f-status").disabled = !!kids(t).length;
   $("f-unsched-row").hidden = !t.parent_id; $("f-unsched").checked = !!t.parent_id && !t.period_start; $("f-date").disabled = $("f-unsched").checked;
   renderKidsList(t); syncDateUi(); syncPasteUi(); $("sheet").hidden = false;
 }
@@ -508,7 +521,7 @@ function renderKidsList(t) {
   const wrap = $("f-kids-wrap"), box = $("f-kids");
   wrap.hidden = depthOf(t) >= MAX_DEPTH; box.innerHTML = "";
   kids(t).forEach((k) => box.append(el("div", { class: "kid" + (k.done_at ? " done" : "") },
-    el("button", { type: "button", class: "kid-tick", "aria-label": k.done_at ? "Mark not done" : "Mark done", onclick: async () => { await toggle(k); renderKidsList(t); } }, "✓"),
+    el("button", { type: "button", class: "kid-tick" + stCls(k), "aria-label": stLabel(k), title: stLabel(k), onclick: async () => { await toggle(k); renderKidsList(t); } }, "✓"),
     el("button", { type: "button", class: "kid-title", onclick: () => openSheet(k) }, k.title),
     el("span", { class: "kid-when" }, k.period_start ? fmt(k.period_start, { month: "short", day: "numeric" }) : "backlog"))));
 }
@@ -538,8 +551,8 @@ $("edit-form").addEventListener("submit", async (e) => {
     period_start: unsched ? null : $("f-date").value, start_time: start, end_time: end,
     recur: $("f-recur").value || null, end_on: multi ? endOn : null, color: sheetColor || null };
   if (!patch.title) return;
-  const wantDone = $("f-done").checked, becameDone = wantDone && !t.done_at;
-  if (wantDone !== !!t.done_at) patch.done_at = wantDone ? new Date().toISOString() : null;
+  const want = kids(t).length ? statusOf(t) : $("f-status").value, wantDone = want === "done", becameDone = wantDone && !t.done_at;
+  if (!kids(t).length) { patch.in_progress = want === "doing"; if (wantDone !== !!t.done_at) patch.done_at = wantDone ? new Date().toISOString() : null; }
   const { data, error } = await sb.from("tasks").update(patch).eq("id", t.id).select().single();
   if (error) { toast("Couldn't save"); return; }
   Object.assign(t, data); closeSheet(); render();

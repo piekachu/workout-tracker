@@ -231,3 +231,5 @@ body { font-variant-numeric: tabular-nums; }
 .cp .cp-exact { width: 44px !important; height: 34px !important; min-height: 0 !important; padding: 0 !important; border: 1px solid var(--border) !important; border-radius: 6px !important; background: none !important; cursor: pointer; flex: 0 0 auto; }
 .cp-none { margin-left: auto; min-height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text-dim); font-size: 13px; font-weight: 600; cursor: pointer; }
 .cp-none.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.drag-h.off { visibility: hidden; pointer-events: none; }

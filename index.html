@@ -58,6 +58,14 @@
     .item .tick { flex: 0 0 auto; width: 32px; height: 32px; padding: 0; border-radius: 50%; border: 2px solid var(--border); background: none;
       color: transparent; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
       transition: background .15s, border-color .15s; }
+    .item .tick.doing { border-color: var(--gold); color: transparent; background: linear-gradient(90deg, var(--gold) 50%, transparent 50%); }
+    .tchip.prog { background: var(--gold-soft); color: var(--gold); }
+    /* task cards keep one shape: grip, tick and ⋯ pinned to the top, same size in every state */
+    .task-card { align-items: flex-start; min-height: 66px; }
+    .task-card > .tick, .task-card > .drag-h { margin-top: 2px; }
+    .task-card > .drag-h { align-self: flex-start; height: 32px; }
+    .task-card > .kebab { margin: -1px -6px 0 0; height: 34px; align-self: flex-start; }
+    .task-card > .body { padding-top: 3px; }
     .item.done .tick { background: var(--accent); border-color: var(--accent); color: #fff; }
     .item .go-dot { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%; border: 2px dashed var(--border); color: var(--accent);
       display: flex; align-items: center; justify-content: center; font-size: 15px; }
@@ -166,7 +174,6 @@
     .erow[hidden] { display: none; }
     .erow { align-items: end; }
     .erow label > span:first-child { white-space: nowrap; }
-    .task-card .kebab { margin: -2px -6px -2px 0; }
     .esheet .opt { font-weight: 400; color: var(--text-faint); }
     .esw { width: 30px; height: 30px; border-radius: 50%; border: 2px solid transparent; background: var(--tc, transparent); cursor: pointer; padding: 0; color: var(--text-dim); font-size: 14px; }
     .esw.none { border-color: var(--border); background: none; min-height: 0; }
@@ -463,6 +470,7 @@
     function taskItem(t, tag, hideParent) {
       const chips = [], c = colorOf(t);
       if (tag === "overdue") chips.push(el("span", { class: "tchip alert" }, "overdue"));
+      if (stOf(t) === "doing") chips.push(el("span", { class: "tchip prog" }, "in progress"));
       if (isMulti(t)) chips.push(el("span", { class: "tchip" }, `${shortDate(t.period_start)} → ${shortDate(endDate(t))}`));
       if (t.start_time) chips.push(el("span", { class: "tchip" }, "🕐 " + timeOf(t) + (endOf(t) ? "–" + endOf(t) : "")));
       if (t._kids) chips.push(el("span", { class: "tchip" }, `${t._kids.done}/${t._kids.total} sub-tasks`));
@@ -471,10 +479,12 @@
       const desc = t.notes ? el("div", { class: "desc", title: "Click to expand" }, t.notes) : "";
       if (desc) desc.addEventListener("click", () => desc.classList.toggle("open"));
       return el("div", { class: `item task-card${t.done_at ? " done" : ""}${c ? " tinted" : ""}`, "data-id": String(t.id), ...(c ? { style: `--tc: ${hexOf(c)}` } : {}) },
-        t.done_at ? null : el("button", { class: "drag-h", type: "button", tabindex: "-1", "aria-label": "Drag to reorder", title: "Drag to reorder" }, "⋮⋮"),
-        el("button", { class: "tick", type: "button", "aria-label": t.done_at ? "Mark not done" : "Mark done", onclick: () => toggleTask(t) }, "✓"),
+        el("button", { class: "drag-h" + (t.done_at ? " off" : ""), type: "button", tabindex: "-1", "aria-label": "Drag to reorder", title: "Drag to reorder" }, "⋮⋮"),
+        el("button", { class: "tick" + (stOf(t) === "doing" ? " doing" : ""), type: "button", "aria-label": stText(t), title: stText(t), onclick: () => toggleTask(t) }, "✓"),
         el("div", { class: "body" }, el("div", { class: "name" }, t.title), desc, chips.length ? el("div", { class: "tchips" }, chips) : ""),
         UI.kebab(() => [
+          !t._kids && stOf(t) !== "done" ? { label: stOf(t) === "doing" ? "Mark not started" : "Mark in progress", fn: () => setTaskStatus(t, stOf(t) === "doing" ? "todo" : "doing") } : null,
+          !t._kids && stOf(t) !== "done" ? { label: "Mark done", fn: () => setTaskStatus(t, "done") } : null,
           { label: "Edit", fn: () => openEdit(t) },
           t.parent_id && !t.done_at ? { label: "Send back to Sub-tasks", fn: () => sendBack(t) } : null,
           { label: "Delete", danger: true, fn: () => deleteTask(t) }], `Actions for "${t.title}"`));
@@ -795,16 +805,22 @@
     });
 
     // ---------------- actions ----------------
-    async function toggleTask(t) {
-      const was = t.done_at, next = was ? null : new Date().toISOString();
+    // tap cycles: not started → in progress → done → not started
+    const stOf = (t) => (t.done_at ? "done" : t.in_progress ? "doing" : "todo");
+    const NEXT_ST = { todo: "doing", doing: "done", done: "todo" };
+    const stText = (t) => ({ todo: "Not started — tap to start", doing: "In progress — tap to finish", done: "Done — tap to reset" })[stOf(t)];
+    function toggleTask(t) { return setTaskStatus(t, NEXT_ST[stOf(t)]); }
+    async function setTaskStatus(t, st) {
+      const prev = { done_at: t.done_at, in_progress: t.in_progress }, was = !!t.done_at, now = st === "done";
       const bump = (n) => { state.doneByDay[TODAY] = Math.max(0, (state.doneByDay[TODAY] || 0) + n); };
-      t.done_at = next; bump(next ? 1 : -1);
-      const pj = t._rootId && state.projects.get(t._rootId); if (pj) pj.done = Math.max(0, Math.min(pj.total, pj.done + (next ? 1 : -1)));
+      const pj = t._rootId && state.projects.get(t._rootId), adj = (n) => { if (pj) pj.done = Math.max(0, Math.min(pj.total, pj.done + n)); };
+      t.done_at = now ? new Date().toISOString() : null; t.in_progress = st === "doing";
+      if (now !== was) { bump(now ? 1 : -1); adj(now ? 1 : -1); }
       render();
-      const { error } = await sb.from("tasks").update({ done_at: next }).eq("id", t.id);
-      if (error) { t.done_at = was; bump(next ? -1 : 1); render(); toast("Couldn't save — check your connection"); return; }
+      const { error } = await sb.from("tasks").update({ done_at: t.done_at, in_progress: t.in_progress }).eq("id", t.id);
+      if (error) { Object.assign(t, prev); if (now !== was) { bump(now ? -1 : 1); adj(now ? -1 : 1); } render(); toast("Couldn't save — check your connection"); return; }
       if (t.parent_id) TasksCore.syncParents(sb, t);     // a project step finishing can finish its parent
-      if (next && t.recur) {
+      if (now && t.recur) {
         const row = await TasksCore.spawnNext(sb, t, state.tasks);
         if (row && row.period_start <= TODAY) { state.tasks.push(row); render(); }
       }
