@@ -312,3 +312,23 @@ textarea { resize: vertical; }
 .row2 { align-items: end; }
 .row2 label > span:first-child { white-space: nowrap; }
 .sheet-actions .kebab { width: 44px; height: 44px; border: 1px solid var(--border); background: var(--surface); }
+
+/* Subtasks view: tasks stack as rows; overview on the left, sub-tasks side by side, deeper levels underneath */
+.pcard.lane { display: flex; align-items: flex-start; gap: 0; max-width: none; padding: 0; overflow: hidden; }
+.lane-head { flex: 0 0 270px; width: 270px; min-width: 0; padding: 14px 16px; align-self: stretch; border-right: 1px solid var(--border-2); }
+.lh-top { display: flex; align-items: flex-start; gap: 4px; }
+.lh-top .pc-title { font-size: 1.1rem; line-height: 1.25; padding: 2px 0; }
+.lh-top .pc-fold { margin-left: -8px; }
+.lh-chip { margin: 6px 0 0 24px; }
+.lane-head .pbar { margin: 12px 0 8px; }
+.lane-cols { flex: 1 1 auto; min-width: 0; display: flex; align-items: flex-start; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; }
+.lane-col { flex: 0 0 250px; width: 250px; padding: 10px 14px 10px 14px; border-right: 1px solid var(--border-2); scroll-snap-align: start; }
+.lane-col:last-child { border-right: 0; }
+.lane-col.done { opacity: .7; }
+.lane-cols > .empty { padding: 16px; }
+@media (max-width: 760px) {
+  .pcard.lane { flex-direction: column; }
+  .lane-head { flex: none; width: auto; align-self: stretch; border-right: 0; border-bottom: 1px solid var(--border-2); }
+  .lane-cols { width: 100%; }
+  .lane-col { flex-basis: min(260px, 80vw); width: min(260px, 80vw); }
+}
