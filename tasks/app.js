@@ -347,6 +347,15 @@ function whenLabel(t) {
   const d = (x) => fmt(x, { month: "short", day: "numeric" });
   return isMulti(t) ? `${d(t.period_start)} → ${d(endDate(t))}` : d(t.period_start);
 }
+// small circular progress for the tasks directly under a top-level task
+function miniRing(done, total, size = 24) {
+  const r = (size - 5) / 2, c = 2 * Math.PI * r, f = total ? done / total : 0, full = total && done === total;
+  const span = document.createElement("span"); span.className = "mring"; span.title = `${done} of ${total} done`;
+  span.setAttribute("role", "img"); span.setAttribute("aria-label", `${done} of ${total} sub-tasks done`);
+  span.innerHTML = `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--border)" stroke-width="3.5"/>` +
+    `<circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="${full ? "var(--up)" : "var(--accent)"}" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="${(c * f).toFixed(2)} ${c.toFixed(2)}" transform="rotate(-90 ${size / 2} ${size / 2})"/></svg>`;
+  return span;
+}
 function nodeRow(t, depth) {
   const hasKids = kids(t).length, p = hasKids ? progressOf(t) : null, dl = !t.done_at && dleft(t), st = statusOf(t);
   const sub = [hasKids ? `${p.done}/${p.total}` : "", whenLabel(t)].filter(Boolean).join(" · ");
@@ -365,7 +374,7 @@ function nodeRow(t, depth) {
       canPaste(t) ? { label: "Paste inside", fn: () => pasteTask(t) } : null,
       { label: "Edit", fn: () => openSheet(t) },
       { label: "Delete", danger: true, fn: () => deleteTree(t) }], `Actions for "${t.title}"`),
-    sub || dl ? el("div", { class: "pt-sub" }, sub ? el("span", { class: "pt-meta" }, sub) : null, dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null) : null);
+    sub || dl ? el("div", { class: "pt-sub" }, depth === 1 && hasKids ? miniRing(p.done, p.total) : null, sub ? el("span", { class: "pt-meta" }, sub) : null, dl ? el("span", { class: "dd " + dl.cls }, dl.text) : null) : null);
   return row;
 }
 function addBox(parent, depth) {

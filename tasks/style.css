@@ -352,3 +352,5 @@ textarea { resize: vertical; }
 .pnode .pt-meta { white-space: normal; }
 .task > .drag-h.off, .task-card > .drag-h.off { visibility: hidden; pointer-events: none; }
 .pnode .pt-meta { padding-left: 0 !important; order: 0 !important; }
+.mring { flex: 0 0 auto; display: inline-flex; line-height: 0; }
+.pnode > .pt-sub { align-items: center; }
