@@ -332,3 +332,8 @@ textarea { resize: vertical; }
   .lane-cols { width: 100%; }
   .lane-col { flex-basis: min(260px, 80vw); width: min(260px, 80vw); }
 }
+
+/* each top-level task gets the full width, one under the other (the page grid would put them side by side) */
+#content[data-view="nested"] { display: block !important; }
+#content[data-view="nested"] > .pcard, #content[data-view="nested"] > .group { width: 100%; max-width: none; }
+#content[data-view="nested"] .pcard.lane { margin: 0 0 12px; }
